@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<diff>
+	<add sel="/aiscript/attention/actions/label[@name='start']" pos="after">
+		<do_if value="global.$x4svscan_instant_stop and this.ship.owner == faction.player">
+			<set_value name="$parked" exact="this.ship.parkedat" />
+			<warp object="this.ship" zone="$parked.zone">
+				<safepos object="$parked" radius="this.ship.size/2"/>
+			</warp>
+		</do_if>
+	</add>
+</diff>

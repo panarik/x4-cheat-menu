@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<diff>
+	<add sel="/aiscript/attention/actions/label[@name='start']" pos="after">
+		<do_if value="$targetsector and global.$x4svscan_instant_arrive and this.ship.owner == faction.player">
+			<warp object="this.ship" sector="$targetsector">
+				<safepos value="$pos"/>
+			</warp>
+			<set_value name="$subordinates" exact="this.ship.allsubordinates"/>
+			<do_all exact="$subordinates.count" counter="$i">
+				<do_if value="$subordinates.{$i}.isunit">
+					<set_value name="$add" exact="$subordinates.{$i}.macro" />
+					<destroy_object object="$subordinates.{$i}" explosion="false" />
+					<add_ammo object="this.ship" macro="$add" amount="1" />
+                </do_if>
+				<do_elseif value="$subordinates.{$i}.isclass.ship">
+					<warp object="$subordinates.{$i}" sector="$targetsector">
+						<safepos value="$pos"/>
+					</warp>
+				</do_elseif>
+			</do_all>
+			<remove_value name="$subordinates"/>
+			<set_command command="command.wait" />
+			<cancel_order order="this.ship.order"/>
+		</do_if>
+	</add>
+</diff>

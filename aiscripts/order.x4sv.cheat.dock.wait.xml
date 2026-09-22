@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Created with Liquid Studio 2018 (https://www.liquid-technologies.com) -->
+<aiscript name="order.x4sv.cheat.dock.wait" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="aiscripts.xsd">
+
+    <!-- REMEMBER that the wait will be skipped if this script is called immediately and no timeout is given. -->
+
+    <order id="CheatDockAndWait" name="[{357423,1}]{1041, 451}" description="{1041, 452}" category="navigation">
+        <params>
+            <param name="destination" type="object" text="{1041, 10027}" comment="Destination. Object">
+                <input_param name="class" value="if this.ship.isclass.[class.ship_s, class.ship_xs] then [class.station, class.ship_m, class.ship_l, class.ship_xl] else [class.station, class.ship_l, class.ship_xl]"/>
+            </param>
+            <param name="timeout" type="time" default="0s" infinitevalue="0s" text="{1041, 10034}" advanced="true" comment="Duration">
+                <input_param name="min" value="0s"/>
+                <input_param name="max" value="10h"/>
+                <input_param name="step" value="30s"/>
+            </param>
+            <param name="debugchance" type="bool" default="0" advanced="true" text="{1041, 10086}" comment="Print debug output">
+                <input_param name="truevalue" value="100"/>
+            </param>
+        </params>
+        <requires>
+            <match shiptype="shiptype.lasertower" negate="true"/>
+        </requires>
+        <location object="$destination" condition="$destination.exists"/>
+    </order>
+    <interrupts>
+        <handler>
+            <conditions>
+                <check_any>
+                    <event_object_signalled object="this.assignedcontrolled" param="'playerownedship_proceed'" check="false"/>
+                    <check_all>
+                        <event_object_order_ready object="this.assignedcontrolled"/>
+                        <check_value value="@$releasesignal.{1} == 'playerownedship_proceed'"/>
+                        <check_value value="(event.param != this.assignedcontrolled.order) and (event.param != this.assignedcontrolled.defaultorder)"/>
+                        <debug_text text="'DockAndWait proceed: new order: ' + @event.param.id" debugchance="$debugchance"/>
+                    </check_all>
+                </check_any>
+                <check_value value="this.assignedcontrolled.dock"/>
+                <check_value value="this.assignedcontrolled.order.id == 'DockAndWait'"/>
+            </conditions>
+            <actions>
+                <debug_text text="player.age + ': player undocked and we were waiting for the player. undocking.'" chance="$debugchance"/>
+                <create_order id="'Undock'" object="this.assignedcontrolled" immediate="true">
+                    <param name="skipwait" value="true"/>
+                    <param name="debugchance" value="$debugchance"/>
+                </create_order>
+                <remove_value name="global.$Time_PlayerStoppedControl"/>
+                <cancel_order order="this.assignedcontrolled.nextorder"/>
+            </actions>
+        </handler>
+        <handler ref="SectorChangeHandler"/>
+        <handler ref="InspectedHandler"/>
+        <handler ref="FoundAbandonedHandler"/>
+    </interrupts>
+    <init>
+        <set_command command="command.dockat" param="$destination" />
+    </init>
+    <attention min="unknown">
+        <actions>
+            <label name="start"/>
+			<find_dockingbay object="$destination" name="$DockingBay" multiple="true">
+				<match_dock size="this.ship.docksize" free="true"/>
+				<match_relation_to object="this.ship" comparison="not" relation="enemy"/>
+			</find_dockingbay>
+			<do_all exact="$DockingBay.count" counter="$i">
+				<do_if value="$DockingBay.{$i}.isdockingallowed">
+					<set_value name="$DockingBayUse" exact="$DockingBay.{$i}"/>
+				</do_if>
+			</do_all>
+            <do_if value="$DockingBayUse? and this.ship.dock.container != $destination">
+                <warp object="this.ship" zone="$destination.zone">
+                    <position value="$destination.position"/>
+                </warp>
+				<set_value name="$subordinates" exact="this.ship.allsubordinates"/>
+				<do_all exact="$subordinates.count" counter="$i">
+					<do_if value="$subordinates.{$i}.isunit">
+						<set_value name="$add" exact="$subordinates.{$i}.macro" />
+						<destroy_object object="$subordinates.{$i}" explosion="false" />
+						<add_ammo object="this.ship" macro="$add" amount="1" />
+					</do_if>
+					<do_elseif value="$subordinates.{$i}.isclass.ship">
+						<warp object="$subordinates.{$i}" zone="$destination.zone">
+							<position value="$destination.position"/>
+						</warp>
+					</do_elseif>
+				</do_all>
+                <wait exact="1ms"/>
+                <spawn_docked ship="this.ship" dock="$DockingBayUse"/>
+            </do_if>
+			<set_command command="command.wait" />
+            <label name="wait"/>
+
+            <do_if value="this.isplayerowned and not this.isclass.computer">
+                <!-- Player notification -->
+                <do_if value="this.assignedcontrolled.nextorder">
+                    <set_value name="$speakline" exact="10302" comment="Order completed."/>
+                </do_if>
+                <do_else>
+                    <set_value name="$speakline" exact="10304" comment="Awaiting orders."/>
+                </do_else>
+                <run_script name="'player.interaction'">
+                    <param name="Line" value="$speakline"/>
+                    <param name="MaxQueueDelay" value="10s"/>
+                    <param name="caption" value="'%s (%s)'.[this.assignedcontrolled.knownname, this.assignedcontrolled.idcode]"/>
+                    <param name="interactive" value="false"/>
+                    <param name="debugchance" value="$debugchance"/>
+                </run_script>
+            </do_if>
+
+            <run_script name="'order.wait'">
+                <param name="timeout" value="10h" />
+            </run_script>
+
+            <label name="finish" />
+        </actions>
+    </attention>
+</aiscript>

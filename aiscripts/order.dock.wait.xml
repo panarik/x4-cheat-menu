@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<diff>
+	<add sel="/aiscript/attention/actions/label[@name='start']" pos="after">
+		<do_if value="global.$x4svscan_instant_stop and this.ship.owner == faction.player and this.ship.dock.container != $destination">
+		 <!-- and this.ship != player.ship -->
+			<find_dockingbay object="$destination" name="$DockingBay" multiple="true">
+				<match_dock size="this.ship.docksize" free="true"/>
+				<match_relation_to object="this.ship" comparison="not" relation="enemy"/>
+			</find_dockingbay>
+			<do_all exact="$DockingBay.count" counter="$i">
+				<do_if value="$DockingBay.{$i}.isdockingallowed">
+					<set_value name="$DockingBayUse" exact="$DockingBay.{$i}"/>
+				</do_if>
+			</do_all>
+			<do_if value="$DockingBayUse?">
+				<warp object="this.ship" zone="$destination.zone">
+					<position value="$destination.position"/>
+				</warp>
+				<set_value name="$subordinates" exact="this.ship.allsubordinates"/>
+				<do_all exact="$subordinates.count" counter="$i">
+					<do_if value="$subordinates.{$i}.isunit">
+						<set_value name="$add" exact="$subordinates.{$i}.macro" />
+						<destroy_object object="$subordinates.{$i}" explosion="false" />
+						<add_ammo object="this.ship" macro="$add" amount="1" />
+					</do_if>
+					<do_elseif value="$subordinates.{$i}.isclass.ship">
+						<warp object="$subordinates.{$i}" zone="$destination.zone">
+							<position value="$destination.position"/>
+						</warp>
+					</do_elseif>
+				</do_all>
+				<!-- <wait exact="1ms"/> -->
+				<spawn_docked ship="this.ship" dock="$DockingBayUse"/>
+			</do_if>
+			<set_command command="command.wait" />
+			<!-- <cancel_order order="this.ship.order"/> -->
+		</do_if>
+	</add>
+</diff>

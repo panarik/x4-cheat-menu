@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Created with Liquid Studio 2018 (https://www.liquid-technologies.com) -->
+<aiscript name="order.x4sv.cheat.recall.unit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="aiscripts.xsd">
+
+    <order id="CheatRecallUnit" name="[{357423,1}]{1004,54}" description="{1004,54}" category="navigation">
+        <params>
+			<param name="timeout" type="time" default="0s" infinitevalue="0s" text="{1041, 10034}" comment="Duration">
+				<input_param name="min" value="0s" />
+				<input_param name="max" value="5h" />
+				<input_param name="step" value="30s" />
+			</param>
+		</params>
+		<requires>
+			<match shiptype="shiptype.lasertower" negate="true"/>
+		</requires>
+    </order>
+	<interrupts>
+		<handler ref="AttackHandler"/>
+		<handler ref="MissileLockHandler" />
+		<handler ref="InspectedHandler"/>
+		<handler ref="FoundAbandonedHandler"/>
+	</interrupts>
+    <attention min="unknown">
+        <actions>
+			<label name="start"/>
+			<set_value name="$subordinates" exact="this.ship.allsubordinates"/>
+			<do_all exact="$subordinates.count" counter="$i">
+				<do_if value="$subordinates.{$i}.isunit">
+					
+					<set_value name="$add" exact="$subordinates.{$i}.macro" />
+					<destroy_object object="$subordinates.{$i}" explosion="false" />
+					<add_ammo object="this.ship" macro="$add" amount="1" />
+                </do_if>
+			</do_all>
+			<set_command command="command.wait" />
+			
+            <label name="wait"/>
+
+            <do_if value="this.isplayerowned and not this.isclass.computer">
+                <!-- Player notification -->
+                <do_if value="this.assignedcontrolled.nextorder">
+                    <set_value name="$speakline" exact="10302" comment="Order completed."/>
+                </do_if>
+                <do_else>
+                    <set_value name="$speakline" exact="10304" comment="Awaiting orders."/>
+                </do_else>
+                <run_script name="'player.interaction'">
+                    <param name="Line" value="$speakline"/>
+                    <param name="MaxQueueDelay" value="10s"/>
+                    <param name="caption" value="'%s (%s)'.[this.assignedcontrolled.knownname, this.assignedcontrolled.idcode]"/>
+                    <param name="interactive" value="false"/>
+                    <param name="debugchance" value="$debugchance"/>
+                </run_script>
+            </do_if>
+
+            <run_script name="'order.wait'">
+                <param name="timeout" value="10h" />
+            </run_script>
+
+			<label name="finish" />
+        </actions>
+    </attention>
+</aiscript>

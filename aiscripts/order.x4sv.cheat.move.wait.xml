@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Created with Liquid Studio 2018 (https://www.liquid-technologies.com) -->
+<aiscript name="order.x4sv.cheat.move.wait" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="aiscripts.xsd" version="1">
+    <!--
+   Wrapper script for explicit order to Move and Wait command
+   by Adrian
+
+   Variations:
+    - Hold Position
+    - Fly to me and wait
+    - Fly to X and wait
+    - Withdraw from battle
+
+  -->
+    <order id="CheatMoveWait" name="[{357423,1}]{1041, 251}" description="{1041, 252}" category="navigation">
+        <params>
+            <param name="destination" type="position" text="{1041, 10027}" comment="Destination. Position in a Sector. Not required if $withdraw is true.">
+                <input_param name="class" value="class.sector"/>
+            </param>
+			<param name="timeout" type="time" default="0s" infinitevalue="0s" text="{1041, 10034}" advanced="true" comment="Duration">
+				<input_param name="min" value="0s" />
+				<input_param name="max" value="10h" />
+				<input_param name="step" value="30s" />
+			</param>
+            <param name="debugchance" type="bool" default="0" advanced="true" text="{1041, 10086}" comment="Print debug output">
+                <input_param name="truevalue" value="100"/>
+            </param>
+        </params>
+        <requires>
+            <match shiptype="shiptype.lasertower" negate="true"/>
+        </requires>
+        <location object="$destination.{1}" position="$destination.{2}" condition="$destination.{1} and $destination.{2}" />
+    </order>
+    <interrupts>
+        <handler ref="SectorChangeHandler"/>
+        <handler ref="TargetInvalidHandler"/>
+        <handler ref="AttackHandler"/>
+        <handler ref="MissileLockHandler" />
+        <handler ref="ScannedHandler"/>
+        <handler ref="InspectedHandler"/>
+        <handler ref="FoundAbandonedHandler"/>
+        <handler ref="ResupplyHandler"/>
+    </interrupts>
+    <init>
+        <set_value name="$targetsector" exact="$destination.{1}"/>
+        <set_value name="$pos" exact="$destination.{2}"/>
+    </init>
+    <attention min="unknown">
+        <actions>
+            <label name="start" />
+
+            <do_if value="$targetsector">
+                <warp object="this.ship" sector="$targetsector">
+                    <safepos value="$pos"/>
+                </warp>
+                <set_value name="$subordinates" exact="this.ship.allsubordinates"/>
+				<do_all exact="$subordinates.count" counter="$i">
+					<do_if value="$subordinates.{$i}.isunit">
+						<set_value name="$add" exact="$subordinates.{$i}.macro" />
+						<destroy_object object="$subordinates.{$i}" explosion="false" />
+						<add_ammo object="this.ship" macro="$add" amount="1" />
+					</do_if>
+					<do_elseif value="$subordinates.{$i}.isclass.ship">
+						<warp object="$subordinates.{$i}" sector="$targetsector">
+							<safepos value="$pos"/>
+						</warp>
+					</do_elseif>
+				</do_all>
+				<remove_value name="$subordinates"/>
+            </do_if>
+			<set_command command="command.wait" />
+            <label name="wait"/>
+
+            <do_if value="this.isplayerowned and not this.isclass.computer">
+                <!-- Player notification -->
+                <do_if value="this.assignedcontrolled.nextorder">
+                    <set_value name="$speakline" exact="10302" comment="Order completed."/>
+                </do_if>
+                <do_else>
+                    <set_value name="$speakline" exact="10304" comment="Awaiting orders."/>
+                </do_else>
+                <run_script name="'player.interaction'">
+                    <param name="Line" value="$speakline"/>
+                    <param name="MaxQueueDelay" value="10s"/>
+                    <param name="caption" value="'%s (%s)'.[this.assignedcontrolled.knownname, this.assignedcontrolled.idcode]"/>
+                    <param name="interactive" value="false"/>
+                    <param name="debugchance" value="$debugchance"/>
+                </run_script>
+            </do_if>
+
+            <run_script name="'order.wait'">
+                <param name="timeout" value="10h" />
+            </run_script>
+
+            <label name="finish" />
+        </actions>
+    </attention>
+</aiscript>

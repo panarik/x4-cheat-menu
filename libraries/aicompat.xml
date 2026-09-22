@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diff>
+	<add sel="/compatibility/aiscript[@name='boarding.pod']" pos="before">
+		<aiscript name="order.x4sv.cheat.move.wait.object" version="0">
+			<attention min="unknown">
+				<run_script line="41" label="start"/>
+				<run_script line="73" label="wait"/>
+				<run_script line="82" label="wait"/>
+			</attention>
+		</aiscript>
+		<aiscript name="order.x4sv.cheat.move.wait" version="1">
+			<attention min="unknown">
+				<run_script line="50" label="start"/>
+				<run_script line="82" label="wait"/>
+				<run_script line="91" label="wait"/>
+			</attention>
+		</aiscript>
+		<aiscript name="order.x4sv.cheat.dock.wait" version="0">
+			<attention min="unknown">
+				<run_script line="60" label="start"/>
+				<run_script line="101" label="wait"/>
+				<run_script line="110" label="wait"/>
+			</attention>
+		</aiscript>
+		<aiscript name="order.x4sv.cheat.recall.unit" version="0">
+			<attention min="unknown">
+				<run_script line="25" label="start"/>
+				<run_script line="47" label="wait"/>
+				<run_script line="56" label="wait"/>
+			</attention>
+		</aiscript>
+	</add>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait.object']/attention/run_script[@line='52']/@line" >72</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait.object']/attention/run_script[@line='75']/@line" >95</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait.object']/attention/run_script[@line='85']/@line" >105</replace>
+	
+	<replace sel="/compatibility/aiscript[@name='order.move.wait']/attention/run_script[@line='78']/@line" >98</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait']/attention/run_script[@line='94']/@line" >114</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait']/attention/run_script[@line='106']/@line" >126</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait']/attention/run_script[@line='132']/@line" >152</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait']/attention/run_script[@line='142']/@line" >162</replace>
+	<replace sel="/compatibility/aiscript[@name='order.move.wait']/attention/run_script[@line='150']/@line" >170</replace>
+	
+	
+	<replace sel="/compatibility/aiscript[@name='order.dock.wait']/attention/wait[@line='118']/@line" >151</replace>
+	<replace sel="/compatibility/aiscript[@name='order.dock.wait']/attention/run_script[@line='140']/@line" >173</replace>
+	<replace sel="/compatibility/aiscript[@name='order.dock.wait']/attention/run_script[@line='145']/@line" >178</replace>
+</diff>

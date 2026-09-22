@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mdscript name="x4sv_cheat_add_ship_subject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="x4sv_cheat_add_ship" instantiate="true" namespace="this">
+			<conditions>
+				<check_any>
+					<event_conversation_next_section section="x4sv_cheat_menu_list_selection"/>
+					<event_conversation_returned_to_section section="x4sv_cheat_menu_list_selection"/>
+					<check_all>
+						<event_conversation_started conversation="x4sv_cheat_menu_list_selection"/>
+						<check_value value="global.$conversation_mode_name == 'x4sv_cheat_add_ship'"/>
+					</check_all>
+				</check_any>
+			</conditions>
+			<actions>
+				<do_if value="event.name == 'event_conversation_next_section'">
+					<do_if value="event.param2.{1} == 'x4sv_cheat_add_ship'">
+						<do_if value="event.param2.{2} lt 0">
+							<set_value name="global.$x4svcreate_ship_num" exact="1"/>
+						</do_if>
+						<do_else>
+							<set_value name="global.$x4svcreate_ship_num" exact="global.$x4svcreate_ship_num + event.param2.{2}"/>
+						</do_else>
+					</do_if>
+				</do_if>
+				<do_elseif value="event.name == 'event_conversation_started'">
+					<!-- <set_conversation_return_section section="x4sv_cheat_menu_list_selection" /> -->
+					<!-- <set_value name="global.$x4svcreate_ship_num" exact="1"/> -->
+					<set_value name="md.$x4svcreate_ship_macro" exact="event.param2.{1}"/>
+				</do_elseif>
+				<add_player_choice_sub   text="'+ 1' + '(' + (global.$x4svcreate_ship_num + 1) + ')'"	position="top_left"   	section="x4sv_cheat_menu_list_selection"	choiceparam="['x4sv_cheat_add_ship',1]"		comment=""/>
+				<add_player_choice_sub   text="'+ 5' + '(' + (global.$x4svcreate_ship_num + 5) + ')'"  	position="left"       	section="x4sv_cheat_menu_list_selection"	choiceparam="['x4sv_cheat_add_ship',5]"		comment=""/>
+				<add_player_choice_sub   text="{1001,2679}" 											position="bottom_left"	section="x4sv_cheat_add_ship_menu"			choiceparam="['x4sv_cheat_add_ship_menu']"	comment=""/>
+				<add_player_choice_sub   text="'+ 20' + '(' + (global.$x4svcreate_ship_num + 20)+ ')'" 	position="top_right"	section="x4sv_cheat_menu_list_selection"	choiceparam="['x4sv_cheat_add_ship',20]"	comment=""/>
+				<add_player_choice_sub   text="{1001,3239}" 											position="right"		section="x4sv_cheat_menu_list_selection"	choiceparam="['x4sv_cheat_add_ship',-10]"	comment=""/>
+				<add_player_choice_sub   text="{1001,3901} + '(' + global.$x4svcreate_ship_num + ')'"	position="bottom_right"	section="x4sv_cheat_add_ship_run"														comment=""/>
+				<!-- <add_player_choice_return  text="{1002,20}"  comment="(Back)"/> -->
+			</actions>
+		</cue>
+		<cue name="x4sv_cheat_add_ship_menu" instantiate="true" namespace="this">
+			<conditions>
+				<event_conversation_next_section section="x4sv_cheat_add_ship_menu"/>
+			</conditions>
+			<actions>
+				<do_if value="event.param2.{1} == 'x4sv_cheat_add_ship_set'">
+					<do_if value="global.$x4svcreate_ship_set.{event.param2.{2}}">
+						<do_if value="event.param2.{2} == 1">
+							<do_if value="global.$x4sv_cheat_faction_list.indexof.{global.$x4svcreate_ship_set.{1}} == global.$x4sv_cheat_faction_list.count and event.param2.{3} == 1">
+								<set_value name="global.$x4svcreate_ship_set.{1}" exact="global.$x4sv_cheat_faction_list.{1}"/>
+							</do_if>
+							<do_elseif value="global.$x4sv_cheat_faction_list.indexof.{global.$x4svcreate_ship_set.{1}} == 1 and event.param2.{3} == -1">
+								<set_value name="global.$x4svcreate_ship_set.{1}" exact="global.$x4sv_cheat_faction_list.{global.$x4sv_cheat_faction_list.count}"/>
+							</do_elseif>
+							<do_else>
+								<set_value name="global.$x4svcreate_ship_set.{1}" exact="global.$x4sv_cheat_faction_list.{global.$x4sv_cheat_faction_list.indexof.{global.$x4svcreate_ship_set.{1}} + event.param2.{3}}"/>
+							</do_else>
+						</do_if>
+						<do_elseif value="event.param2.{2} == 4">
+							<do_if value="global.$x4svcreate_ship_set.{4} == 'player'">
+								<set_value name="global.$x4svcreate_ship_set.{4}" exact="'Guidance'"/>
+							</do_if>
+							<do_elseif value="global.$x4svcreate_ship_set.{4} == 'Guidance'">
+								<set_value name="global.$x4svcreate_ship_set.{4}" exact="'player'"/>
+							</do_elseif>
+						</do_elseif>
+						<do_else>
+							<set_value name="global.$x4svcreate_ship_set.{event.param2.{2}}" exact="false"/>
+						</do_else>
+					</do_if>
+					<do_else>
+						<set_value name="global.$x4svcreate_ship_set.{event.param2.{2}}" exact="true"/>
+					</do_else>
+				</do_if>
+				<do_if value="global.$x4svcreate_ship_set.{2}">
+					<set_value name="$ship_set2" exact="{357423,5001} + {357423,9}"/>
+				</do_if>
+				<do_else>
+					<set_value name="$ship_set2" exact="{357423,5001} + {357423,8}"/>
+				</do_else>
+				<do_if value="global.$x4svcreate_ship_set.{3}">
+					<set_value name="$ship_set3" exact="{357423,2031} + {357423,9}"/>
+				</do_if>
+				<do_else>
+					<set_value name="$ship_set3" exact="{357423,2031} + {357423,8}"/>
+				</do_else>
+				<do_if value="global.$x4svcreate_ship_set.{4} == 'player'">
+					<set_value name="$ship_set4" exact="{1001,2943} + ':' + {1014,102}"/>
+				</do_if>
+				<do_elseif value="global.$x4svcreate_ship_set.{4} == 'Guidance'">
+					<set_value name="$ship_set4" exact="{1001,2943} + ':' + {1025,35}"/>
+				</do_elseif>
+				<add_player_choice_sub   text="{1001,9040}"								position="top_left"   	section="x4sv_cheat_add_ship_menu"		choiceparam="['x4sv_cheat_add_ship_set', 1,-1]"	comment=""/>
+				<add_player_choice_sub   text="$ship_set2" 								position="left"			section="x4sv_cheat_add_ship_menu"		choiceparam="['x4sv_cheat_add_ship_set', 2]"	comment=""/>
+				<add_player_choice_sub   text="$ship_set3" 								position="bottom_left"	section="x4sv_cheat_add_ship_menu"		choiceparam="['x4sv_cheat_add_ship_set', 3]"	comment=""/>
+				<add_player_choice_sub   text="global.$x4svcreate_ship_set.{1}.name"  	position="top_right"    section="x4sv_cheat_add_ship_menu"		choiceparam="['x4sv_cheat_add_ship_set', 1,1]"	comment=""/>
+				<add_player_choice_sub   text="$ship_set4" 								position="right"		section="x4sv_cheat_add_ship_menu"  	choiceparam="['x4sv_cheat_add_ship_set', 4]"	comment=""/>
+				<!-- <add_player_choice_sub   text="$ship_set3" 								position="bottom_right"	section="x4sv_cheat_add_ship_menu"  	choiceparam="['x4sv_cheat_add_ship_set', 3]"	comment=""/> -->
+				<!-- <add_player_choice_return  text="{1002,20}"  comment="(Back)"/> -->
+			</actions>
+		</cue>
+		<cue name="x4sv_cheat_add_ship_run" instantiate="true" namespace="this">
+			<conditions>
+				<event_conversation_next_section section="x4sv_cheat_add_ship_run"/>
+			</conditions>
+			<actions>
+				<set_value name="$ship_count" exact="global.$x4svcreate_ship_num"/>
+				<do_if value="global.$x4svcreate_ship_set.{4} == 'player'">
+					<set_value name="$ship_position" exact="player.ship.position"/>
+					<set_value name="$ship_object" exact="player.ship"/>
+					<set_value name="$ship_zone" exact="player.zone"/>
+				</do_if>
+				<do_elseif value="global.$x4svcreate_ship_set.{4} == 'Guidance'">
+					<set_value name="$ship_position" exact="global.$x4svcreate_ship_set.{6}"/>
+					<set_value name="$ship_object" exact="global.$x4svcreate_ship_set.{5}"/>
+					<set_value name="$ship_zone" exact="global.$x4svcreate_ship_set.{5}"/>
+				</do_elseif>
+				<do_if value="global.$x4svcreate_ship_set.{2}">
+					<set_value name="$fillpercent" exact="100"/>
+				</do_if>
+				<do_else>
+					<set_value name="$fillpercent" exact="0"/>
+				</do_else>
+				
+				<do_while value="$ship_count">
+					<create_ship name="$ship" macro="md.$x4svcreate_ship_macro" zone="$ship_zone">
+						<owner exact="global.$x4svcreate_ship_set.{1}" overridenpc="true" />
+						<show_notification text="global.$x4svcreate_ship_set.{1}.name + {1025,51} +md.$x4svcreate_ship_macro.name + '(' + 1 + ')'" comment=""/>
+						<loadout>
+							<level exact="1"/>
+						</loadout>
+						<pilot>
+							<select race="[race.argon, race.paranid, race.teladi]" tags="tag.aipilot"/>
+						</pilot>
+						<people>
+							<fillpercent exact="$fillpercent" />
+							<person role="service" weight="100">
+								<select race="[race.argon, race.paranid, race.teladi]" tags="tag.service" />
+							</person>
+						</people>
+						<!-- <drop ref="ship_large_military"/> -->
+						<safepos object="$ship_object" value="$ship_position" />
+					</create_ship>
+					<do_if value="global.$x4svcreate_ship_set.{3}">
+						<set_value name="$Thisship" exact="$ship"/>
+						<set_value name="$Crew" exact="$Thisship.people.list"/>
+						<do_all exact="$Crew.count" counter="$j">
+							<set_skill object="$Thisship" template="$Crew.{$j}" type="skilltype.boarding" exact="15"/>
+							<set_skill object="$Thisship" template="$Crew.{$j}" type="skilltype.engineering" exact="15"/>
+							<set_skill object="$Thisship" template="$Crew.{$j}" type="skilltype.management" exact="15"/>
+							<set_skill object="$Thisship" template="$Crew.{$j}" type="skilltype.morale" exact="15"/>
+							<set_skill object="$Thisship" template="$Crew.{$j}" type="skilltype.piloting" exact="15"/>
+						</do_all>
+						
+						<get_control_entities groupname="$controlCrew" object="$Thisship"/> 
+						<do_all exact="$controlCrew.count" counter="$j">
+							<set_skill entity="$controlCrew.{$j}" type="skilltype.boarding" exact="15"/>
+							<set_skill entity="$controlCrew.{$j}" type="skilltype.engineering" exact="15"/>
+							<set_skill entity="$controlCrew.{$j}" type="skilltype.management" exact="15"/>
+							<set_skill entity="$controlCrew.{$j}" type="skilltype.morale" exact="15"/>
+							<set_skill entity="$controlCrew.{$j}" type="skilltype.piloting" exact="15"/>
+						</do_all>
+					</do_if>
+					<set_value name="$ship_count" exact="$ship_count - 1"/>
+				</do_while>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>
