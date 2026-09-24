@@ -540,6 +540,8 @@
 			<actions>
 				<set_value name="md.$cm90.$ware" exact="event.param.$echo"/>
 				<set_value name="md.$cm90.$presets" exact="[]"/>
+				<set_value name="md.$cm90.$pending_id" exact="''"/>
+				<set_value name="md.$cm90.$pending_kind" exact="''"/>
 				<set_value name="$macro" exact="@md.$cm90.$ware.objectmacro"/>
 				<do_if value="not $macro">
 					<set_value name="$macro" exact="@md.$cm90.$ware.component"/>
@@ -547,7 +549,6 @@
 				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Ship id=' + @md.$cm90.$ware.id + ' name=' + @md.$cm90.$ware.name + ' macro=' + @$macro.id"/>
 				<set_value name="md.$cm90.$page" exact="'fit'"/>
 				<raise_lua_event name="'CheatMenu90.ListLoadouts'" param="@$macro.id"/>
-				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
 
@@ -584,14 +585,36 @@
 					]"/>
 				<do_if value="@md.$cm90.$presets.count">
 					<do_for_each name="$lo" in="md.$cm90.$presets">
-						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
-						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
-								$col = 1, $colSpan = 2,
-								$options = $qty,
-								$textOverride = {357423,9030} + ': ' + $lo,
-								$onDropDownConfirmed = On_Fit,
-								$echo = table[$mode = 'preset', $loadoutid = $lo]
-							]"/>
+						<do_if value="$lo.$kind == 'player'">
+							<set_value name="$label" exact="$lo.$name"/>
+							<do_if value="not $label">
+								<set_value name="$label" exact="$lo.$id"/>
+							</do_if>
+							<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+									$col = 1, $colSpan = 2,
+									$options = $qty,
+									$textOverride = {357423,9030} + ': ' + $label,
+									$onDropDownConfirmed = On_Fit,
+									$echo = table[$mode = 'preset', $loadoutid = $lo.$id]
+								]"/>
+						</do_if>
+					</do_for_each>
+					<do_for_each name="$lo" in="md.$cm90.$presets">
+						<do_if value="$lo.$kind == 'author'">
+							<set_value name="$label" exact="$lo.$name"/>
+							<do_if value="not $label">
+								<set_value name="$label" exact="$lo.$id"/>
+							</do_if>
+							<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+									$col = 1, $colSpan = 2,
+									$options = $qty,
+									$textOverride = {357423,9033} + ': ' + $label,
+									$onDropDownConfirmed = On_Fit,
+									$echo = table[$mode = 'preset', $loadoutid = $lo.$id]
+								]"/>
+						</do_if>
 					</do_for_each>
 				</do_if>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
@@ -641,20 +664,53 @@
 			</actions>
 		</cue>
 
+		<cue name="On_Fit_Preset_Kind" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'preset_kind'"/>
+			</conditions>
+			<actions>
+				<set_value name="$kind" exact="event.param3"/>
+				<do_if value="not $kind">
+					<set_value name="$kind" exact="event.param"/>
+				</do_if>
+				<set_value name="md.$cm90.$pending_kind" exact="$kind"/>
+			</actions>
+		</cue>
+
 		<cue name="On_Fit_Preset" instantiate="true" namespace="this">
 			<conditions>
 				<event_ui_triggered screen="'CM90Fit'" control="'preset'"/>
 			</conditions>
 			<actions>
-				<do_if value="not md.$cm90.$presets?">
-					<set_value name="md.$cm90.$presets" exact="[]"/>
-				</do_if>
 				<set_value name="$id" exact="event.param3"/>
 				<do_if value="not $id">
 					<set_value name="$id" exact="event.param"/>
 				</do_if>
-				<append_to_list name="md.$cm90.$presets" exact="$id"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fit preset id=' + $id + ' n=' + md.$cm90.$presets.count"/>
+				<set_value name="md.$cm90.$pending_id" exact="$id"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit_Preset_Name" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'preset_name'"/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90.$presets?">
+					<set_value name="md.$cm90.$presets" exact="[]"/>
+				</do_if>
+				<set_value name="$name" exact="event.param3"/>
+				<do_if value="not $name">
+					<set_value name="$name" exact="event.param"/>
+				</do_if>
+				<do_if value="not $name">
+					<set_value name="$name" exact="md.$cm90.$pending_id"/>
+				</do_if>
+				<set_value name="$kind" exact="md.$cm90.$pending_kind"/>
+				<do_if value="not $kind">
+					<set_value name="$kind" exact="'author'"/>
+				</do_if>
+				<append_to_list name="md.$cm90.$presets" exact="table[$id = md.$cm90.$pending_id, $name = $name, $kind = $kind]"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Fit preset kind=' + $kind + ' id=' + @md.$cm90.$pending_id + ' name=' + $name + ' n=' + md.$cm90.$presets.count"/>
 			</actions>
 		</cue>
 

@@ -712,16 +712,37 @@ local function on_list(_, macroid)
     got = 0
   end
   local sent = 0
+  local rows = {}
   for i = 0, got - 1 do
     local id = ffi_str(info[i].id)
     if id ~= "" then
-      notify_md("preset", id)
-      sent = sent + 1
-      log_md("MID Fit named loadout id=" .. id .. " name=" .. ffi_str(info[i].name))
-      dump_named_loadout(0, macroid, id, "list")
+      local name = ffi_str(info[i].name)
+      local del = false
+      pcall(function()
+        del = info[i].deleteable and true or false
+      end)
+      local kind = "author"
+      if id:match("^player_") or del then
+        kind = "player"
+      end
+      if name == "" then
+        name = id
+      end
+      rows[#rows + 1] = { kind = kind, id = id, name = name, del = del }
+      log_md("MID Fit named loadout kind=" .. kind .. " id=" .. id .. " name=" .. name .. " deleteable=" .. tostring(del))
     end
   end
+  for r = 1, #rows do
+    local row = rows[r]
+    notify_md("preset_kind", row.kind)
+    notify_md("preset", row.id)
+    notify_md("preset_name", row.name)
+    sent = sent + 1
+  end
   notify_md("presets_ready", tostring(sent))
+  for r = 1, #rows do
+    dump_named_loadout(0, macroid, rows[r].id, "list")
+  end
 end
 
 local function on_job(_, payload)

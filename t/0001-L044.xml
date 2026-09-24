@@ -71,9 +71,10 @@
 		<t id="9019">Next</t>
 		<t id="9020">Previous</t>
 		<t id="9021">LOG</t>
-		<t id="9030">Auto from preset</t>
+		<t id="9030">Player preset</t>
 		<t id="9031">Auto from found modules</t>
 		<t id="9032">Fitting</t>
+		<t id="9033">Author preset</t>
 
 	</page>
 </language>
