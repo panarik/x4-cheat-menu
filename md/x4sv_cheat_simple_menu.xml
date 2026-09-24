@@ -261,6 +261,8 @@
 				<set_value name="md.$cm90.$presets" exact="[]"/>
 				<set_value name="md.$cm90.$fitmode" exact="'compat'"/>
 				<set_value name="md.$cm90.$loadoutid" exact="''"/>
+				<set_value name="md.$cm90.$kitwares" exact="[]"/>
+				<set_value name="md.$cm90.$lastship" exact="null"/>
 				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Build: write file'"/>
 				<raise_lua_event name="'CheatMenu90.LogWrite'" param="'1'"/>
 			</actions>
@@ -743,6 +745,65 @@
 			</actions>
 		</cue>
 
+		<cue name="On_Fit_Kit_Clear" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'kit_clear'"/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$kitwares" exact="[]"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_clear'"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit_Kit_Ware" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'kit_ware'"/>
+			</conditions>
+			<actions>
+				<set_value name="$id" exact="event.param3"/>
+				<do_if value="not $id">
+					<set_value name="$id" exact="event.param"/>
+				</do_if>
+				<do_if value="$id">
+					<set_value name="$ware" exact="ware.{$id}"/>
+					<do_if value="$ware?">
+						<append_to_list name="md.$cm90.$kitwares" exact="$ware"/>
+						<signal_cue_instantly cue="LogFile" param="'LOW Fit kit_ware id=' + $id + ' ware=' + @$ware.id + ' n=' + md.$cm90.$kitwares.count"/>
+					</do_if>
+					<do_else>
+						<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_ware miss id=' + $id"/>
+					</do_else>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit_Kit_Ready" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'kit_ready'"/>
+			</conditions>
+			<actions>
+				<set_value name="$n" exact="event.param3"/>
+				<do_if value="not $n">
+					<set_value name="$n" exact="event.param"/>
+				</do_if>
+				<set_value name="$ship" exact="md.$cm90.$lastship"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_ready n=' + $n + ' wares=' + @md.$cm90.$kitwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid"/>
+				<do_if value="not $ship?">
+					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply abort: no lastship'"/>
+				</do_if>
+				<do_elseif value="md.$cm90.$fitmode == 'preset' and md.$cm90.$loadoutid">
+					<apply_loadout object="$ship" loadout="md.$cm90.$loadoutid"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply_loadout named id=' + md.$cm90.$loadoutid + ' ship=' + @$ship.id"/>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply skip: not a named preset'"/>
+				</do_else>
+				<do_if value="$ship?">
+					<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
+				</do_if>
+			</actions>
+		</cue>
+
 		<cue name="Spawn_Empty" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
@@ -767,14 +828,12 @@
 					</do_if>
 					<set_value name="$pos" exact="$anchor.position"/>
 					<signal_cue_instantly cue="LogFile" param="'HIGH Spawn pos original-style object=' + @$anchor.id + ' pos=' + $pos + ' zone=' + @player.zone"/>
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit stage1 hull ware=' + @$ware.id + ' macro=' + @$macro.id"/>
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit LOG_ONLY=1 no install this pass'"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Fit stage1 empty hull ware=' + @$ware.id + ' macro=' + @$macro.id + ' mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid"/>
+					<set_value name="md.$cm90.$kitwares" exact="[]"/>
+					<set_value name="md.$cm90.$lastship" exact="null"/>
 					<create_ship name="$ship" macro="$macro" zone="player.zone">
 						<owner exact="faction.player" overridenpc="true"/>
 						<show_notification text="@$ware.name"/>
-						<loadout>
-							<level exact="1"/>
-						</loadout>
 						<pilot>
 							<select race="[race.argon, race.paranid, race.teladi]" tags="tag.aipilot"/>
 						</pilot>
@@ -787,6 +846,8 @@
 						<safepos object="$anchor" value="$pos"/>
 					</create_ship>
 					<do_if value="$ship?">
+						<set_value name="md.$cm90.$lastship" exact="$ship"/>
+						<set_value name="md.$cm90.$lastmacro" exact="$macro"/>
 						<set_value name="$Crew" exact="$ship.people.list"/>
 						<signal_cue_instantly cue="LogFile" param="'HIGH Spawn crew people=' + @$Crew.count"/>
 						<do_all exact="$Crew.count" counter="$j">
