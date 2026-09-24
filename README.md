@@ -1,10 +1,10 @@
 # Cheat Menu 9.0
 
-WIP cheat menu for X4 Foundations 9.00. Version **1.17**. First feature: instantly spawn any ship the game currently has loaded — vanilla, the DLC you own, and every ship from your other mods. No hardcoded ship list. The menu reads the same ware library as the in-game creative constructor. Built to set up RP situations. Requires SirNukes Mod Support APIs.
+WIP cheat menu for X4 Foundations 9.00. Version **1.18**. First feature: instantly spawn any ship the game currently has loaded — vanilla, the DLC you own, and every ship from your other mods. No hardcoded ship list. The menu reads the same ware library as the in-game creative constructor. Built to set up RP situations. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.17**. Author: **qadetmir**.
+Current version: **1.18**. Author: **qadetmir**.
 
 ## Description
 

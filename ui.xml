@@ -2,5 +2,6 @@
 <addon name="cm90_ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../core/addon.xsd">
   <environment type="menus">
     <file name="ui/cm90_log.lua"/>
+    <file name="ui/cm90_fit.lua"/>
   </environment>
 </addon>

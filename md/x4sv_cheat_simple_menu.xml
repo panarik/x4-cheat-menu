@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Cheat Menu 9.0 — список кораблей.
-  Навигация: раса → размер → имена. Клик — 1 корабль перед игроком, loadout level=1 как в оригинале.
-  Лог: каждый шаг, все слои, только файл / debuglog. В окне лога нет.
+  Навигация: раса → размер → имена → фитинг (dropdown количества).
+  Лог: LEVEL topic (Cat/UI/Spawn/Fit/Lua). Файл / debuglog. В окне лога нет.
 -->
 <mdscript name="x4sv_cheat_simple_menu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
@@ -11,7 +11,7 @@
 				<event_cue_signalled cue="md.Simple_Menu_API.Reloaded"/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Register_Options_Menu cm90_ship_menu'"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Register_Options_Menu cm90_ship_menu'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Register_Options_Menu" param="table[
 						$id      = 'cm90_ship_menu',
 						$columns = 2,
@@ -29,7 +29,7 @@
 				</check_any>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Game: start Build_Catalog'"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat On_Game: start Build_Catalog'"/>
 				<signal_cue_instantly cue="Build_Catalog"/>
 			</actions>
 		</cue>
@@ -54,18 +54,18 @@
 				<set_value name="$label" exact="event.param.$label"/>
 				<set_value name="$fac" exact="event.param.$fac"/>
 				<set_value name="$got" exact="[]"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Pull start code=' + $code + ' label=' + $label + ' fac=' + $fac + ' fac.id=' + @$fac.id + ' fac.name=' + @$fac.name + ' facExists=' + $fac?"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Pull start code=' + $code + ' label=' + $label + ' fac=' + $fac + ' fac.id=' + @$fac.id + ' fac.name=' + @$fac.name + ' facExists=' + $fac?"/>
 				<do_if value="$fac?">
 					<get_ware_definition result="$got" tags="tag.ship" faction="$fac"/>
 				</do_if>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Pull result code=' + $code + ' count=' + @$got.count"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Pull result code=' + $code + ' count=' + @$got.count"/>
 				<set_value name="$n" exact="0"/>
 				<set_value name="$ids" exact="[]"/>
 				<do_for_each name="$w" in="$got">
 					<set_value name="$n" exact="$n + 1"/>
 					<append_to_list name="$ids" exact="@$w.id"/>
 					<do_if value="$n le 3">
-						<signal_cue_instantly cue="LogFile" param="'LOW Pull ' + $code + '[' + $n + '] id=' + @$w.id + ' name=' + @$w.name"/>
+						<signal_cue_instantly cue="LogFile" param="'LOW Cat Pull ' + $code + '[' + $n + '] id=' + @$w.id + ' name=' + @$w.name"/>
 					</do_if>
 				</do_for_each>
 				<append_to_list name="md.$cm90.$pulls" exact="table[$code = $code, $label = $label, $ids = $ids, $n = @$got.count]"/>
@@ -94,11 +94,11 @@
 				<set_value name="$from_other" exact="0"/>
 				<set_value name="$idx" exact="0"/>
 
-				<signal_cue_instantly cue="LogFile" param="'HIGH Build: start, query get_ware_definition tags=tag.ship'"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Build: start, query get_ware_definition tags=tag.ship'"/>
 				<set_value name="$wares" exact="[]"/>
 				<get_ware_definition result="$wares" tags="tag.ship"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Build: wares.count=' + @$wares.count"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH probe faction.argon?=' + faction.argon? + ' boron?=' + faction.boron? + ' paranid?=' + faction.paranid? + ' teladi?=' + faction.teladi? + ' terran?=' + faction.terran? + ' split?=' + faction.split? + ' xenon?=' + faction.xenon? + ' khaak?=' + faction.khaak? + ' yaki?=' + faction.yaki? + ' scaleplate?=' + faction.scaleplate?"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Build: wares.count=' + @$wares.count"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat probe faction.argon?=' + faction.argon? + ' boron?=' + faction.boron? + ' paranid?=' + faction.paranid? + ' teladi?=' + faction.teladi? + ' terran?=' + faction.terran? + ' split?=' + faction.split? + ' xenon?=' + faction.xenon? + ' khaak?=' + faction.khaak? + ' yaki?=' + faction.yaki? + ' scaleplate?=' + faction.scaleplate?"/>
 				<do_if value="faction.yaki?">
 					<signal_cue_instantly cue="Pull_Faction" param="table[$code = 'yak', $label = 'Yaki', $fac = faction.yaki]"/>
 				</do_if>
@@ -129,11 +129,11 @@
 				<do_if value="faction.scaleplate?">
 					<signal_cue_instantly cue="Pull_Faction" param="table[$code = 'pir', $label = 'Pirate', $fac = faction.scaleplate]"/>
 				</do_if>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Pull done pulls=' + md.$cm90.$pulls.count"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Pull done pulls=' + md.$cm90.$pulls.count"/>
 				<do_for_each name="$p" in="md.$cm90.$pulls">
-					<signal_cue_instantly cue="LogFile" param="'HIGH Pull summary code=' + $p.$code + ' n=' + $p.$n"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Cat Pull summary code=' + $p.$code + ' n=' + $p.$n"/>
 				</do_for_each>
-				<signal_cue_instantly cue="LogFile" param="'LOW Build: iterate every ware'"/>
+				<signal_cue_instantly cue="LogFile" param="'LOW Cat Build: iterate every ware'"/>
 
 				<do_for_each name="$ware" in="$wares">
 					<set_value name="$idx" exact="$idx + 1"/>
@@ -143,14 +143,14 @@
 						<set_value name="$macro" exact="@$ware.component"/>
 						<set_value name="$macro_src" exact="'component'"/>
 					</do_if>
-					<signal_cue_instantly cue="LogFile" param="'LOW ware[' + $idx + '] id=' + @$ware.id + ' name=' + @$ware.name + ' transport=' + @$ware.transport + ' group=' + @$ware.group + ' objectmacro=' + @$ware.objectmacro + ' component=' + @$ware.component + ' owners0=' + @$ware.owners.{1} + ' owners0.id=' + @$ware.owners.{1}.id + ' owners0.name=' + @$ware.owners.{1}.name"/>
+					<signal_cue_instantly cue="LogFile" param="'LOW Cat ware[' + $idx + '] id=' + @$ware.id + ' name=' + @$ware.name + ' transport=' + @$ware.transport + ' group=' + @$ware.group + ' objectmacro=' + @$ware.objectmacro + ' component=' + @$ware.component + ' owners0=' + @$ware.owners.{1} + ' owners0.id=' + @$ware.owners.{1}.id + ' owners0.name=' + @$ware.owners.{1}.name"/>
 					<do_if value="not $macro">
 						<set_value name="$skip_macro" exact="$skip_macro + 1"/>
-						<signal_cue_instantly cue="LogFile" param="'MID skip_macro ware=' + @$ware.id"/>
+						<signal_cue_instantly cue="LogFile" param="'MID Cat skip_macro ware=' + @$ware.id"/>
 					</do_if>
 					<do_else>
 						<set_value name="$cls" exact="'?'"/>
-						<signal_cue_instantly cue="LogFile" param="'LOW macro id=' + @$macro.id + ' class=' + @$macro.class + ' src=' + $macro_src + ' is_s=' + $macro.isclass.[class.ship_s] + ' is_m=' + $macro.isclass.[class.ship_m] + ' is_l=' + $macro.isclass.[class.ship_l] + ' is_xl=' + $macro.isclass.[class.ship_xl] + ' maker=' + @$macro.makerrace + ' maker.id=' + @$macro.makerrace.id + ' maker.name=' + @$macro.makerrace.name"/>
+						<signal_cue_instantly cue="LogFile" param="'LOW Cat macro id=' + @$macro.id + ' class=' + @$macro.class + ' src=' + $macro_src + ' is_s=' + $macro.isclass.[class.ship_s] + ' is_m=' + $macro.isclass.[class.ship_m] + ' is_l=' + $macro.isclass.[class.ship_l] + ' is_xl=' + $macro.isclass.[class.ship_xl] + ' maker=' + @$macro.makerrace + ' maker.id=' + @$macro.makerrace.id + ' maker.name=' + @$macro.makerrace.name"/>
 						<do_if value="$macro.isclass.[class.ship_xl]">
 							<set_value name="$cls" exact="'xl'"/>
 						</do_if>
@@ -165,7 +165,7 @@
 						</do_elseif>
 						<do_if value="$cls == '?'">
 							<set_value name="$skip_class" exact="$skip_class + 1"/>
-							<signal_cue_instantly cue="LogFile" param="'MID skip_class ware=' + @$ware.id + ' macro=' + @$macro.id + ' class=' + @$macro.class"/>
+							<signal_cue_instantly cue="LogFile" param="'MID Cat skip_class ware=' + @$ware.id + ' macro=' + @$macro.id + ' class=' + @$macro.class"/>
 						</do_if>
 						<do_else>
 							<set_value name="$code" exact="'other'"/>
@@ -199,16 +199,16 @@
 											<set_value name="$label" exact="$p.$label"/>
 											<set_value name="$src" exact="'faction.' + $p.$code"/>
 											<set_value name="$from_faction" exact="$from_faction + 1"/>
-											<signal_cue_instantly cue="LogFile" param="'LOW parseFaction id=' + $wid + ' hit=' + $hit + ' code=' + $code"/>
+											<signal_cue_instantly cue="LogFile" param="'LOW Cat parseFaction id=' + $wid + ' hit=' + $hit + ' code=' + $code"/>
 										</do_if>
 									</do_if>
 								</do_for_each>
 								<do_if value="$code == 'other'">
 									<set_value name="$from_other" exact="$from_other + 1"/>
-									<signal_cue_instantly cue="LogFile" param="'LOW parseFaction id=' + $wid + ' hit=0 code=other'"/>
+									<signal_cue_instantly cue="LogFile" param="'LOW Cat parseFaction id=' + $wid + ' hit=0 code=other'"/>
 								</do_if>
 							</do_else>
-							<signal_cue_instantly cue="LogFile" param="'MID classify ware=' + $wid + ' size=' + $cls + ' raceSrc=' + $src + ' key=' + $code + ' label=' + $label"/>
+							<signal_cue_instantly cue="LogFile" param="'MID Cat classify ware=' + $wid + ' size=' + $cls + ' raceSrc=' + $src + ' key=' + $code + ' label=' + $label"/>
 
 							<set_value name="$slot" exact="md.$cm90.$keys.indexof.{$code}"/>
 							<do_if value="not $slot">
@@ -219,7 +219,7 @@
 										$s = [], $m = [], $l = [], $xl = []
 									]"/>
 								<set_value name="$slot" exact="md.$cm90.$keys.count"/>
-								<signal_cue_instantly cue="LogFile" param="'HIGH new race bucket key=' + $code + ' label=' + $label + ' slot=' + $slot"/>
+								<signal_cue_instantly cue="LogFile" param="'HIGH Cat new race bucket key=' + $code + ' label=' + $label + ' slot=' + $slot"/>
 							</do_if>
 							<set_value name="md.$cm90.$races.{$slot}.$n" exact="md.$cm90.$races.{$slot}.$n + 1"/>
 							<do_if value="$cls == 's'">
@@ -239,26 +239,29 @@
 								<set_value name="md.$cm90.$races.{$slot}.$n_xl" exact="md.$cm90.$races.{$slot}.$n_xl + 1"/>
 							</do_else>
 							<set_value name="$ok" exact="$ok + 1"/>
-							<signal_cue_instantly cue="LogFile" param="'HIGH accept ware=' + @$ware.id + ' name=' + @$ware.name + ' size=' + $cls + ' key=' + $code + ' n=' + md.$cm90.$races.{$slot}.$n"/>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Cat accept ware=' + @$ware.id + ' name=' + @$ware.name + ' size=' + $cls + ' key=' + $code + ' n=' + md.$cm90.$races.{$slot}.$n"/>
 						</do_else>
 					</do_else>
 				</do_for_each>
 
 				<do_if value="md.$cm90.$races.count">
-					<signal_cue_instantly cue="LogFile" param="'HIGH sort race buckets count=' + md.$cm90.$races.count"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Cat sort race buckets count=' + md.$cm90.$races.count"/>
 					<sort_list list="md.$cm90.$races" sortbyvalue="loop.element.$label"/>
 					<set_value name="md.$cm90.$keys" exact="[]"/>
 					<do_for_each name="$b" in="md.$cm90.$races">
 						<append_to_list name="md.$cm90.$keys" exact="$b.$key"/>
 					</do_for_each>
 				</do_if>
-				<signal_cue_instantly cue="LogFile" param="'HIGH result ok=' + $ok + ' skip_macro=' + $skip_macro + ' skip_class=' + $skip_class"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH raceSrc maker=' + $from_maker + ' owner=' + $from_owner + ' faction=' + $from_faction + ' other=' + $from_other + ' keys=' + md.$cm90.$keys.count"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat result ok=' + $ok + ' skip_macro=' + $skip_macro + ' skip_class=' + $skip_class"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat raceSrc maker=' + $from_maker + ' owner=' + $from_owner + ' faction=' + $from_faction + ' other=' + $from_other + ' keys=' + md.$cm90.$keys.count"/>
 				<do_for_each name="$b" in="md.$cm90.$races">
-					<signal_cue_instantly cue="LogFile" param="'HIGH bucket key=' + $b.$key + ' label=' + $b.$label + ' n=' + $b.$n + ' S/M/L/XL=' + $b.$n_s + '/' + $b.$n_m + '/' + $b.$n_l + '/' + $b.$n_xl"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Cat bucket key=' + $b.$key + ' label=' + $b.$label + ' n=' + $b.$n + ' S/M/L/XL=' + $b.$n_s + '/' + $b.$n_m + '/' + $b.$n_l + '/' + $b.$n_xl"/>
 				</do_for_each>
 				<set_value name="md.$cm90.$built" exact="true"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Build: write file'"/>
+				<set_value name="md.$cm90.$presets" exact="[]"/>
+				<set_value name="md.$cm90.$fitmode" exact="'compat'"/>
+				<set_value name="md.$cm90.$loadoutid" exact="''"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Build: write file'"/>
 				<raise_lua_event name="'CheatMenu90.LogWrite'" param="'1'"/>
 			</actions>
 		</cue>
@@ -268,9 +271,9 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Menu page=' + @md.$cm90.$page + ' built=' + @md.$cm90.$built"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Menu page=' + @md.$cm90.$page + ' built=' + @md.$cm90.$built"/>
 				<do_if value="not md.$cm90? or not md.$cm90.$built">
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Menu: catalog missing, rebuild'"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Menu: catalog missing, rebuild'"/>
 					<signal_cue_instantly cue="Build_Catalog"/>
 				</do_if>
 				<do_if value="md.$cm90.$page == 'sizes'">
@@ -279,10 +282,13 @@
 				<do_elseif value="md.$cm90.$page == 'ships'">
 					<signal_cue_instantly cue="Fill_Ships"/>
 				</do_elseif>
+				<do_elseif value="md.$cm90.$page == 'fit'">
+					<signal_cue_instantly cue="Fill_Fit"/>
+				</do_elseif>
 				<do_else>
 					<signal_cue_instantly cue="Fill_Races"/>
 				</do_else>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Menu: flush file'"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Menu: flush file'"/>
 				<raise_lua_event name="'CheatMenu90.LogWrite'" param="'1'"/>
 			</actions>
 		</cue>
@@ -292,7 +298,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Races keys=' + @md.$cm90.$races.count"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Races keys=' + @md.$cm90.$races.count"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
 						$col = 1, $colSpan = 2, $halign = 'center', $wordwrap = true,
@@ -306,7 +312,7 @@
 						]"/>
 				</do_if>
 				<do_for_each name="$b" in="md.$cm90.$races">
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Races row key=' + $b.$key + ' label=' + $b.$label + ' n=' + $b.$n"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Races row key=' + $b.$key + ' label=' + $b.$label + ' n=' + $b.$n"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 							$col = 1, $colSpan = 2, $echo = $b.$key, $onClick = On_Race,
@@ -321,14 +327,14 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Sizes race=' + @md.$cm90.$race"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Sizes race=' + @md.$cm90.$race"/>
 				<set_value name="$slot" exact="md.$cm90.$keys.indexof.{md.$cm90.$race}"/>
 				<set_value name="$b" exact="md.$cm90.$races.{$slot}"/>
 				<set_value name="$label" exact="$b.$label"/>
 				<do_if value="not $label">
 					<set_value name="$label" exact="md.$cm90.$race"/>
 				</do_if>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Sizes slot=' + $slot + ' label=' + $label + ' S/M/L/XL=' + $b.$n_s + '/' + $b.$n_m + '/' + $b.$n_l + '/' + $b.$n_xl"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Sizes slot=' + $slot + ' label=' + $label + ' S/M/L/XL=' + $b.$n_s + '/' + $b.$n_m + '/' + $b.$n_l + '/' + $b.$n_xl"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 						$col = 1, $colSpan = 2, $onClick = On_Back,
@@ -374,7 +380,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Ships race=' + @md.$cm90.$race + ' class=' + @md.$cm90.$class + ' offset=' + @md.$cm90.$offset"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Ships race=' + @md.$cm90.$race + ' class=' + @md.$cm90.$class + ' offset=' + @md.$cm90.$offset"/>
 				<set_value name="$slot" exact="md.$cm90.$keys.indexof.{md.$cm90.$race}"/>
 				<set_value name="$b" exact="md.$cm90.$races.{$slot}"/>
 				<set_value name="$label" exact="$b.$label"/>
@@ -398,7 +404,7 @@
 					<set_value name="$size_name" exact="{357423,4003}"/>
 					<set_value name="$list" exact="$b.$s"/>
 				</do_else>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fill_Ships list.count=' + @$list.count + ' size_name=' + $size_name"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Ships list.count=' + @$list.count + ' size_name=' + $size_name"/>
 				<do_if value="@$list.count">
 					<sort_list list="$list" sortbyvalue="loop.element.name"/>
 				</do_if>
@@ -439,7 +445,7 @@
 					<do_all exact="$to - $from + 1" counter="$j">
 						<set_value name="$i" exact="md.$cm90.$offset + $j"/>
 						<set_value name="$ware" exact="$list.{$i}"/>
-						<signal_cue_instantly cue="LogFile" param="'LOW Fill_Ships row i=' + $i + ' id=' + @$ware.id + ' name=' + @$ware.name"/>
+						<signal_cue_instantly cue="LogFile" param="'LOW UI Fill_Ships row i=' + $i + ' id=' + @$ware.id + ' name=' + @$ware.name"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 								$col = 1, $colSpan = 2, $echo = $ware, $onClick = On_Ship,
@@ -463,7 +469,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Race echo=' + event.param.$echo"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Race echo=' + event.param.$echo"/>
 				<set_value name="md.$cm90.$race" exact="event.param.$echo"/>
 				<set_value name="md.$cm90.$page" exact="'sizes'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
@@ -475,7 +481,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Size echo=' + event.param.$echo"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Size echo=' + event.param.$echo"/>
 				<set_value name="md.$cm90.$class" exact="event.param.$echo"/>
 				<set_value name="md.$cm90.$offset" exact="0"/>
 				<set_value name="md.$cm90.$page" exact="'ships'"/>
@@ -488,10 +494,13 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Back from=' + @md.$cm90.$page"/>
-				<do_if value="md.$cm90.$page == 'ships'">
-					<set_value name="md.$cm90.$page" exact="'sizes'"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Back from=' + @md.$cm90.$page"/>
+				<do_if value="md.$cm90.$page == 'fit'">
+					<set_value name="md.$cm90.$page" exact="'ships'"/>
 				</do_if>
+				<do_elseif value="md.$cm90.$page == 'ships'">
+					<set_value name="md.$cm90.$page" exact="'sizes'"/>
+				</do_elseif>
 				<do_else>
 					<set_value name="md.$cm90.$page" exact="'races'"/>
 				</do_else>
@@ -504,7 +513,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Next offset=' + @md.$cm90.$offset"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Next offset=' + @md.$cm90.$offset"/>
 				<set_value name="md.$cm90.$offset" exact="md.$cm90.$offset + md.$cm90.$page_size"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
@@ -515,7 +524,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Prev offset=' + @md.$cm90.$offset"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Prev offset=' + @md.$cm90.$offset"/>
 				<set_value name="md.$cm90.$offset" exact="md.$cm90.$offset - md.$cm90.$page_size"/>
 				<do_if value="md.$cm90.$offset lt 0">
 					<set_value name="md.$cm90.$offset" exact="0"/>
@@ -529,9 +538,152 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH On_Ship id=' + @event.param.$echo.id + ' name=' + @event.param.$echo.name"/>
-				<signal_cue_instantly cue="Spawn_Empty" param="event.param.$echo"/>
+				<set_value name="md.$cm90.$ware" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$presets" exact="[]"/>
+				<set_value name="$macro" exact="@md.$cm90.$ware.objectmacro"/>
+				<do_if value="not $macro">
+					<set_value name="$macro" exact="@md.$cm90.$ware.component"/>
+				</do_if>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Ship id=' + @md.$cm90.$ware.id + ' name=' + @md.$cm90.$ware.name + ' macro=' + @$macro.id"/>
+				<set_value name="md.$cm90.$page" exact="'fit'"/>
+				<raise_lua_event name="'CheatMenu90.ListLoadouts'" param="@$macro.id"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Fit" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$ware" exact="md.$cm90.$ware"/>
+				<do_if value="not $ware">
+					<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Fit abort: no ware'"/>
+					<set_value name="md.$cm90.$page" exact="'ships'"/>
+					<signal_cue_instantly cue="Fill_Ships"/>
+				</do_if>
+				<do_else>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Fit ware=' + @$ware.id + ' name=' + @$ware.name + ' presets=' + @md.$cm90.$presets.count"/>
+				<set_value name="$qty" exact="[]"/>
+				<append_to_list name="$qty" exact="table[$text = '1', $value = 1]"/>
+				<append_to_list name="$qty" exact="table[$text = '2', $value = 2]"/>
+				<append_to_list name="$qty" exact="table[$text = '3', $value = 3]"/>
+				<append_to_list name="$qty" exact="table[$text = '4', $value = 4]"/>
+				<append_to_list name="$qty" exact="table[$text = '5', $value = 5]"/>
+				<append_to_list name="$qty" exact="table[$text = '10', $value = 10]"/>
+				<append_to_list name="$qty" exact="table[$text = '20', $value = 20]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 1, $colSpan = 2, $onClick = On_Back,
+						$text = table[$text = {357423,9010}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 1, $colSpan = 2, $halign = 'center', $wordwrap = true,
+						$text = {357423,9032} + ': ' + @$ware.name
+					]"/>
+				<do_if value="@md.$cm90.$presets.count">
+					<do_for_each name="$lo" in="md.$cm90.$presets">
+						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+								$col = 1, $colSpan = 2,
+								$options = $qty,
+								$textOverride = {357423,9030} + ': ' + $lo,
+								$onDropDownConfirmed = On_Fit,
+								$echo = table[$mode = 'preset', $loadoutid = $lo]
+							]"/>
+					</do_for_each>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+						$col = 1, $colSpan = 2,
+						$options = $qty,
+						$textOverride = {357423,9031},
+						$onDropDownConfirmed = On_Fit,
+						$echo = table[$mode = 'compat', $loadoutid = '']
+					]"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$mode" exact="@event.param.$echo.$mode"/>
+				<set_value name="$loadoutid" exact="@event.param.$echo.$loadoutid"/>
+				<set_value name="$count" exact="@event.param.$option.$value"/>
+				<do_if value="not $count">
+					<set_value name="$count" exact="@event.param.$option_index"/>
+				</do_if>
+				<do_if value="not $count or $count lt 1">
+					<set_value name="$count" exact="1"/>
+				</do_if>
+				<do_if value="$count gt 20">
+					<set_value name="$count" exact="20"/>
+				</do_if>
+				<set_value name="md.$cm90.$fitmode" exact="$mode"/>
+				<set_value name="md.$cm90.$loadoutid" exact="$loadoutid"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Fit mode=' + $mode + ' loadout=' + $loadoutid + ' count=' + $count + ' ware=' + @md.$cm90.$ware.id"/>
+				<do_if value="$mode == 'preset' and $loadoutid">
+					<raise_lua_event name="'CheatMenu90.SetJob'" param="'preset|' + $loadoutid"/>
+				</do_if>
+				<do_else>
+					<raise_lua_event name="'CheatMenu90.SetJob'" param="'compat'"/>
+				</do_else>
+				<do_all exact="$count" counter="$n">
+					<signal_cue_instantly cue="LogFile" param="'HIGH Spawn loop n=' + $n + '/' + $count"/>
+					<signal_cue_instantly cue="Spawn_Empty" param="md.$cm90.$ware"/>
+				</do_all>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				<raise_lua_event name="'CheatMenu90.LogWrite'" param="'1'"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit_Preset" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'preset'"/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90.$presets?">
+					<set_value name="md.$cm90.$presets" exact="[]"/>
+				</do_if>
+				<set_value name="$id" exact="event.param3"/>
+				<do_if value="not $id">
+					<set_value name="$id" exact="event.param"/>
+				</do_if>
+				<append_to_list name="md.$cm90.$presets" exact="$id"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Fit preset id=' + $id + ' n=' + md.$cm90.$presets.count"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit_Presets_Ready" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'presets_ready'"/>
+			</conditions>
+			<actions>
+				<set_value name="$n" exact="event.param3"/>
+				<do_if value="not $n">
+					<set_value name="$n" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Fit presets_ready n=' + $n + ' list=' + @md.$cm90.$presets.count"/>
+				<do_if value="md.$cm90.$page == 'fit'">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="On_Fit_Log" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'log'"/>
+			</conditions>
+			<actions>
+				<set_value name="$line" exact="event.param3"/>
+				<do_if value="not $line">
+					<set_value name="$line" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="LogFile" param="$line"/>
 			</actions>
 		</cue>
 
@@ -545,7 +697,7 @@
 				<do_if value="not $macro">
 					<set_value name="$macro" exact="@$ware.component"/>
 				</do_if>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Spawn start ware=' + @$ware.id + ' name=' + @$ware.name + ' macro=' + @$macro.id + ' zone=' + @player.zone + ' ship=' + @player.ship + ' entity=' + @player.entity"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Spawn start mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid + ' ware=' + @$ware.id + ' name=' + @$ware.name + ' macro=' + @$macro.id + ' zone=' + @player.zone + ' ship=' + @player.ship + ' entity=' + @player.entity"/>
 				<do_if value="not $macro">
 					<signal_cue_instantly cue="LogFile" param="'HIGH Spawn abort: no macro'"/>
 				</do_if>
@@ -559,6 +711,8 @@
 					</do_if>
 					<set_value name="$pos" exact="$anchor.position"/>
 					<signal_cue_instantly cue="LogFile" param="'HIGH Spawn pos original-style object=' + @$anchor.id + ' pos=' + $pos + ' zone=' + @player.zone"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Fit stage1 hull ware=' + @$ware.id + ' macro=' + @$macro.id"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH Fit LOG_ONLY=1 no install this pass'"/>
 					<create_ship name="$ship" macro="$macro" zone="player.zone">
 						<owner exact="faction.player" overridenpc="true"/>
 						<show_notification text="@$ware.name"/>
@@ -595,6 +749,7 @@
 							<set_skill entity="$controlCrew.{$j}" type="skilltype.morale" exact="15"/>
 							<set_skill entity="$controlCrew.{$j}" type="skilltype.piloting" exact="15"/>
 						</do_all>
+						<raise_lua_event name="'CheatMenu90.Fit'" param="$ship"/>
 					</do_if>
 					<signal_cue_instantly cue="LogFile" param="'HIGH Spawn result ship=' + $ship + ' id=' + @$ship.id + ' name=' + @$ship.name + ' exists=' + $ship? + ' resultPos=' + @$ship.position"/>
 				</do_else>
@@ -606,7 +761,11 @@
 				<event_ui_triggered screen="'CM90Log'" control="'file'"/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'LUA wrote ' + event.param"/>
+				<set_value name="$path" exact="event.param3"/>
+				<do_if value="not $path">
+					<set_value name="$path" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="LogFile" param="'HIGH Lua wrote ' + $path"/>
 			</actions>
 		</cue>
 
@@ -620,7 +779,7 @@
 			<delay exact="5s"/>
 			<actions>
 				<do_if value="not md.Simple_Menu_API?">
-					<signal_cue_instantly cue="LogFile" param="'HIGH Warn_Missing_Api: Simple_Menu_API missing'"/>
+					<signal_cue_instantly cue="LogFile" param="'HIGH UI Warn_Missing_Api: Simple_Menu_API missing'"/>
 					<show_notification text="{357423,9006}"/>
 				</do_if>
 			</actions>

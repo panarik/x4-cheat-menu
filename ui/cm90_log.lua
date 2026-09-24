@@ -9,6 +9,12 @@ local function debug(msg)
   end
 end
 
+local function note(msg)
+  msg = "HIGH Lua " .. tostring(msg)
+  debug(msg)
+  table.insert(buffer, msg)
+end
+
 local function try_io_write(path, body)
   if not io or not io.open then
     return false, "io.open unavailable"
@@ -79,32 +85,27 @@ local function dump_body()
 end
 
 local function write_path(path)
-  debug("lua try io path=" .. path)
-  table.insert(buffer, "LUA layer: try io path=" .. path)
+  note("try io path=" .. path)
   body = dump_body()
   local ok, err = try_io_write(path, body)
   if ok then
     return true, "io"
   end
-  debug("lua io fail path=" .. path .. " err=" .. tostring(err))
-  table.insert(buffer, "LUA layer: io fail path=" .. path .. " err=" .. tostring(err))
-  debug("lua try ffi path=" .. path)
-  table.insert(buffer, "LUA layer: try ffi path=" .. path)
+  note("io fail path=" .. path .. " err=" .. tostring(err))
+  note("try ffi path=" .. path)
   body = dump_body()
   ok, err = try_ffi_write(path, body)
   if ok then
     return true, "ffi"
   end
-  debug("lua ffi fail path=" .. path .. " err=" .. tostring(err))
-  table.insert(buffer, "LUA layer: ffi fail path=" .. path .. " err=" .. tostring(err))
+  note("ffi fail path=" .. path .. " err=" .. tostring(err))
   return false, tostring(err)
 end
 
 local function write_file()
   local candidates = {}
   local userdir = userdata_dir()
-  debug("lua userdata_dir=" .. tostring(userdir))
-  table.insert(buffer, "LUA layer: userdata_dir=" .. tostring(userdir))
+  note("userdata_dir=" .. tostring(userdir))
   if userdir then
     local sep = string.sub(userdir, -1)
     if sep ~= "/" and sep ~= "\\" then
@@ -123,8 +124,7 @@ local function write_file()
     local ok, how = write_path(path)
     if ok then
       written = path
-      table.insert(buffer, "LUA layer: wrote via=" .. tostring(how) .. " path=" .. path)
-      debug("lua wrote via=" .. tostring(how) .. " path=" .. path)
+      note("wrote via=" .. tostring(how) .. " path=" .. path)
       write_path(path)
       break
     end
@@ -132,13 +132,13 @@ local function write_file()
   end
 
   if written then
-    debug("log file: " .. written)
+    debug("HIGH Lua log file: " .. written)
     if AddUITriggeredEvent then
       AddUITriggeredEvent("CM90Log", "file", written)
     end
   else
-    local msg = "log file FAILED: " .. table.concat(errors, " | ")
-    table.insert(buffer, "LUA layer: " .. msg)
+    local msg = "HIGH Lua log file FAILED: " .. table.concat(errors, " | ")
+    table.insert(buffer, msg)
     debug(msg)
     if AddUITriggeredEvent then
       AddUITriggeredEvent("CM90Log", "file", msg)
@@ -166,27 +166,25 @@ local function on_line(_, line)
 end
 
 local function on_write()
-  table.insert(buffer, "LUA layer: write start buffered=" .. tostring(#buffer))
-  debug("lua write start buffered=" .. tostring(#buffer))
+  note("write start buffered=" .. tostring(#buffer))
   write_file()
 end
 
 local function on_clear()
   buffer = {}
-  table.insert(buffer, "LUA layer: buffer cleared")
-  debug("lua buffer cleared")
+  note("buffer cleared")
 end
 
 local function init()
-  debug("lua init start")
+  debug("HIGH Lua init start")
   if not RegisterEvent then
-    debug("RegisterEvent missing")
+    debug("HIGH Lua RegisterEvent missing")
     return
   end
   RegisterEvent("CheatMenu90.LogClear", on_clear)
   RegisterEvent("CheatMenu90.LogLine", on_line)
   RegisterEvent("CheatMenu90.LogWrite", on_write)
-  debug("lua log writer ready")
+  debug("HIGH Lua log writer ready")
 end
 
 if Register_OnLoad_Init then
