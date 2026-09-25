@@ -753,6 +753,14 @@ local function read_named_kit(id, shipmacro, loadoutid)
       return rows
     end)(),
     thruster = ffi_str(lo.thruster.macro),
+    software = (function()
+      local rows = {}
+      local n = tonumber(lo.numsoftware) or 0
+      for i = 0, n - 1 do
+        rows[#rows + 1] = ffi_str(lo.software[i].ware)
+      end
+      return rows
+    end)(),
   }
 end
 
@@ -959,9 +967,41 @@ local function install_wanted(id, wanted, overwrite)
   return ok_n, fail_n
 end
 
-local function send_named_apply()
-  log_md("HIGH Fit kit_ready named id=" .. job.loadoutid .. " fallback=apply_loadout")
-  notify_md("kit_ready", job.loadoutid)
+local function add_ware_id(seen, ids, ware)
+  ware = tostring(ware or "")
+  if ware == "" or seen[ware] then
+    return
+  end
+  seen[ware] = true
+  ids[#ids + 1] = ware
+end
+
+local function ware_ids_for(wanted, kit)
+  local seen = {}
+  local ids = {}
+  for i = 1, #(wanted or {}) do
+    add_ware_id(seen, ids, macro_to_ware(wanted[i].macro))
+  end
+  if kit then
+    add_ware_id(seen, ids, macro_to_ware(kit.thruster))
+    for i = 1, #(kit.ammo or {}) do
+      add_ware_id(seen, ids, macro_to_ware(kit.ammo[i].macro))
+    end
+    for i = 1, #(kit.software or {}) do
+      add_ware_id(seen, ids, kit.software[i])
+    end
+  end
+  return ids
+end
+
+local function send_ware_apply(mode, wares)
+  log_md("HIGH Fit md-wares mode=" .. mode .. " n=" .. #wares)
+  notify_md("kit_clear", "1")
+  for i = 1, #wares do
+    log_md("LOW Fit md-ware i=" .. i .. " id=" .. wares[i])
+    notify_md("kit_ware", wares[i])
+  end
+  notify_md("kit_ready", tostring(#wares))
 end
 
 local function verify_wanted(id, wanted)
@@ -1270,8 +1310,15 @@ local function on_fit(_, obj)
     end
     local ok_n, fail_n = install_wanted(id, wanted, true)
     if fail_n > 0 and #wanted > 0 then
-      log_md("HIGH Fit defer md named id=" .. job.loadoutid .. " ffi_ok=" .. tostring(ok_n) .. " ffi_fail=" .. tostring(fail_n))
-      send_named_apply()
+      local wares = ware_ids_for(wanted, kit)
+      log_md("HIGH Fit defer md wares mode=preset id=" .. job.loadoutid
+        .. " ffi_ok=" .. tostring(ok_n) .. " ffi_fail=" .. tostring(fail_n) .. " wares=" .. #wares)
+      if #wares < 1 then
+        log_md("HIGH Fit result FAIL no-wares")
+        finish_stage3(id, macro, wanted, kit)
+        return
+      end
+      send_ware_apply("preset", wares)
       return
     end
     log_md("HIGH Fit install via ffi n=" .. #wanted)
@@ -1287,6 +1334,18 @@ local function on_fit(_, obj)
     return
   end
   local ok_n, fail_n = install_wanted(id, fitting, false)
+  if fail_n > 0 and #fitting > 0 then
+    local wares = ware_ids_for(fitting, nil)
+    log_md("HIGH Fit defer md wares mode=found-modules ffi_ok=" .. tostring(ok_n)
+      .. " ffi_fail=" .. tostring(fail_n) .. " wares=" .. #wares)
+    if #wares < 1 then
+      log_md("HIGH Fit result FAIL no-wares")
+      finish_stage3(id, macro, fitting, nil)
+      return
+    end
+    send_ware_apply("found-modules", wares)
+    return
+  end
   log_md("HIGH Fit found install done ok=" .. tostring(ok_n) .. " fail=" .. tostring(fail_n) .. " n=" .. #fitting)
   finish_stage3(id, macro, fitting, nil)
 end

@@ -788,15 +788,42 @@
 				</do_if>
 				<set_value name="$ship" exact="md.$cm90.$lastship"/>
 				<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_ready n=' + $n + ' wares=' + @md.$cm90.$kitwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid"/>
+				<set_value name="$applied" exact="false"/>
 				<do_if value="not $ship?">
 					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply abort: no lastship'"/>
 				</do_if>
-				<do_elseif value="md.$cm90.$fitmode == 'preset' and md.$cm90.$loadoutid">
-					<apply_loadout object="$ship" loadout="md.$cm90.$loadoutid"/>
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply_loadout named id=' + md.$cm90.$loadoutid + ' ship=' + @$ship.id"/>
-				</do_elseif>
 				<do_else>
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply skip: not a named preset'"/>
+					<set_value name="$macro" exact="md.$cm90.$lastmacro"/>
+					<do_if value="not $macro">
+						<set_value name="$macro" exact="@$ship.macro"/>
+					</do_if>
+					<do_if value="md.$cm90.$fitmode == 'preset' and md.$cm90.$loadoutid">
+						<signal_cue_instantly cue="LogFile" param="'HIGH Fit get_loadout start id=' + md.$cm90.$loadoutid + ' macro=' + @$macro.id"/>
+						<get_loadout result="$lo" loadout="md.$cm90.$loadoutid" macro="$macro"/>
+						<do_if value="$lo?">
+							<apply_loadout object="$ship" loadout="$lo"/>
+							<set_value name="$applied" exact="true"/>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Fit get_loadout applied id=' + md.$cm90.$loadoutid + ' macro=' + @$macro.id"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Fit get_loadout empty id=' + md.$cm90.$loadoutid + ' fallback=wares'"/>
+						</do_else>
+					</do_if>
+					<do_if value="not $applied and @md.$cm90.$kitwares.count gt 0">
+						<signal_cue_instantly cue="LogFile" param="'HIGH Fit generate_loadout start mode=' + @md.$cm90.$fitmode + ' macro=' + @$macro.id + ' wares=' + md.$cm90.$kitwares.count"/>
+						<generate_loadout result="$los" macro="$macro" faction="faction.player" wares="md.$cm90.$kitwares" level="1.0" variation="0"/>
+						<do_if value="$los.count">
+							<apply_loadout object="$ship" loadout="$los.{1}"/>
+							<set_value name="$applied" exact="true"/>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Fit generate_loadout applied n=' + $los.count + ' wares=' + md.$cm90.$kitwares.count + ' mode=' + @md.$cm90.$fitmode"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Fit generate_loadout empty wares=' + md.$cm90.$kitwares.count + ' mode=' + @md.$cm90.$fitmode"/>
+						</do_else>
+					</do_if>
+					<do_elseif value="not $applied">
+						<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply skip: no loadout mode=' + @md.$cm90.$fitmode"/>
+					</do_elseif>
 				</do_else>
 				<do_if value="$ship?">
 					<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
