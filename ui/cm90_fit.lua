@@ -1,5 +1,6 @@
--- Cheat Menu 9.0: loadout snapshot + install.
--- Preset: named kit only. Found-modules: empty hull, constructor compat per slot.
+-- Cheat Menu 9.0: shared Fit frame.
+-- Preset lives in cm90_fit_preset.lua. Found modules live in cm90_fit_found.lua.
+-- This file is the snapshot, the log, and the job.mode bridge. Do not put a mode install back here.
 
 local LOG_ONLY = false
 
@@ -662,6 +663,46 @@ local function collect_found_picks(id, shipmacro)
   return picks
 end
 
+-- Occupied virtual slots (thruster). Found path only.
+-- generate_loadout replaces the whole loadout, so a thruster already on the naked hull
+-- is wiped unless its ware is in the list. Empty-slot picks never see it.
+local function collect_occupied_virtual(id, shipmacro)
+  local picks = {}
+  for t = 1, #SLOT_TYPES do
+    local spec = SLOT_TYPES[t]
+    if spec.virtual then
+      local wares = list_wares(spec.tags)
+      local n = num_slots(id, shipmacro, spec)
+      for slot = 1, n do
+        local cur = current_macro(id, spec, slot)
+        if cur ~= "" then
+          local path, group = slot_group(id, shipmacro, spec, slot)
+          local pick, slotcompat, groupcompat, names = scan_candidates(id, shipmacro, spec, slot, path, group, wares)
+          log_md("MID Fit compat " .. spec.name .. " slot=" .. slot
+            .. " occupied=" .. cur
+            .. " path=" .. path .. " group=" .. group
+            .. " slotcompat=" .. slotcompat
+            .. " groupcompat=" .. groupcompat
+            .. " pick=" .. tostring(pick))
+          log_chunks("LOW Fit candidates " .. spec.name .. " slot=" .. slot, names)
+          local macro = pick or cur
+          log_md("HIGH Fit fitting pick " .. spec.name .. " slot=" .. slot
+            .. " macro=" .. macro .. " compat=" .. slotcompat .. " src=occupied-virtual")
+          picks[#picks + 1] = {
+            spec = spec,
+            slot = slot,
+            path = path,
+            group = group,
+            macro = macro,
+            source = "found-virtual",
+          }
+        end
+      end
+    end
+  end
+  return picks
+end
+
 local function copy_macro_rows(arr, n, fallback)
   local out = {}
   n = tonumber(n) or 0
@@ -994,14 +1035,14 @@ local function ware_ids_for(wanted, kit)
   return ids
 end
 
-local function send_ware_apply(mode, wares)
-  log_md("HIGH Fit md-wares mode=" .. mode .. " n=" .. #wares)
+local function send_ware_apply(mode, wares, control)
+  log_md("HIGH Fit md-wares mode=" .. mode .. " n=" .. #wares .. " control=" .. tostring(control))
   notify_md("kit_clear", "1")
   for i = 1, #wares do
     log_md("LOW Fit md-ware i=" .. i .. " id=" .. wares[i])
     notify_md("kit_ware", wares[i])
   end
-  notify_md("kit_ready", tostring(#wares))
+  notify_md(control, tostring(#wares))
 end
 
 local function verify_wanted(id, wanted)
@@ -1268,6 +1309,25 @@ local function on_fit_verify(_, obj)
   finish_stage3(id, macro, pending_wanted, pending_kit)
 end
 
+local function fit_api()
+  return {
+    log_md = log_md,
+    job = job,
+    LOG_ONLY = LOG_ONLY,
+    collect_preset_wanted = collect_preset_wanted,
+    log_before_install = log_before_install,
+    finish_stage3 = finish_stage3,
+    install_wanted = install_wanted,
+    ware_ids_for = ware_ids_for,
+    send_ware_apply = send_ware_apply,
+    collect_occupied_virtual = collect_occupied_virtual,
+    set_pending = function(wanted, kit)
+      pending_wanted = wanted
+      pending_kit = kit
+    end,
+  }
+end
+
 local function on_fit(_, obj)
   if not init_ffi() then
     log_md("HIGH Fit abort: no ffi")
@@ -1297,57 +1357,20 @@ local function on_fit(_, obj)
   log_md("HIGH Fit naked done filled=" .. tostring(naked_filled) .. " empty=" .. tostring(naked_empty))
   log_ammo(id, macro, "naked")
   local fitting = collect_found_picks(id, macro)
+  local api = fit_api()
   if job.mode == "preset" and job.loadoutid ~= "" then
-    log_md("HIGH Fit preset apply id=" .. job.loadoutid)
-    local wanted, kit = collect_preset_wanted(id, macro, job.loadoutid)
-    pending_wanted = wanted
-    pending_kit = kit
-    log_before_install("preset", wanted, " id=" .. job.loadoutid)
-    if LOG_ONLY then
-      log_md("HIGH Fit install skipped LOG_ONLY n=" .. #wanted)
-      finish_stage3(id, macro, wanted, kit)
+    if not (_G.CM90Fit and _G.CM90Fit.install_preset) then
+      log_md("HIGH Fit result FAIL preset-bridge")
       return
     end
-    local ok_n, fail_n = install_wanted(id, wanted, true)
-    if fail_n > 0 and #wanted > 0 then
-      local wares = ware_ids_for(wanted, kit)
-      log_md("HIGH Fit defer md wares mode=preset id=" .. job.loadoutid
-        .. " ffi_ok=" .. tostring(ok_n) .. " ffi_fail=" .. tostring(fail_n) .. " wares=" .. #wares)
-      if #wares < 1 then
-        log_md("HIGH Fit result FAIL no-wares")
-        finish_stage3(id, macro, wanted, kit)
-        return
-      end
-      send_ware_apply("preset", wares)
-      return
-    end
-    log_md("HIGH Fit install via ffi n=" .. #wanted)
-    finish_stage3(id, macro, wanted, kit)
+    _G.CM90Fit.install_preset(api, id, macro)
     return
   end
-  pending_wanted = fitting
-  pending_kit = nil
-  log_before_install("found-modules", fitting, "")
-  if LOG_ONLY then
-    log_md("HIGH Fit install skipped LOG_ONLY n=" .. #fitting)
-    finish_stage3(id, macro, fitting, nil)
+  if not (_G.CM90Fit and _G.CM90Fit.install_found) then
+    log_md("HIGH Fit result FAIL found-bridge")
     return
   end
-  local ok_n, fail_n = install_wanted(id, fitting, false)
-  if fail_n > 0 and #fitting > 0 then
-    local wares = ware_ids_for(fitting, nil)
-    log_md("HIGH Fit defer md wares mode=found-modules ffi_ok=" .. tostring(ok_n)
-      .. " ffi_fail=" .. tostring(fail_n) .. " wares=" .. #wares)
-    if #wares < 1 then
-      log_md("HIGH Fit result FAIL no-wares")
-      finish_stage3(id, macro, fitting, nil)
-      return
-    end
-    send_ware_apply("found-modules", wares)
-    return
-  end
-  log_md("HIGH Fit found install done ok=" .. tostring(ok_n) .. " fail=" .. tostring(fail_n) .. " n=" .. #fitting)
-  finish_stage3(id, macro, fitting, nil)
+  _G.CM90Fit.install_found(api, id, macro, fitting)
 end
 
 local function init()

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Found modules. The preset path does not enter this file.
+  Bridge: event found_apply, ware list md.$cm90.$kitwares, ship md.$cm90.$lastship.
+  No get_loadout here.
+-->
+<mdscript name="cm90_fit_found" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="On_Fit_Found_Ready" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'found_apply'"/>
+			</conditions>
+			<actions>
+				<set_value name="$n" exact="event.param3"/>
+				<do_if value="not $n">
+					<set_value name="$n" exact="event.param"/>
+				</do_if>
+				<set_value name="$ship" exact="md.$cm90.$lastship"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found_apply n=' + $n + ' wares=' + @md.$cm90.$kitwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode"/>
+				<do_if value="@md.$cm90.$fitmode == 'preset'">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found cue ignored mode=preset'"/>
+				</do_if>
+				<do_elseif value="not $ship?">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply abort: no lastship'"/>
+				</do_elseif>
+				<do_elseif value="@md.$cm90.$kitwares.count gt 0">
+					<set_value name="$macro" exact="md.$cm90.$lastmacro"/>
+					<do_if value="not $macro">
+						<set_value name="$macro" exact="@$ship.macro"/>
+					</do_if>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout start mode=found-modules macro=' + @$macro.id + ' wares=' + md.$cm90.$kitwares.count"/>
+					<generate_loadout result="$los" macro="$macro" faction="faction.player" wares="md.$cm90.$kitwares" level="1.0" variation="0"/>
+					<do_if value="$los.count">
+						<apply_loadout object="$ship" loadout="$los.{1}"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout applied n=' + $los.count + ' wares=' + md.$cm90.$kitwares.count + ' mode=found-modules'"/>
+					</do_if>
+					<do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout empty wares=' + md.$cm90.$kitwares.count + ' mode=found-modules'"/>
+					</do_else>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply skip: no loadout mode=found-modules'"/>
+				</do_else>
+				<do_if value="$ship?">
+					<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
+				</do_if>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>
