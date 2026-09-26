@@ -1,7 +1,8 @@
 -- Found modules. Do not call the preset path.
 -- Bridge: CM90Fit.install_found(api, id, macro, fitting). MD install event is found_apply.
--- fitting is the empty-slot list from cm90_fit.lua. This file also keeps occupied
--- virtual slots (thruster): generate_loadout drops them when the ware is absent.
+-- fitting is the empty-slot list from cm90_fit.lua. Occupied slots are added as
+-- they stand: generate_loadout replaces the whole loadout and drops any ware
+-- that is not in the list.
 
 _G.CM90Fit = _G.CM90Fit or {}
 
@@ -17,13 +18,11 @@ end
 
 function _G.CM90Fit.install_found(api, id, macro, fitting)
   fitting = fitting or {}
-  local extra = api.collect_occupied_virtual(id, macro)
+  local extra = api.collect_occupied(id, macro)
   for i = 1, #extra do
     local row = extra[i]
     if not has_slot(fitting, row.spec.name, row.slot) then
       fitting[#fitting + 1] = row
-      api.log_md("HIGH Fit found virtual keep " .. row.spec.name .. " slot=" .. row.slot
-        .. " macro=" .. row.macro)
     end
   end
   api.set_pending(fitting, nil)

@@ -663,6 +663,35 @@ local function collect_found_picks(id, shipmacro)
   return picks
 end
 
+-- Occupied slots. Found path only.
+-- generate_loadout replaces the whole loadout. A module already on the hull
+-- is wiped unless its ware is in the list. Keep the current macro; do not
+-- replace it with a higher _mk candidate.
+local function collect_occupied(id, shipmacro)
+  local picks = {}
+  for t = 1, #SLOT_TYPES do
+    local spec = SLOT_TYPES[t]
+    local n = num_slots(id, shipmacro, spec)
+    for slot = 1, n do
+      local cur = current_macro(id, spec, slot)
+      if cur ~= "" then
+        local path, group = slot_group(id, shipmacro, spec, slot)
+        log_md("HIGH Fit found occupied keep " .. spec.name .. " slot=" .. slot
+          .. " macro=" .. cur)
+        picks[#picks + 1] = {
+          spec = spec,
+          slot = slot,
+          path = path,
+          group = group,
+          macro = cur,
+          source = "found-occupied",
+        }
+      end
+    end
+  end
+  return picks
+end
+
 -- Occupied virtual slots (thruster). Found path only.
 -- generate_loadout replaces the whole loadout, so a thruster already on the naked hull
 -- is wiped unless its ware is in the list. Empty-slot picks never see it.
@@ -1321,6 +1350,7 @@ local function fit_api()
     ware_ids_for = ware_ids_for,
     send_ware_apply = send_ware_apply,
     collect_occupied_virtual = collect_occupied_virtual,
+    collect_occupied = collect_occupied,
     set_pending = function(wanted, kit)
       pending_wanted = wanted
       pending_kit = kit

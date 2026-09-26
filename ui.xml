@@ -5,5 +5,7 @@
     <file name="ui/cm90_fit_preset.lua"/>
     <file name="ui/cm90_fit_found.lua"/>
     <file name="ui/cm90_fit.lua"/>
+    <file name="ui/cm90_catalog_rule.lua"/>
+    <file name="ui/cm90_catalog.lua"/>
   </environment>
 </addon>
