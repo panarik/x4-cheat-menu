@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Options hub. One public menu.
+  Column 1 is the feature list. Columns 2-4 are the open feature.
+  Clicking a feature refreshes this same menu, so the list stays.
+  This file does not draw ship rows or the wing patrol.
+-->
+<mdscript name="cm90_menu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Register_Options_Menu" instantiate="true">
+			<conditions>
+				<event_cue_signalled cue="md.Simple_Menu_API.Reloaded"/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI Register_Options_Menu cm90_menu'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Register_Options_Menu" param="table[
+						$id      = 'cm90_menu',
+						$columns = 4,
+						$title   = {357423,9001},
+						$onOpen  = Open
+					]"/>
+			</actions>
+		</cue>
+
+		<cue name="Open" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<do_if value="not md.$cm90.$pane?">
+					<set_value name="md.$cm90.$pane" exact="'ship'"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI menu open pane=' + md.$cm90.$pane"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidthPercent',
+						$col = 1,
+						$width = 26
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<do_if value="md.$cm90.$pane == 'ship'">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 1, $onClick = On_Show_Ship,
+							$bgColor = 'Color.table_row_highlight',
+							$text = table[$text = {357424,1}, $halign = 'left']
+						]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 1, $onClick = On_Show_Ship,
+							$text = table[$text = {357424,1}, $halign = 'left']
+						]"/>
+				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<do_if value="md.$cm90.$pane == 'wing'">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 1, $onClick = On_Show_Wing,
+							$bgColor = 'Color.table_row_highlight',
+							$text = table[$text = {357424,2}, $halign = 'left']
+						]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 1, $onClick = On_Show_Wing,
+							$text = table[$text = {357424,2}, $halign = 'left']
+						]"/>
+				</do_else>
+				<do_if value="md.$cm90.$pane == 'wing'">
+					<signal_cue_instantly cue="md.cm90_wing.Draw"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.Fill_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Show_Ship" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<set_value name="md.$cm90.$pane" exact="'ship'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Show_Wing" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<set_value name="md.$cm90.$pane" exact="'wing'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

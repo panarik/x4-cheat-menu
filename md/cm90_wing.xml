@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Build Wing content. The hub draws the left column and signals Draw.
+  One medium job patrol near the player. Hulls come from the job, not a fixed list.
+  Terran frigate patrol if that job answers, otherwise the Argon one.
+  Escorts are the job's wing quota (4), spawned here so the shipyard wait is skipped.
+-->
+<mdscript name="cm90_wing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Draw" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI wing open'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
+						$text = {357424,3}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = On_Patrol,
+						$text = table[$text = {357424,4}, $halign = 'center']
+					]"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Patrol" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing spawn start zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship"/>
+				<do_if value="not player.zone?">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing abort: no player.zone'"/>
+				</do_if>
+				<do_else>
+					<set_value name="$anchor" exact="player.ship"/>
+					<do_if value="not $anchor">
+						<set_value name="$anchor" exact="player.entity"/>
+					</do_if>
+					<set_value name="$sector" exact="player.sector"/>
+					<do_if value="not $sector">
+						<set_value name="$sector" exact="player.zone.sector"/>
+					</do_if>
+					<set_value name="$leadjob" exact="'terran_frigate_patrol_m_sector_exp'"/>
+					<set_value name="$wingjob" exact="'terran_fighter_escort_s_frigate'"/>
+					<request_job_ship name="$lead" job="$leadjob" requester="$sector" zone="player.zone"/>
+					<do_if value="not $lead">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing request miss job=' + $leadjob"/>
+						<set_value name="$leadjob" exact="'argon_frigate_patrol_m_sector_exp'"/>
+						<set_value name="$wingjob" exact="'argon_fighter_escort_s_frigate'"/>
+						<request_job_ship name="$lead" job="$leadjob" requester="$sector" zone="player.zone"/>
+					</do_if>
+					<do_if value="not $lead">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing abort: no commander job=' + $leadjob"/>
+					</do_if>
+					<do_else>
+						<spawn_waiting_job_ship ship="$lead" zone="player.zone" result="$placed">
+							<safepos object="$anchor" x="3km"/>
+						</spawn_waiting_job_ship>
+						<do_if value="not $placed">
+							<remove_job_ship_request ship="$lead"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing abort: commander not placed job=' + $leadjob"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing commander job=' + $leadjob + ' ship=' + @$lead + ' id=' + @$lead.id"/>
+							<set_value name="$escorts" exact="0"/>
+							<do_all exact="4" counter="$i">
+								<request_job_ship name="$escort" job="$wingjob" requester="$lead" zone="player.zone"/>
+								<do_if value="not $escort">
+									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing escort request miss i=' + $i + ' job=' + $wingjob"/>
+								</do_if>
+								<do_else>
+									<spawn_waiting_job_ship ship="$escort" zone="player.zone" result="$escort_placed">
+										<safepos object="$anchor" x="2km + ($i * 1km)" z="1km"/>
+									</spawn_waiting_job_ship>
+									<do_if value="not $escort_placed">
+										<remove_job_ship_request ship="$escort"/>
+										<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing escort not placed i=' + $i"/>
+									</do_if>
+									<do_else>
+										<set_object_commander object="$escort" commander="$lead"/>
+										<set_value name="$escorts" exact="$escorts + 1"/>
+										<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing escort i=' + $i + ' ship=' + @$escort + ' id=' + @$escort.id"/>
+									</do_else>
+								</do_else>
+							</do_all>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Wing spawn done job=' + $leadjob + ' escorts=' + $escorts"/>
+							<show_notification text="{357424,5}"/>
+						</do_else>
+					</do_else>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

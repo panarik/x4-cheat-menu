@@ -1,10 +1,10 @@
 # Cheat Menu 9.0
 
-Cheat menu for X4 Foundations. Version **1.24**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. The list is grouped by the races and factions in your installed game. Requires SirNukes Mod Support APIs.
+Cheat menu for X4 Foundations. Version **1.26**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. The list is grouped by the races and factions in your installed game. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.24**. Author: **qadetmir**.
+Current version: **1.26**. Author: **qadetmir**.
 
 ## Description
 
@@ -36,14 +36,15 @@ The window: ESC → Extension Options → Cheat Menu 9.0.
 You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A list of races and factions opens. Each row shows how many ships of that group exist in **your** install. Pick one.
-3. A size list opens: XL / L / M / S. Pick a size.
-4. A list of the actual ships for that group and size.
-5. Click a ship name. A fitting screen opens. Each row is a count dropdown: 1, 2, 3, 4, 5, 10, or 20.
-6. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
-7. **Auto from found modules:** builds a kit from compatible modules that are loaded.
-8. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
-9. The ships appear near the player, player-owned, with a full 5-star crew. You can keep the window open.
+2. A narrow column on the left stays on the window: **Build Ship** and **Build Wing**. The rest of the window is the selected page. Open **Build Wing** and click **Spawn mid wing**. That places one medium job patrol a few kilometres from you in the current sector. The hulls come from the job: a Terran frigate patrol when that job exists, otherwise an Argon one, plus that job's four fighter escorts. It does not start a war.
+3. **Build Ship** opens the list of races and factions. Each row shows how many ships of that group exist in **your** install. Pick one.
+4. A size list opens: XL / L / M / S. Pick a size.
+5. A list of the actual ships for that group and size.
+6. Click a ship name. A fitting screen opens. Each row is a count dropdown: 1, 2, 3, 4, 5, 10, or 20.
+7. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
+8. **Auto from found modules:** builds a kit from compatible modules that are loaded.
+9. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
+10. The ships appear near the player, player-owned, with a full 5-star crew. You can keep the window open.
 
 ## Main features
 
