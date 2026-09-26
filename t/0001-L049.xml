@@ -59,22 +59,22 @@
 		<t id="5003">Player pilots stop instantly</t>
 		<t id="5004">Player pilots arrive instantly</t>
 		<t id="9001">Cheat Menu 9.0</t>
-		<t id="9002">Заготовка окна</t>
-		<t id="9003">Список кораблей ещё не подключён. Эта страница только проверяет, что Simple Menu API открывается.</t>
-		<t id="9004">Плейсхолдер</t>
-		<t id="9005">Cheat Menu 9.0: кнопка-плейсхолдер работает.</t>
-		<t id="9006">Cheat Menu 9.0: SirNukes Mod Support APIs не загружен.</t>
-		<t id="9010">Назад</t>
-		<t id="9011">Корабли по расе</t>
-		<t id="9012">Другие</t>
-		<t id="9013">Корабли не найдены. Проверь, что ware с тегом ship загружены.</t>
-		<t id="9019">Дальше</t>
-		<t id="9020">Назад по списку</t>
+		<t id="9002">Placeholder window</t>
+		<t id="9003">Ship list is not connected yet. This page only checks that Simple Menu API opens.</t>
+		<t id="9004">Placeholder</t>
+		<t id="9005">Cheat Menu 9.0: placeholder button works.</t>
+		<t id="9006">Cheat Menu 9.0: SirNukes Mod Support APIs is not loaded.</t>
+		<t id="9010">Back</t>
+		<t id="9011">Ships by race</t>
+		<t id="9012">Other</t>
+		<t id="9013">No ships found. Check that wares with tag ship are loaded.</t>
+		<t id="9019">Next</t>
+		<t id="9020">Previous</t>
 		<t id="9021">LOG</t>
-		<t id="9030">Пресет игрока</t>
-		<t id="9031">Авто из найденных модулей</t>
-		<t id="9032">Фитинг</t>
-		<t id="9033">Пресет автора мода</t>
+		<t id="9030">Player preset</t>
+		<t id="9031">Auto from found modules</t>
+		<t id="9032">Fitting</t>
+		<t id="9033">Author preset</t>
 
 	</page>
 </language>

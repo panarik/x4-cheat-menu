@@ -1,22 +1,29 @@
 # Cheat Menu 9.0
 
-WIP cheat menu for X4 Foundations 9.00. Version **1.19**. First feature: instantly spawn any ship the game currently has loaded — vanilla, the DLC you own, and every ship from your other mods. No hardcoded ship list. The menu reads the same ware library as the in-game creative constructor. Built to set up RP situations. Requires SirNukes Mod Support APIs.
+Cheat menu for X4 Foundations. Version **1.24**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. The list is grouped by the races and factions in your installed game. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.19**. Author: **qadetmir**.
+Current version: **1.24**. Author: **qadetmir**.
 
 ## Description
 
-This mod is **in development**. What you get today is the first finished piece: spawn **any** ship that exists in **your** install.
+Spawn **any** ship that exists in **your** install: vanilla, the DLC you own, and every ship from enabled mods. No hardcoded ship list. The menu reads the same ware library as the in-game creative constructor.
 
-The menu asks the game for every ware tagged **ship**, the same way Custom Start / the creative constructor builds its catalogue. If a ship pack, a DLC, or a one-off hull is loaded, it shows up. If you only own part of the DLC set, you only see that set.
+The list is grouped by races and factions from that install, including custom ones from ship mods. Then by size, then by name.
 
-You can drop a third-party fighter, a Kha'ak XL, or a vanilla courier in front of you and see how it actually behaves — loadout, size, and all.
+Each ship can be created in either of two ways:
 
-I am publishing this for people who need to **build a scene and then role-play it**. Spawn the ships, set the table, play.
+1. **Saved preset.** A kit you saved in the game for this ship. Slots that preset left empty stay empty.
+2. **Automatic preset.** Built from the compatible modules loaded in your game (vanilla, your DLC, and enabled mods).
 
-The new window: ESC → Extension Options → Cheat Menu 9.0.
+You choose how many ships to create: 1, 2, 3, 4, 5, 10, or 20.
+
+If the hull ships with its own kit, that author preset is listed too. Empty slots in it stay empty.
+
+You can drop a third-party fighter, a Kha'ak XL, or a vanilla courier in front of you and see how it actually behaves.
+
+The window: ESC → Extension Options → Cheat Menu 9.0.
 
 ## Installation instructions
 
@@ -29,20 +36,24 @@ The new window: ESC → Extension Options → Cheat Menu 9.0.
 You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A race list opens. Each race shows how many ships of that race exist in **your** install. Pick a race.
+2. A list of races and factions opens. Each row shows how many ships of that group exist in **your** install. Pick one.
 3. A size list opens: XL / L / M / S. Pick a size.
-4. A list of the actual ships for that race and size.
-5. Click a ship name. That same moment the chosen ship appears near the player, in a free spot. It is player-owned, the game builds the loadout, crew is 5-star.
-6. Each click spawns one more ship. You can keep the window open.
+4. A list of the actual ships for that group and size.
+5. Click a ship name. A fitting screen opens. Each row is a count dropdown: 1, 2, 3, 4, 5, 10, or 20.
+6. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
+7. **Auto from found modules:** builds a kit from compatible modules that are loaded.
+8. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
+9. The ships appear near the player, player-owned, with a full 5-star crew. You can keep the window open.
 
 ## Main features
 
 **Now**
 
-- Live ship list from game wares (vanilla + owned DLC + enabled ship mods).
-- Grouped by race, then XL / L / M / S, then names.
-- Spawn **one** ship next to the player.
-- Loadout **level 1** (the game assembles the kit).
+- Any ship the game has loaded, including ships from installed mods.
+- The list is grouped by races and factions from the installed game, then XL / L / M / S, then names.
+- Create a ship from a preset you saved in the game for that hull.
+- Or create it from an automatic preset built from the loaded module list.
+- Choose how many ships to create: 1, 2, 3, 4, 5, 10, or 20.
 - Full crew, skills set to 15 (five stars).
 
 **Planned**
@@ -55,15 +66,17 @@ You need a loaded save (the option is not on the title screen).
 
 **Known limits**
 
-- This is a WIP. Only the ship spawner for now.
-- Spawn uses the original cheat's safe position next to your ship — nearby, not a scripted “exactly on the nose” offset.
-- A few hulls (some Boron / some mod ships) may still come out with a thin loadout. That is a game/loadout quirk, not a mods own loadout list.
+- Factions, stations, fleets, gates, and delete are not in this version.
+- A preset does not fill slots that were empty in that kit.
+- Auto-fit skips equipment a ship pack excluded from generated loadouts. If that equipment is already in a saved preset, the preset path still installs it.
+- Spawn uses the original cheat's safe position next to your ship — nearby, not a scripted offset on the nose.
 - Pilot/crew race pick is still the original argon / paranid / teladi set.
 
 ## Requirements
 
 - **Required:** [SirNukes Mod Support APIs](https://www.nexusmods.com/x4foundations/mods/503) (Simple Menu API). Also on [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2042901274).
-- Tested on the **9.00**.
+- Tested on X4 Foundations **8.00** and **9.00**.
+- Tested with the latest version of the Star Wars Interworlds overhaul.
 
 ## Shout outs
 
@@ -77,9 +90,9 @@ Egosoft — the live ware list is the same idea as the creative constructor. Tha
 
 ## Feedback
 
-This mod is meant to work with **other people's ship mods**. If ships from your mods are missing from the list, show up wrong, or spawn wrong — please report it.
+This mod is meant to work with **other people's ship mods**. If ships from your mods are missing from the list, show up in the wrong group, or spawn wrong — please report it.
 
-**Disclaimer.** The game itself picks the weapons. Spawn uses the internal constructor / loadout **level 1**, so custom turrets, guns, and other kit from a ship pack are replaced by the game's standard sets. That is how it works **today**. I will look at fitting mod hulls with weapons from those same mods later.
+**Disclaimer.** A saved preset copies that kit, including mod equipment stored in it. The automatic preset asks the game to build a loadout from compatible modules that are loaded. Equipment a ship pack excluded from generated loadouts is left off the automatic path.
 
 Please send reports **on this mod page** (Posts / Bugs).
 
