@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Build Wing. The hub draws the left column and signals Draw.
-  Pages: race, then factions of that race, then job ids of that faction.
-  Spawn of a chosen job is not on these pages. On_Patrol remains the old patrol spawn.
+  Pages: race, then factions of that race.
+  Terran faction then opens Defence / Attack, then the job ids of that group.
+  Other factions open job ids directly.
+  A job click only signals md.cm90_wing_fill.Spawn with the job id.
+  The wing walk lives in that file. On_Patrol remains the old patrol spawn.
 -->
 <mdscript name="cm90_wing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
@@ -21,7 +24,7 @@
 				<do_if value="md.$cm90.$wingpage == 'factions'">
 					<signal_cue_instantly cue="Fill_Factions"/>
 				</do_if>
-				<do_elseif value="md.$cm90.$wingpage == 'jobs'">
+				<do_elseif value="md.$cm90.$wingpage == 'jobs' or md.$cm90.$wingpage == 'groups'">
 					<signal_cue_instantly cue="Fill_Jobs"/>
 				</do_elseif>
 				<do_else>
@@ -119,11 +122,25 @@
 			</actions>
 		</cue>
 
+		<cue name="Ensure_Terran_Groups" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90.$grp_attack?">
+					<set_value name="md.$cm90.$grp_attack" exact="['ter_heavyfrigate_patrol_l', 'ter_heavygunship_patrol_l', 'ter_heavygunship_patrol_l_sector', 'terran_battleship_intervention_xl', 'terran_battleship_intervention_xl_phase2', 'terran_carrier_intervention_xl', 'terran_carrier_patrol_xl_mobile_light', 'terran_corvette_patrol_m_sector_pack', 'terran_destroyer_intervention_l_light_phase2', 'terran_destroyer_patrol_l_comp', 'terran_destroyer_patrol_l_mobile_pack', 'terran_destroyer_patrol_l_mobile_pack_additional_phase2', 'terran_frigate_intervention_m', 'terran_scout_patrol_s']"/>
+					<set_value name="md.$cm90.$grp_defence" exact="['terran_battleship_patrol_xl_luna', 'terran_battleship_patrol_xl_luna_phase2', 'terran_carrier_defence_xl_asteroidbelt_heavy', 'terran_carrier_defence_xl_asteroidbelt_heavy_phase2', 'terran_carrier_defence_xl_earth_heavy', 'terran_carrier_defence_xl_earth_heavy_phase2', 'terran_carrier_defence_xl_mars_medium', 'terran_carrier_defence_xl_neptune_medium', 'terran_corvette_escort_m', 'terran_corvette_patrol_m_sector_pack_mission', 'terran_destroyer_escort_l', 'terran_destroyer_escort_l_atf_noescort', 'terran_destroyer_escort_l_heavy_phase2', 'terran_destroyer_escort_l_noescort', 'terran_destroyer_escort_l_teratf_noescort', 'terran_destroyer_patrol_l_comp_mission', 'terran_destroyer_patrol_l_defence_exp_phase2', 'terran_destroyer_patrol_l_mars', 'terran_destroyer_patrol_l_mars_phase2', 'terran_destroyer_patrol_l_pioneers_pack', 'terran_escort_m_carrier', 'terran_escort_s_carrier', 'terran_fighter_escort_s_carrier_wing', 'terran_fighter_escort_s_frigate', 'terran_fighter_escort_s_miningfleet', 'terran_fighter_escort_s_patrol', 'terran_frigate_escort_m', 'terran_frigate_patrol_m_sector_exp', 'terran_frigate_patrol_m_sector_mission', 'terran_heavygunship_escort_l', 'terran_police_patrol_s']"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet groups lists attack=' + md.$cm90.$grp_attack.count + ' defence=' + md.$cm90.$grp_defence.count"/>
+				</do_if>
+			</actions>
+		</cue>
+
 		<cue name="Fill_Jobs" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
+				<signal_cue_instantly cue="Ensure_Terran_Groups"/>
 				<set_value name="$faction" exact="null"/>
 				<do_for_each name="$candidate" in="lookup.faction.list">
 					<do_if value="$candidate.id == md.$cm90.$wingfaction">
@@ -211,6 +228,62 @@
 						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse skip=container'"/>
 					</do_else>
 				</do_else>
+				<set_value name="$nattack" exact="0"/>
+				<set_value name="$ndefence" exact="0"/>
+				<do_if value="md.$cm90.$wingfaction == 'terran'">
+					<do_for_each name="$jid" in="$ids">
+						<set_value name="$g" exact="'skip'"/>
+						<do_if value="md.$cm90.$grp_attack.indexof.{$jid}">
+							<set_value name="$g" exact="'attack'"/>
+							<set_value name="$nattack" exact="$nattack + 1"/>
+						</do_if>
+						<do_elseif value="md.$cm90.$grp_defence.indexof.{$jid}">
+							<set_value name="$g" exact="'defence'"/>
+							<set_value name="$ndefence" exact="$ndefence + 1"/>
+						</do_elseif>
+						<do_if value="md.$cm90.$wingpage == 'groups'">
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse group=' + $g + ' id=' + $jid"/>
+						</do_if>
+					</do_for_each>
+					<do_if value="md.$cm90.$wingpage == 'jobs'">
+						<set_value name="$keep" exact="[]"/>
+						<do_for_each name="$jid" in="$ids">
+							<do_if value="md.$cm90.$winggroup == 'attack' and md.$cm90.$grp_attack.indexof.{$jid}">
+								<append_to_list name="$keep" exact="$jid"/>
+							</do_if>
+							<do_elseif value="md.$cm90.$winggroup == 'defence' and md.$cm90.$grp_defence.indexof.{$jid}">
+								<append_to_list name="$keep" exact="$jid"/>
+							</do_elseif>
+						</do_for_each>
+						<set_value name="$ids" exact="$keep"/>
+					</do_if>
+				</do_if>
+				<do_if value="md.$cm90.$wingpage == 'groups'">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet groups faction=' + @md.$cm90.$wingfaction + ' defence=' + $ndefence + ' attack=' + $nattack"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $onClick = On_Back,
+							$text = table[$text = {357423,9010}, $halign = 'center']
+						]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 2, $colSpan = 3, $halign = 'center',
+							$text = {357424,12}
+						]"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen group i=1 id=defence n=' + $ndefence"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $echo = 'defence', $onClick = On_Group,
+							$text = table[$text = {357424,10} + ' (' + $ndefence + ')', $halign = 'left']
+						]"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen group i=2 id=attack n=' + $nattack"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $echo = 'attack', $onClick = On_Group,
+							$text = table[$text = {357424,11} + ' (' + $nattack + ')', $halign = 'left']
+						]"/>
+				</do_if>
+				<do_else>
 				<do_if value="$ids.count">
 					<sort_list list="$ids" sortbyvalue="loop.element"/>
 				</do_if>
@@ -277,6 +350,7 @@
 							$text = table[$text = {357423,9019}, $halign = 'center']
 						]"/>
 				</do_if>
+				</do_else>
 			</actions>
 		</cue>
 
@@ -299,8 +373,27 @@
 			<actions>
 				<set_value name="md.$cm90.$wingfaction" exact="event.param.$echo"/>
 				<set_value name="md.$cm90.$wingoff" exact="0"/>
-				<set_value name="md.$cm90.$wingpage" exact="'jobs'"/>
+				<set_value name="md.$cm90.$winggroup" exact="''"/>
+				<do_if value="event.param.$echo == 'terran'">
+					<set_value name="md.$cm90.$wingpage" exact="'groups'"/>
+				</do_if>
+				<do_else>
+					<set_value name="md.$cm90.$wingpage" exact="'jobs'"/>
+				</do_else>
 				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet faction=' + md.$cm90.$wingfaction"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Group" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$winggroup" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$wingoff" exact="0"/>
+				<set_value name="md.$cm90.$wingpage" exact="'jobs'"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet group=' + md.$cm90.$winggroup"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -310,7 +403,9 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet job pick id=' + event.param.$echo"/>
+				<set_value name="$jobid" exact="event.param.$echo"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet job pick id=' + $jobid"/>
+				<signal_cue_instantly cue="md.cm90_wing_fill.Spawn" param="table[$job = $jobid]"/>
 			</actions>
 		</cue>
 
@@ -320,8 +415,17 @@
 			</conditions>
 			<actions>
 				<do_if value="md.$cm90.$wingpage == 'jobs'">
-					<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
+					<do_if value="md.$cm90.$wingfaction == 'terran'">
+						<set_value name="md.$cm90.$wingpage" exact="'groups'"/>
+						<set_value name="md.$cm90.$wingoff" exact="0"/>
+					</do_if>
+					<do_else>
+						<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
+					</do_else>
 				</do_if>
+				<do_elseif value="md.$cm90.$wingpage == 'groups'">
+					<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
+				</do_elseif>
 				<do_else>
 					<set_value name="md.$cm90.$wingpage" exact="'races'"/>
 				</do_else>

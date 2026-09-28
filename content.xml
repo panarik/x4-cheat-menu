@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<content id="qadetmir_cheatmenu" name="Cheat Menu 9.0" description="Cheat Menu 9.0 v1.27. Requires SirNukes Mod Support APIs (Simple Menu)." version="127" author="qadetmir" save="0" date="2026-09-29" sync="false" lastupdate="1790630166">
+<content id="qadetmir_cheatmenu" name="Cheat Menu 9.0" description="Cheat Menu 9.0 v1.28. Requires SirNukes Mod Support APIs (Simple Menu)." version="128" author="qadetmir" save="0" date="2026-09-29" sync="false" lastupdate="1790632949">
 	<dependency id="ws_2042901274" optional="false" name="SirNukes Mod Support APIs"/>
 </content>
