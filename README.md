@@ -1,10 +1,10 @@
 # Cheat Menu 9.0
 
-Cheat menu for X4 Foundations. Version **1.28**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. The list is grouped by the races and factions in your installed game. Requires SirNukes Mod Support APIs.
+Cheat menu for X4 Foundations. Version **1.29**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. The list is grouped by the races and factions in your installed game. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.28**. Author: **qadetmir**.
+Current version: **1.29**. Author: **qadetmir**.
 
 ## Description
 

@@ -79,7 +79,7 @@
 				<set_value name="$qi" exact="1"/>
 				<set_value name="$steps" exact="0"/>
 				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue start job=' + event.param.$job + ' ship=' + @event.param.$ship + ' depth=' + event.param.$depth"/>
-				<do_while value="$qi le $qship.count and $steps lt 200">
+				<do_while value="$qi le $qship.count and $steps lt 1000">
 					<set_value name="$steps" exact="$steps + 1"/>
 					<set_value name="$ship" exact="$qship.{$qi}"/>
 					<set_value name="$job" exact="$qjob.{$qi}"/>
@@ -120,10 +120,10 @@
 								<do_else>
 									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' n=' + $n"/>
 									<do_all exact="$n" counter="$k">
-										<do_if value="md.$cm90.$wing_n ge 120">
+										<do_if value="md.$cm90.$wing_n ge 1000">
 											<do_if value="not md.$cm90.$wing_capped?">
 												<set_value name="md.$cm90.$wing_capped" exact="1"/>
-												<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=cap n=120 job=' + $child"/>
+												<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=cap n=1000 job=' + $child"/>
 											</do_if>
 										</do_if>
 										<do_else>
@@ -178,8 +178,8 @@
 					</do_else>
 					<set_value name="$qi" exact="$qi + 1"/>
 				</do_while>
-				<do_if value="$steps ge 200">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue stop steps=200 ships=' + md.$cm90.$wing_n"/>
+				<do_if value="$steps ge 1000">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue stop steps=1000 ships=' + md.$cm90.$wing_n"/>
 				</do_if>
 				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue done steps=' + $steps + ' ships=' + md.$cm90.$wing_n + ' queued=' + $qship.count"/>
 			</actions>
