@@ -12,12 +12,13 @@
 				<event_cue_signalled cue="md.Simple_Menu_API.Reloaded"/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="LogFile" param="'HIGH UI Register_Options_Menu cm90_ship_menu'"/>
+				<signal_cue_instantly cue="LogFile" param="'HIGH UI Register_Options_Menu cm90_ship_menu private'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Register_Options_Menu" param="table[
 						$id      = 'cm90_ship_menu',
-						$columns = 2,
-						$title   = {357423,9001},
-						$onOpen  = Fill_Menu
+						$columns = 4,
+						$title   = {357424,1},
+						$onOpen  = md.cm90_menu.Open,
+						$private = 1
 					]"/>
 			</actions>
 		</cue>
@@ -314,13 +315,13 @@
 				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Races keys=' + @md.$cm90.$races.count"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
-						$col = 1, $colSpan = 2, $halign = 'center', $wordwrap = true,
+						$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
 						$text = {357423,9011}
 					]"/>
 				<do_if value="not md.$cm90.$races.count">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
-							$col = 1, $colSpan = 2, $halign = 'center', $wordwrap = true,
+							$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
 							$text = {357423,9013}
 						]"/>
 				</do_if>
@@ -328,7 +329,7 @@
 					<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Races row key=' + $b.$key + ' label=' + $b.$label + ' n=' + $b.$n"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $echo = $b.$key, $onClick = On_Race,
+							$col = 2, $colSpan = 3, $echo = $b.$key, $onClick = On_Race,
 							$text = table[$text = $b.$label + ' (' + $b.$n + ')', $halign = 'center']
 						]"/>
 				</do_for_each>
@@ -350,38 +351,38 @@
 				<signal_cue_instantly cue="LogFile" param="'HIGH UI Fill_Sizes slot=' + $slot + ' label=' + $label + ' S/M/L/XL=' + $b.$n_s + '/' + $b.$n_m + '/' + $b.$n_l + '/' + $b.$n_xl"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-						$col = 1, $colSpan = 2, $onClick = On_Back,
+						$col = 2, $colSpan = 3, $onClick = On_Back,
 						$text = table[$text = {357423,9010}, $halign = 'center']
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
-						$col = 1, $colSpan = 2, $halign = 'center', $text = $label
+						$col = 2, $colSpan = 3, $halign = 'center', $text = $label
 					]"/>
 				<do_if value="$b.$n_xl gt 0">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $echo = 'xl', $onClick = On_Size,
+							$col = 2, $colSpan = 3, $echo = 'xl', $onClick = On_Size,
 							$text = table[$text = {357423,4001} + ' (' + $b.$n_xl + ')', $halign = 'center']
 						]"/>
 				</do_if>
 				<do_if value="$b.$n_l gt 0">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $echo = 'l', $onClick = On_Size,
+							$col = 2, $colSpan = 3, $echo = 'l', $onClick = On_Size,
 							$text = table[$text = {357423,4002} + ' (' + $b.$n_l + ')', $halign = 'center']
 						]"/>
 				</do_if>
 				<do_if value="$b.$n_m gt 0">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $echo = 'm', $onClick = On_Size,
+							$col = 2, $colSpan = 3, $echo = 'm', $onClick = On_Size,
 							$text = table[$text = {357423,4004} + ' (' + $b.$n_m + ')', $halign = 'center']
 						]"/>
 				</do_if>
 				<do_if value="$b.$n_s gt 0">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $echo = 's', $onClick = On_Size,
+							$col = 2, $colSpan = 3, $echo = 's', $onClick = On_Size,
 							$text = table[$text = {357423,4003} + ' (' + $b.$n_s + ')', $halign = 'center']
 						]"/>
 				</do_if>
@@ -439,18 +440,18 @@
 
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-						$col = 1, $colSpan = 2, $onClick = On_Back,
+						$col = 2, $colSpan = 3, $onClick = On_Back,
 						$text = table[$text = {357423,9010}, $halign = 'center']
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
-						$col = 1, $colSpan = 2, $halign = 'center',
+						$col = 2, $colSpan = 3, $halign = 'center',
 						$text = $label + ' / ' + $size_name + '  ' + $from + '-' + $to + ' / ' + @$list.count
 					]"/>
 				<do_if value="md.$cm90.$offset gt 0">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $onClick = On_Prev,
+							$col = 2, $colSpan = 3, $onClick = On_Prev,
 							$text = table[$text = {357423,9020}, $halign = 'center']
 						]"/>
 				</do_if>
@@ -461,7 +462,7 @@
 						<signal_cue_instantly cue="LogFile" param="'LOW UI Fill_Ships row i=' + $i + ' id=' + @$ware.id + ' name=' + @$ware.name"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-								$col = 1, $colSpan = 2, $echo = $ware, $onClick = On_Ship,
+								$col = 2, $colSpan = 3, $echo = $ware, $onClick = On_Ship,
 								$mouseOverText = @$ware.id,
 								$text = table[$text = @$ware.name, $halign = 'center']
 							]"/>
@@ -470,7 +471,7 @@
 				<do_if value="@$list.count and $to lt $list.count">
 					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-							$col = 1, $colSpan = 2, $onClick = On_Next,
+							$col = 2, $colSpan = 3, $onClick = On_Next,
 							$text = table[$text = {357423,9019}, $halign = 'center']
 						]"/>
 				</do_if>
@@ -588,12 +589,12 @@
 				<append_to_list name="$qty" exact="table[$text = '20', $value = 20]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-						$col = 1, $colSpan = 2, $onClick = On_Back,
+						$col = 2, $colSpan = 3, $onClick = On_Back,
 						$text = table[$text = {357423,9010}, $halign = 'center']
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
-						$col = 1, $colSpan = 2, $halign = 'center', $wordwrap = true,
+						$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
 						$text = {357423,9032} + ': ' + @$ware.name
 					]"/>
 				<do_if value="@md.$cm90.$presets.count">
@@ -605,7 +606,7 @@
 							</do_if>
 							<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
-									$col = 1, $colSpan = 2,
+									$col = 2, $colSpan = 3,
 									$options = $qty,
 									$textOverride = {357423,9030} + ': ' + $label,
 									$onDropDownConfirmed = On_Fit,
@@ -621,7 +622,7 @@
 							</do_if>
 							<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
-									$col = 1, $colSpan = 2,
+									$col = 2, $colSpan = 3,
 									$options = $qty,
 									$textOverride = {357423,9033} + ': ' + $label,
 									$onDropDownConfirmed = On_Fit,
@@ -632,7 +633,7 @@
 				</do_if>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
-						$col = 1, $colSpan = 2,
+						$col = 2, $colSpan = 3,
 						$options = $qty,
 						$textOverride = {357423,9031},
 						$onDropDownConfirmed = On_Fit,

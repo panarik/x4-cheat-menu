@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Build Wing. The hub draws the left column and signals Draw.
+  Pages: race, then factions of that race.
+  Terran faction then opens Defence / Attack, then the job ids of that group.
+  Other factions open job ids directly.
+  A job click only signals md.cm90_wing_fill.Spawn with the job id.
+  The wing walk lives in that file. On_Patrol remains the old patrol spawn.
+-->
+<mdscript name="cm90_wing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Draw" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<do_if value="not md.$cm90.$wingpage?">
+					<set_value name="md.$cm90.$wingpage" exact="'races'"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet open page=' + md.$cm90.$wingpage"/>
+				<do_if value="md.$cm90.$wingpage == 'factions'">
+					<signal_cue_instantly cue="Fill_Factions"/>
+				</do_if>
+				<do_elseif value="md.$cm90.$wingpage == 'jobs' or md.$cm90.$wingpage == 'groups'">
+					<signal_cue_instantly cue="Fill_Jobs"/>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="Fill_Races"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Races" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$ids" exact="[]"/>
+				<set_value name="$rows" exact="[]"/>
+				<set_value name="$skip" exact="0"/>
+				<do_for_each name="$faction" in="lookup.faction.list">
+					<set_value name="$raceok" exact="0"/>
+					<do_if value="$faction.isactive and $faction.primaryrace?">
+						<do_if value="$faction.primaryrace.id? and $faction.primaryrace.name?">
+							<set_value name="$raceok" exact="1"/>
+						</do_if>
+					</do_if>
+					<do_if value="$raceok">
+						<set_value name="$rid" exact="$faction.primaryrace.id"/>
+						<set_value name="$slot" exact="$ids.indexof.{$rid}"/>
+						<do_if value="not $slot">
+							<append_to_list name="$ids" exact="$rid"/>
+							<append_to_list name="$rows" exact="table[$id = $rid, $label = $faction.primaryrace.name, $n = 0]"/>
+							<set_value name="$slot" exact="$ids.count"/>
+						</do_if>
+						<set_value name="$rows.{$slot}.$n" exact="$rows.{$slot}.$n + 1"/>
+					</do_if>
+					<do_elseif value="$faction.isactive">
+						<set_value name="$skip" exact="$skip + 1"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse race skip faction=' + $faction.id + ' race=null'"/>
+					</do_elseif>
+					<do_else>
+						<set_value name="$skip" exact="$skip + 1"/>
+					</do_else>
+				</do_for_each>
+				<do_if value="$rows.count">
+					<sort_list list="$rows" sortbyvalue="loop.element.$label"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet races n=' + $rows.count + ' skip=' + $skip"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'center',
+						$text = {357424,6}
+					]"/>
+				<do_for_each name="$row" in="$rows" counter="$i">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen race i=' + $i + ' id=' + $row.$id + ' label=' + $row.$label + ' n=' + $row.$n"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $echo = $row.$id, $onClick = On_Race,
+							$text = table[$text = $row.$label + ' (' + $row.$n + ')', $halign = 'left']
+						]"/>
+				</do_for_each>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Factions" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$rows" exact="[]"/>
+				<do_for_each name="$faction" in="lookup.faction.list">
+					<do_if value="$faction.isactive and $faction.primaryrace? and $faction.primaryrace.id? and $faction.primaryrace.id == md.$cm90.$wingrace">
+						<append_to_list name="$rows" exact="table[$id = $faction.id, $label = $faction.knownname]"/>
+					</do_if>
+				</do_for_each>
+				<do_if value="$rows.count">
+					<sort_list list="$rows" sortbyvalue="loop.element.$label"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet factions race=' + @md.$cm90.$wingrace + ' n=' + $rows.count"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = On_Back,
+						$text = table[$text = {357423,9010}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'center',
+						$text = {357424,7}
+					]"/>
+				<do_for_each name="$row" in="$rows" counter="$i">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen faction i=' + $i + ' id=' + $row.$id + ' label=' + $row.$label"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $echo = $row.$id, $onClick = On_Faction,
+							$text = table[$text = $row.$label, $halign = 'left']
+						]"/>
+				</do_for_each>
+			</actions>
+		</cue>
+
+		<cue name="Ensure_Terran_Groups" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90.$grp_attack?">
+					<set_value name="md.$cm90.$grp_attack" exact="['ter_heavyfrigate_patrol_l', 'ter_heavygunship_patrol_l', 'ter_heavygunship_patrol_l_sector', 'terran_battleship_intervention_xl', 'terran_battleship_intervention_xl_phase2', 'terran_carrier_intervention_xl', 'terran_carrier_patrol_xl_mobile_light', 'terran_corvette_patrol_m_sector_pack', 'terran_destroyer_intervention_l_light_phase2', 'terran_destroyer_patrol_l_comp', 'terran_destroyer_patrol_l_mobile_pack', 'terran_destroyer_patrol_l_mobile_pack_additional_phase2', 'terran_frigate_intervention_m', 'terran_scout_patrol_s']"/>
+					<set_value name="md.$cm90.$grp_defence" exact="['terran_battleship_patrol_xl_luna', 'terran_battleship_patrol_xl_luna_phase2', 'terran_carrier_defence_xl_asteroidbelt_heavy', 'terran_carrier_defence_xl_asteroidbelt_heavy_phase2', 'terran_carrier_defence_xl_earth_heavy', 'terran_carrier_defence_xl_earth_heavy_phase2', 'terran_carrier_defence_xl_mars_medium', 'terran_carrier_defence_xl_neptune_medium', 'terran_corvette_escort_m', 'terran_corvette_patrol_m_sector_pack_mission', 'terran_destroyer_escort_l', 'terran_destroyer_escort_l_atf_noescort', 'terran_destroyer_escort_l_heavy_phase2', 'terran_destroyer_escort_l_noescort', 'terran_destroyer_escort_l_teratf_noescort', 'terran_destroyer_patrol_l_comp_mission', 'terran_destroyer_patrol_l_defence_exp_phase2', 'terran_destroyer_patrol_l_mars', 'terran_destroyer_patrol_l_mars_phase2', 'terran_destroyer_patrol_l_pioneers_pack', 'terran_escort_m_carrier', 'terran_escort_s_carrier', 'terran_fighter_escort_s_carrier_wing', 'terran_fighter_escort_s_frigate', 'terran_fighter_escort_s_miningfleet', 'terran_fighter_escort_s_patrol', 'terran_frigate_escort_m', 'terran_frigate_patrol_m_sector_exp', 'terran_frigate_patrol_m_sector_mission', 'terran_heavygunship_escort_l', 'terran_police_patrol_s']"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet groups lists attack=' + md.$cm90.$grp_attack.count + ' defence=' + md.$cm90.$grp_defence.count"/>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Jobs" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Terran_Groups"/>
+				<set_value name="$faction" exact="null"/>
+				<do_for_each name="$candidate" in="lookup.faction.list">
+					<do_if value="$candidate.id == md.$cm90.$wingfaction">
+						<set_value name="$faction" exact="$candidate"/>
+						<break/>
+					</do_if>
+				</do_for_each>
+				<set_value name="$ids" exact="[]"/>
+				<set_value name="$raceok" exact="0"/>
+				<do_if value="$faction">
+					<do_if value="$faction.primaryrace?">
+						<do_if value="$faction.primaryrace.id?">
+							<set_value name="$raceok" exact="1"/>
+						</do_if>
+					</do_if>
+				</do_if>
+				<do_if value="not $faction">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet jobs abort: faction missing id=' + @md.$cm90.$wingfaction"/>
+				</do_if>
+				<do_elseif value="not $raceok">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse jobs skip faction=' + $faction.id + ' race=null'"/>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet jobs query faction=' + $faction.id + ' tags=(none) includeinactive=1 exceedquota=1 force=1'"/>
+					<get_suitable_job result="$jobs" faction="$faction" multiple="true" includeinactive="true" exceedquota="true" force="true"/>
+					<do_if value="not $jobs?">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw container missing'"/>
+					</do_if>
+					<do_elseif value="typeof $jobs == datatype.list">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw container typeof=list n=' + $jobs.count"/>
+						<do_for_each name="$job" in="$jobs" counter="$ri">
+							<do_if value="typeof $job == datatype.string">
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw i=' + $ri + ' typeof=string value=' + $job"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse i=' + $ri + ' id=' + $job + ' tags=(id only) keep=1'"/>
+								<append_to_list name="$ids" exact="$job"/>
+							</do_if>
+							<do_else>
+								<set_value name="$tagdump" exact="''"/>
+								<do_if value="$job.tags? and typeof $job.tags == datatype.list">
+									<do_for_each name="$tag" in="$job.tags">
+										<set_value name="$tagdump" exact="$tagdump + ' ' + $tag"/>
+									</do_for_each>
+								</do_if>
+								<do_elseif value="$job.tags?">
+									<set_value name="$tagdump" exact="' ' + $job.tags"/>
+								</do_elseif>
+								<do_else>
+									<set_value name="$tagdump" exact="' (none)'"/>
+								</do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw i=' + $ri + ' typeof=' + typeof $job + ' id=' + @$job.id + ' name=' + @$job.name + ' size=' + @$job.size + ' tags=' + $tagdump"/>
+								<do_if value="$job.id?">
+									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse i=' + $ri + ' id=' + $job.id + ' tags=' + $tagdump + ' keep=1'"/>
+									<append_to_list name="$ids" exact="$job.id"/>
+								</do_if>
+								<do_else>
+									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse i=' + $ri + ' skip=no-id tags=' + $tagdump"/>
+								</do_else>
+							</do_else>
+						</do_for_each>
+					</do_elseif>
+					<do_elseif value="typeof $jobs == datatype.string">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw i=1 typeof=string value=' + $jobs"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse i=1 id=' + $jobs + ' tags=(id only) keep=1'"/>
+						<append_to_list name="$ids" exact="$jobs"/>
+					</do_elseif>
+					<do_elseif value="$jobs.id?">
+						<set_value name="$tagdump" exact="''"/>
+						<do_if value="$jobs.tags? and typeof $jobs.tags == datatype.list">
+							<do_for_each name="$tag" in="$jobs.tags">
+								<set_value name="$tagdump" exact="$tagdump + ' ' + $tag"/>
+							</do_for_each>
+						</do_if>
+						<do_elseif value="$jobs.tags?">
+							<set_value name="$tagdump" exact="' ' + $jobs.tags"/>
+						</do_elseif>
+						<do_else>
+							<set_value name="$tagdump" exact="' (none)'"/>
+						</do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw i=1 typeof=' + typeof $jobs + ' id=' + $jobs.id + ' name=' + @$jobs.name + ' size=' + @$jobs.size + ' tags=' + $tagdump"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse i=1 id=' + $jobs.id + ' tags=' + $tagdump + ' keep=1'"/>
+						<append_to_list name="$ids" exact="$jobs.id"/>
+					</do_elseif>
+					<do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet raw container typeof=' + typeof $jobs"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse skip=container'"/>
+					</do_else>
+				</do_else>
+				<set_value name="$nattack" exact="0"/>
+				<set_value name="$ndefence" exact="0"/>
+				<do_if value="md.$cm90.$wingfaction == 'terran'">
+					<do_for_each name="$jid" in="$ids">
+						<set_value name="$g" exact="'skip'"/>
+						<do_if value="md.$cm90.$grp_attack.indexof.{$jid}">
+							<set_value name="$g" exact="'attack'"/>
+							<set_value name="$nattack" exact="$nattack + 1"/>
+						</do_if>
+						<do_elseif value="md.$cm90.$grp_defence.indexof.{$jid}">
+							<set_value name="$g" exact="'defence'"/>
+							<set_value name="$ndefence" exact="$ndefence + 1"/>
+						</do_elseif>
+						<do_if value="md.$cm90.$wingpage == 'groups'">
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet parse group=' + $g + ' id=' + $jid"/>
+						</do_if>
+					</do_for_each>
+					<do_if value="md.$cm90.$wingpage == 'jobs'">
+						<set_value name="$keep" exact="[]"/>
+						<do_for_each name="$jid" in="$ids">
+							<do_if value="md.$cm90.$winggroup == 'attack' and md.$cm90.$grp_attack.indexof.{$jid}">
+								<append_to_list name="$keep" exact="$jid"/>
+							</do_if>
+							<do_elseif value="md.$cm90.$winggroup == 'defence' and md.$cm90.$grp_defence.indexof.{$jid}">
+								<append_to_list name="$keep" exact="$jid"/>
+							</do_elseif>
+						</do_for_each>
+						<set_value name="$ids" exact="$keep"/>
+					</do_if>
+				</do_if>
+				<do_if value="md.$cm90.$wingpage == 'groups'">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet groups faction=' + @md.$cm90.$wingfaction + ' defence=' + $ndefence + ' attack=' + $nattack"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $onClick = On_Back,
+							$text = table[$text = {357423,9010}, $halign = 'center']
+						]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 2, $colSpan = 3, $halign = 'center',
+							$text = {357424,12}
+						]"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen group i=1 id=defence n=' + $ndefence"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $echo = 'defence', $onClick = On_Group,
+							$text = table[$text = {357424,10} + ' (' + $ndefence + ')', $halign = 'left']
+						]"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen group i=2 id=attack n=' + $nattack"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $echo = 'attack', $onClick = On_Group,
+							$text = table[$text = {357424,11} + ' (' + $nattack + ')', $halign = 'left']
+						]"/>
+				</do_if>
+				<do_else>
+				<do_if value="$ids.count">
+					<sort_list list="$ids" sortbyvalue="loop.element"/>
+				</do_if>
+				<do_if value="not md.$cm90.$wingoff?">
+					<set_value name="md.$cm90.$wingoff" exact="0"/>
+				</do_if>
+				<set_value name="$from" exact="md.$cm90.$wingoff + 1"/>
+				<do_if value="not $ids.count">
+					<set_value name="$from" exact="0"/>
+					<set_value name="$to" exact="0"/>
+				</do_if>
+				<do_else>
+					<do_if value="$from gt $ids.count">
+						<set_value name="$from" exact="1"/>
+						<set_value name="md.$cm90.$wingoff" exact="0"/>
+					</do_if>
+					<set_value name="$to" exact="md.$cm90.$wingoff + 40"/>
+					<do_if value="$to gt $ids.count">
+						<set_value name="$to" exact="$ids.count"/>
+					</do_if>
+				</do_else>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet jobs faction=' + @md.$cm90.$wingfaction + ' n=' + $ids.count + ' show=' + $from + '-' + $to"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = On_Back,
+						$text = table[$text = {357423,9010}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
+						$text = {357424,8}
+					]"/>
+				<do_if value="not $ids.count">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen job empty'"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
+							$text = {357424,9}
+						]"/>
+				</do_if>
+				<do_if value="md.$cm90.$wingoff gt 0">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $onClick = On_Prev,
+							$text = table[$text = {357423,9020}, $halign = 'center']
+						]"/>
+				</do_if>
+				<do_if value="$to ge $from and $from gt 0">
+					<do_all exact="$to - $from + 1" counter="$j">
+						<set_value name="$i" exact="md.$cm90.$wingoff + $j"/>
+						<set_value name="$jid" exact="$ids.{$i}"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet screen job i=' + $i + ' id=' + $jid"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+								$col = 2, $colSpan = 3, $echo = $jid, $onClick = On_Job,
+								$text = table[$text = $jid, $halign = 'left']
+							]"/>
+					</do_all>
+				</do_if>
+				<do_if value="$ids.count gt $to">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 2, $colSpan = 3, $onClick = On_Next,
+							$text = table[$text = {357423,9019}, $halign = 'center']
+						]"/>
+				</do_if>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Race" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingrace" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet race=' + md.$cm90.$wingrace"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Faction" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingfaction" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$wingoff" exact="0"/>
+				<set_value name="md.$cm90.$winggroup" exact="''"/>
+				<do_if value="event.param.$echo == 'terran'">
+					<set_value name="md.$cm90.$wingpage" exact="'groups'"/>
+				</do_if>
+				<do_else>
+					<set_value name="md.$cm90.$wingpage" exact="'jobs'"/>
+				</do_else>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet faction=' + md.$cm90.$wingfaction"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Group" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$winggroup" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$wingoff" exact="0"/>
+				<set_value name="md.$cm90.$wingpage" exact="'jobs'"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet group=' + md.$cm90.$winggroup"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Job" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$jobid" exact="event.param.$echo"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet job pick id=' + $jobid"/>
+				<signal_cue_instantly cue="md.cm90_wing_fill.Spawn" param="table[$job = $jobid]"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Back" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="md.$cm90.$wingpage == 'jobs'">
+					<do_if value="md.$cm90.$wingfaction == 'terran'">
+						<set_value name="md.$cm90.$wingpage" exact="'groups'"/>
+						<set_value name="md.$cm90.$wingoff" exact="0"/>
+					</do_if>
+					<do_else>
+						<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
+					</do_else>
+				</do_if>
+				<do_elseif value="md.$cm90.$wingpage == 'groups'">
+					<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
+				</do_elseif>
+				<do_else>
+					<set_value name="md.$cm90.$wingpage" exact="'races'"/>
+				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Prev" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingoff" exact="md.$cm90.$wingoff - 40"/>
+				<do_if value="md.$cm90.$wingoff lt 0">
+					<set_value name="md.$cm90.$wingoff" exact="0"/>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Next" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingoff" exact="md.$cm90.$wingoff + 40"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Patrol" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet spawn start zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship"/>
+				<do_if value="not player.zone?">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: no player.zone'"/>
+				</do_if>
+				<do_else>
+					<set_value name="$anchor" exact="player.ship"/>
+					<do_if value="not $anchor">
+						<set_value name="$anchor" exact="player.entity"/>
+					</do_if>
+					<set_value name="$sector" exact="player.sector"/>
+					<do_if value="not $sector">
+						<set_value name="$sector" exact="player.zone.sector"/>
+					</do_if>
+					<set_value name="$leadjob" exact="'terran_frigate_patrol_m_sector_exp'"/>
+					<set_value name="$wingjob" exact="'terran_fighter_escort_s_frigate'"/>
+					<request_job_ship name="$lead" job="$leadjob" requester="$sector" zone="player.zone"/>
+					<do_if value="not $lead">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet request miss job=' + $leadjob"/>
+						<set_value name="$leadjob" exact="'argon_frigate_patrol_m_sector_exp'"/>
+						<set_value name="$wingjob" exact="'argon_fighter_escort_s_frigate'"/>
+						<request_job_ship name="$lead" job="$leadjob" requester="$sector" zone="player.zone"/>
+					</do_if>
+					<do_if value="not $lead">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: no commander job=' + $leadjob"/>
+					</do_if>
+					<do_else>
+						<spawn_waiting_job_ship ship="$lead" zone="player.zone" result="$placed">
+							<safepos object="$anchor" x="3km"/>
+						</spawn_waiting_job_ship>
+						<do_if value="not $placed">
+							<remove_job_ship_request ship="$lead"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: commander not placed job=' + $leadjob"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet commander job=' + $leadjob + ' ship=' + @$lead + ' id=' + @$lead.id"/>
+							<set_value name="$escorts" exact="0"/>
+							<do_all exact="4" counter="$i">
+								<request_job_ship name="$escort" job="$wingjob" requester="$lead" zone="player.zone"/>
+								<do_if value="not $escort">
+									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet escort request miss i=' + $i + ' job=' + $wingjob"/>
+								</do_if>
+								<do_else>
+									<spawn_waiting_job_ship ship="$escort" zone="player.zone" result="$escort_placed">
+										<safepos object="$anchor" x="2km + ($i * 1km)" z="1km"/>
+									</spawn_waiting_job_ship>
+									<do_if value="not $escort_placed">
+										<remove_job_ship_request ship="$escort"/>
+										<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet escort not placed i=' + $i"/>
+									</do_if>
+									<do_else>
+										<set_object_commander object="$escort" commander="$lead"/>
+										<set_value name="$escorts" exact="$escorts + 1"/>
+										<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet escort i=' + $i + ' ship=' + @$escort + ' id=' + @$escort.id"/>
+									</do_else>
+								</do_else>
+							</do_all>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet spawn done job=' + $leadjob + ' escorts=' + $escorts"/>
+							<show_notification text="{357424,5}"/>
+						</do_else>
+					</do_else>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

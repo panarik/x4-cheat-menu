@@ -77,4 +77,19 @@
 		<t id="9033">Author preset</t>
 
 	</page>
+	<page id="357424" voice="no">
+		<t id="1">Build Ship</t>
+		<t id="2">Build Wing</t>
+		<t id="3">A medium job patrol appears near you in this sector.</t>
+		<t id="4">Spawn mid wing</t>
+		<t id="5">Mid wing is forming near you.</t>
+		<t id="6">Races</t>
+		<t id="7">Factions</t>
+		<t id="8">Jobs</t>
+		<t id="9">No jobs for this faction.</t>
+		<t id="10">Defence</t>
+		<t id="11">Attack</t>
+		<t id="12">Fleet role</t>
+		<t id="13">Ship for this job is forming near you.</t>
+	</page>
 </language>

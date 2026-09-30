@@ -1,10 +1,10 @@
 # Cheat Menu 9.0
 
-Cheat menu for X4 Foundations. Version **1.24**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. The list is grouped by the races and factions in your installed game. Requires SirNukes Mod Support APIs.
+Cheat menu for X4 Foundations. Version **1.29**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. Spawn the combat fleets defined for the races and factions in your install. The faction AI takes the fleet. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.24**. Author: **qadetmir**.
+Current version: **1.29**. Author: **qadetmir**.
 
 ## Description
 
@@ -23,6 +23,8 @@ If the hull ships with its own kit, that author preset is listed too. Empty slot
 
 You can drop a third-party fighter, a Kha'ak XL, or a vanilla courier in front of you and see how it actually behaves.
 
+**Build Wing** places a combat fleet from the jobs in your install. The list is grouped by race, then by faction. Terran fleets are split into Defence and Attack. Point your ship and pick a fleet. The lead ship and the escorts that fleet brings appear ahead of your nose, stacked upward. They belong to that faction. Its AI flies them. They are not added to your property.
+
 The window: ESC → Extension Options → Cheat Menu 9.0.
 
 ## Installation instructions
@@ -36,18 +38,21 @@ The window: ESC → Extension Options → Cheat Menu 9.0.
 You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A list of races and factions opens. Each row shows how many ships of that group exist in **your** install. Pick one.
-3. A size list opens: XL / L / M / S. Pick a size.
-4. A list of the actual ships for that group and size.
-5. Click a ship name. A fitting screen opens. Each row is a count dropdown: 1, 2, 3, 4, 5, 10, or 20.
-6. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
-7. **Auto from found modules:** builds a kit from compatible modules that are loaded.
-8. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
-9. The ships appear near the player, player-owned, with a full 5-star crew. You can keep the window open.
+2. A narrow column on the left stays on the window: **Build Ship** and **Build Wing**. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
+3. **Build Ship** opens the list of races and factions. Each row shows how many ships of that group exist in **your** install. Pick one.
+4. A size list opens: XL / L / M / S. Pick a size.
+5. A list of the actual ships for that group and size.
+6. Click a ship name. A fitting screen opens. Each row is a count dropdown: 1, 2, 3, 4, 5, 10, or 20.
+7. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
+8. **Auto from found modules:** builds a kit from compatible modules that are loaded.
+9. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
+10. The ships appear near the player, player-owned, with a full 5-star crew. You can keep the window open.
 
 ## Main features
 
 **Now**
+
+**Build Ship**
 
 - Any ship the game has loaded, including ships from installed mods.
 - The list is grouped by races and factions from the installed game, then XL / L / M / S, then names.
@@ -56,20 +61,26 @@ You need a loaded save (the option is not on the title screen).
 - Choose how many ships to create: 1, 2, 3, 4, 5, 10, or 20.
 - Full crew, skills set to 15 (five stars).
 
+**Build Wing**
+
+- Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack.
+- A click places the lead ship and its escorts ahead of your nose. The faction AI flies the fleet.
+
 **Planned**
 
 - Give spawned ships to factions.
 - Spawn stations.
-- Build fleets from a constructor-style list.
 - Gate control (same idea as DeadAir).
 - Delete existing ships and stations.
 
 **Known limits**
 
-- Factions, stations, fleets, gates, and delete are not in this version.
+- Stations, gates, and delete are not in this version. Build Ship still creates a player ship. Handing that ship to a faction is not in this version.
+- A fleet follows that faction's own orders. The click does not start a war or an invasion.
+- A fleet forms on your heading when you click. Turning afterwards does not move it.
 - A preset does not fill slots that were empty in that kit.
 - Auto-fit skips equipment a ship pack excluded from generated loadouts. If that equipment is already in a saved preset, the preset path still installs it.
-- Spawn uses the original cheat's safe position next to your ship — nearby, not a scripted offset on the nose.
+- Build Ship uses the original cheat's safe position next to your ship. A fleet is placed ahead of your nose instead.
 - Pilot/crew race pick is still the original argon / paranid / teladi set.
 
 ## Requirements
@@ -99,6 +110,7 @@ Please send reports **on this mod page** (Posts / Bugs).
 In the report, include:
 
 - Launch the game from Steam with these Launch Options (no quotes around the whole line): `-debug all -logfile debuglog.txt -scriptlogfiles`
+- A line `setter slot=false virt=false`, or the names `SetUpgradeSlotMacro` and `SetVirtualUpgradeSlotMacro`, is expected. The game does not export those two calls. That check is left from fitting debug. The menu does not install parts through them.
 - **Game log:** `%USERPROFILE%\Documents\Egosoft\X4\<profile number>\debuglog.txt` — the folder that also has **save** and **config.xml**. If Documents is on OneDrive: `%USERPROFILE%\OneDrive\Documents\Egosoft\X4\<profile number>\debuglog.txt`
 - **Mod log:** `%USERPROFILE%\Documents\Egosoft\X4\<profile number>\logs\cm90\cm90_cheat_log.txt` (same profile folder). This file appears only with `-scriptlogfiles`.
 - What is broken. A screenshot helps if the list or the spawned ship looks wrong.
