@@ -5,6 +5,10 @@
   Spawn places that job, then Fill walks the wing as one queue.
   Fill does not signal itself. A self-signal stays on the running instance.
   No shipyard. No assignment on set_object_commander.
+  Commanders sit on Z, the player ship's nose: 10km, then 5km further each fleet.
+  Children of that fleet stack on Y, 1km apart.
+  X and Y and Z are the player ship's axes: X to the right, Y the roof, Z the nose.
+  Offsets are 10km + ($f * 5km) on Z and ($y * 1km) on Y. Not (10+$f)km.
   A job id already on the parent chain is skipped. Depth stops at 8.
 -->
 <mdscript name="cm90_wing_fill" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
@@ -31,30 +35,32 @@
 					<do_if value="not $sector">
 						<set_value name="$sector" exact="player.zone.sector"/>
 					</do_if>
-					<do_if value="not md.$cm90.$spawn_i?">
-						<set_value name="md.$cm90.$spawn_i" exact="0"/>
+					<do_if value="not md.$cm90.$fleet_f?">
+						<set_value name="md.$cm90.$fleet_f" exact="0"/>
 					</do_if>
-					<set_value name="md.$cm90.$spawn_i" exact="md.$cm90.$spawn_i + 1"/>
-					<set_value name="$i" exact="md.$cm90.$spawn_i"/>
+					<set_value name="$f" exact="md.$cm90.$fleet_f"/>
+					<set_value name="md.$cm90.$fleet_f" exact="$f + 1"/>
 					<request_job_ship name="$ship" job="$jobid" requester="$sector" zone="player.zone"/>
 					<do_if value="not $ship">
+						<set_value name="md.$cm90.$fleet_f" exact="$f"/>
 						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet request miss job=' + $jobid"/>
 					</do_if>
 					<do_else>
 						<spawn_waiting_job_ship ship="$ship" zone="player.zone" result="$placed">
-							<safepos object="$anchor" x="2km + ($i * 1km)"/>
+							<safepos object="$anchor" z="10km + ($f * 5km)" y="0km"/>
 						</spawn_waiting_job_ship>
 						<do_if value="not $placed">
+							<set_value name="md.$cm90.$fleet_f" exact="$f"/>
 							<remove_job_ship_request ship="$ship"/>
 							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: not placed job=' + $jobid"/>
 						</do_if>
 						<do_else>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet spawn done job=' + $jobid + ' ship=' + @$ship + ' id=' + @$ship.id"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet spawn done job=' + $jobid + ' ship=' + @$ship + ' id=' + @$ship.id + ' f=' + $f + ' zkm=' + (10 + ($f * 5)) + ' ykm=0'"/>
 							<set_value name="md.$cm90.$wing_n" exact="1"/>
 							<remove_value name="md.$cm90.$wing_capped"/>
 							<set_value name="$path" exact="[]"/>
 							<append_to_list name="$path" exact="$jobid"/>
-							<signal_cue_instantly cue="Fill" param="table[$ship = $ship, $job = $jobid, $depth = 1, $path = $path]"/>
+							<signal_cue_instantly cue="Fill" param="table[$ship = $ship, $job = $jobid, $depth = 1, $path = $path, $f = $f]"/>
 							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing result job=' + $jobid + ' ships=' + md.$cm90.$wing_n"/>
 							<show_notification text="{357424,13}"/>
 						</do_else>
@@ -78,6 +84,8 @@
 				<append_to_list name="$qpath" exact="event.param.$path"/>
 				<set_value name="$qi" exact="1"/>
 				<set_value name="$steps" exact="0"/>
+				<set_value name="$f" exact="event.param.$f"/>
+				<set_value name="$y" exact="0"/>
 				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue start job=' + event.param.$job + ' ship=' + @event.param.$ship + ' depth=' + event.param.$depth"/>
 				<do_while value="$qi le $qship.count and $steps lt 1000">
 					<set_value name="$steps" exact="$steps + 1"/>
@@ -131,24 +139,24 @@
 											<do_if value="not $anchor">
 												<set_value name="$anchor" exact="player.entity"/>
 											</do_if>
-											<set_value name="md.$cm90.$spawn_i" exact="md.$cm90.$spawn_i + 1"/>
-											<set_value name="$slot" exact="md.$cm90.$spawn_i"/>
 											<request_job_ship name="$born" job="$child" requester="$ship" zone="player.zone"/>
 											<do_if value="not $born">
 												<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing request miss depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k"/>
 											</do_if>
 											<do_else>
+												<set_value name="$y" exact="$y + 1"/>
 												<spawn_waiting_job_ship ship="$born" zone="player.zone" result="$born_placed">
-													<safepos object="$anchor" x="2km + ($slot * 1km)"/>
+													<safepos object="$anchor" z="10km + ($f * 5km)" y="($y * 1km)"/>
 												</spawn_waiting_job_ship>
 												<do_if value="not $born_placed">
+													<set_value name="$y" exact="$y - 1"/>
 													<remove_job_ship_request ship="$born"/>
 													<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing not placed depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k"/>
 												</do_if>
 												<do_else>
 													<set_object_commander object="$born" commander="$ship"/>
 													<set_value name="md.$cm90.$wing_n" exact="md.$cm90.$wing_n + 1"/>
-													<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k + ' ship=' + @$born + ' id=' + @$born.id"/>
+													<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k + ' ship=' + @$born + ' id=' + @$born.id + ' f=' + $f + ' y=' + $y + ' zkm=' + (10 + ($f * 5)) + ' ykm=' + $y"/>
 													<set_value name="$next" exact="[]"/>
 													<do_for_each name="$step" in="$path">
 														<append_to_list name="$next" exact="$step"/>
