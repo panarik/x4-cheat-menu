@@ -1,10 +1,10 @@
 # Cheat Menu 9.0
 
-Cheat menu for X4 Foundations. Version **1.29**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. Spawn the combat fleets defined for the races and factions in your install. The faction AI takes the fleet. Requires SirNukes Mod Support APIs.
+Cheat menu for X4 Foundations. Version **1.30**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. Spawn the combat fleets defined for the races and factions in your install. The faction AI takes the fleet. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.29**. Author: **qadetmir**.
+Current version: **1.30**. Author: **qadetmir**.
 
 ## Description
 
@@ -39,14 +39,15 @@ You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
 2. A narrow column on the left stays on the window: **Build Ship** and **Build Wing**. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
-3. **Build Ship** opens the list of races and factions. Each row shows how many ships of that group exist in **your** install. Pick one.
-4. A size list opens: XL / L / M / S. Pick a size.
-5. A list of the actual ships for that group and size.
-6. Click a ship name. A fitting screen opens. Each row is a count dropdown: 1, 2, 3, 4, 5, 10, or 20.
-7. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
-8. **Auto from found modules:** builds a kit from compatible modules that are loaded.
-9. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
-10. The ships appear near the player, player-owned, with a full 5-star crew. You can keep the window open.
+3. **Build Ship** opens the list of races and factions across the rest of the window. Each row shows how many ships of that group exist in **your** install. Pick one.
+4. The next screen is three columns: **Step 1: Size**, **Step 2: Name**, and **Step 3: Owner**. Pick a size. Names for that size appear in the middle. The size list stays.
+5. Pick a name. The right column lists who receives the hull. **Player** is the first row. The name list stays.
+6. Pick an owner. Under the columns there is a blank row, then **Step 4: Choose ship modules** and **Step 5: Choose quantity of ships**. Until you pick a ship name, those rows are only labels.
+7. Pick a name. The game looks up kits for that hull. **Step 4** then opens a list: **Auto from found modules** first, then every saved preset for this hull. Pick one. The list closes and the row shows that kit. The window stays open.
+8. **Step 5** opens the numbers 1 through 20. Pick one to create the ships. If you have not picked a kit, nothing is created.
+9. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
+10. **Auto from found modules:** builds a kit from compatible modules that are loaded. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
+11. The ships appear near you. They belong to the owner you picked. Until you pick one, they stay yours. Crew is still a full 5-star set from the original argon / paranid / teladi list. You can keep the window open.
 
 ## Main features
 
@@ -58,8 +59,9 @@ You need a loaded save (the option is not on the title screen).
 - The list is grouped by races and factions from the installed game, then XL / L / M / S, then names.
 - Create a ship from a preset you saved in the game for that hull.
 - Or create it from an automatic preset built from the loaded module list.
-- Choose how many ships to create: 1, 2, 3, 4, 5, 10, or 20.
-- Full crew, skills set to 15 (five stars).
+- Choose who receives the hull: you, or another faction. A Teladi hull can be given to the Terrans. Until you pick, the ship stays yours.
+- Choose how many ships to create: any count from 1 to 20.
+- Full crew, skills set to 15 (five stars). Crew race is still argon / paranid / teladi.
 
 **Build Wing**
 
@@ -68,14 +70,15 @@ You need a loaded save (the option is not on the title screen).
 
 **Planned**
 
-- Give spawned ships to factions.
 - Spawn stations.
 - Gate control (same idea as DeadAir).
 - Delete existing ships and stations.
 
 **Known limits**
 
-- Stations, gates, and delete are not in this version. Build Ship still creates a player ship. Handing that ship to a faction is not in this version.
+- Stations, gates, and delete are not in this version.
+- The hull owner changes. The crew race does not follow that faction yet.
+- Auto-fit still builds its kit as the player faction. A saved preset does not.
 - A fleet follows that faction's own orders. The click does not start a war or an invasion.
 - A fleet forms on your heading when you click. Turning afterwards does not move it.
 - A preset does not fill slots that were empty in that kit.
