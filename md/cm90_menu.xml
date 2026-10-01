@@ -71,7 +71,7 @@
 					<signal_cue_instantly cue="md.cm90_wing.Draw"/>
 				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.Fill_Menu"/>
+					<signal_cue_instantly cue="md.cm90_ship.Draw"/>
 				</do_else>
 			</actions>
 		</cue>
