@@ -1,10 +1,10 @@
 # Cheat Menu 9.0
 
-Cheat menu for X4 Foundations. Version **1.30**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. Spawn the combat fleets defined for the races and factions in your install. The faction AI takes the fleet. Requires SirNukes Mod Support APIs.
+Cheat menu for X4 Foundations. Version **1.31**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. Spawn the combat fleets defined for the races and factions in your install. The faction AI takes the fleet. Requires SirNukes Mod Support APIs.
 
 ## Version
 
-Current version: **1.30**. Author: **qadetmir**.
+Current version: **1.31**. Author: **qadetmir**.
 
 ## Description
 
@@ -38,7 +38,7 @@ The window: ESC → Extension Options → Cheat Menu 9.0.
 You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A narrow column on the left stays on the window: **Build Ship** and **Build Wing**. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
+2. A narrow column on the left stays on the window: **Build Ship**, **Build Wing**, and **Spawn Stations**. **Spawn Stations** opens a window with a **Test** button. Test places an empty station 10 km ahead and asks the game to start building a Terran dock, a pier, and a container store on a plot. That is a normal build task. It does not finish the station by itself. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
 3. **Build Ship** opens the list of races and factions across the rest of the window. Each row shows how many ships of that group exist in **your** install. Pick one.
 4. The next screen is three columns: **Step 1: Size**, **Step 2: Name**, and **Step 3: Owner**. Pick a size. Names for that size appear in the middle. The size list stays.
 5. Pick a name. The right column lists who receives the hull. **Player** is the first row. The name list stays.
@@ -68,9 +68,13 @@ You need a loaded save (the option is not on the title screen).
 - Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack.
 - A click places the lead ship and its escorts ahead of your nose. The faction AI flies the fleet.
 
+**Spawn Stations**
+
+- The row is in the left column. Test places an empty station 10 km ahead of your ship and requests a Terran M dock, one pier, and a large container store as a normal build. Resources and a builder are still the game's own rules. A finished station from this button is not confirmed yet.
+
 **Planned**
 
-- Spawn stations.
+- A finished station from a module list. Test starts a normal build task. It does not finish the modules on click.
 - Gate control (same idea as DeadAir).
 - Delete existing ships and stations.
 

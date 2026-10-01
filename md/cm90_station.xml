@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spawn Stations. The hub draws column 1 and signals Draw.
+  Test creates an empty station 10 km ahead. The 10 km cube is centred on that point.
+  then asks the generator for one Terran M dock, one L pier, and one L container store.
+  The sequence becomes a build task on the station build storage. The plan is not applied as well.
+-->
+<mdscript name="cm90_station" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Draw" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station draw'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2,
+						$onClick = On_Test,
+						$text = table[$text = {357424,15}, $halign = 'left']
+					]"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Station_Log" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Station'" control="'log'"/>
+			</conditions>
+			<actions>
+				<set_value name="$line" exact="event.param3"/>
+				<do_if value="not $line">
+					<set_value name="$line" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="$line"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Test" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station test start zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship + ' entity=' + @player.entity"/>
+				<do_if value="not player.ship?">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station abort: no player.ship'"/>
+				</do_if>
+				<do_elseif value="not player.zone?">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station abort: no player.zone'"/>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station anchor id=' + @player.ship.id + ' pos=' + @player.ship.position + ' zone=' + @player.zone"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station place z=10km y=0km no-radius no-includeplotbox reason=cube is created around this point'"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone"/>
+					<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
+						<safepos object="player.ship" z="10km" y="0km"/>
+					</create_station>
+					<do_if value="not $station.exists">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station create fail exists=0'"/>
+					</do_if>
+					<do_else>
+						<do_if value="not md.$cm90?">
+							<set_value name="md.$cm90" exact="table[]"/>
+						</do_if>
+						<set_value name="md.$cm90.$station" exact="$station"/>
+						<set_value name="md.$cm90.$stationpending" exact="false"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station create result id=' + @$station.id + ' pos=' + @$station.position + ' sector=' + @$station.sector + ' owner=' + @$station.owner.id + ' exists=1'"/>
+						<show_notification text="{357424,16}"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot ask'"/>
+						<raise_lua_event name="'CheatMenu90.StationPlot'" param="$station"/>
+					</do_else>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Plot" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Station'" control="'plot'"/>
+			</conditions>
+			<actions>
+				<set_value name="$token" exact="event.param3"/>
+				<do_if value="not $token">
+					<set_value name="$token" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station plot token=' + $token"/>
+				<set_value name="$station" exact="md.$cm90.$station"/>
+				<do_if value="not $station.exists">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot abort: no station'"/>
+				</do_if>
+				<do_else>
+					<do_if value="$token == 'ok'">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot buy accepted'"/>
+					</do_if>
+					<do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot buy rejected token=' + $token + ' fallback=set_build_plot paid'"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station set_build_plot object=' + $station + ' x=10km y=10km z=10km paid=true reason=same cube, do not shrink an axis'"/>
+						<set_build_plot object="$station" x="10km" y="10km" z="10km" paid="true"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station set_build_plot done length=' + @$station.buildplot.max.length"/>
+					</do_else>
+					<signal_cue_instantly cue="Start_Sequence" param="$station"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Start_Sequence" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$station" exact="event.param"/>
+				<do_if value="not $station.exists">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence abort: no station'"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station sequence macros=dockarea_ter_m_station_01_hightech,pier_ter_harbor_01,storage_ter_l_container_01'"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station sequence connectors=struct_ter_base_01,struct_ter_cross_01,struct_ter_vertical_01'"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station sequence bias=1 base=null failsafe=true pier=harbor_01 reason=ship size of harbor numbers was not read'"/>
+					<set_value name="md.$cm90.$stationpending" exact="true"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence start station=' + $station"/>
+					<create_construction_sequence station="$station" base="null" constructionbias="1.0" failsafe="true" macros="[macro.dockarea_ter_m_station_01_hightech_macro, macro.pier_ter_harbor_01_macro, macro.storage_ter_l_container_01_macro]" connectors="[macro.struct_ter_base_01_macro, macro.struct_ter_cross_01_macro, macro.struct_ter_vertical_01_macro]"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence asked'"/>
+				</do_else>
+			</actions>
+			<cues>
+				<cue name="On_Sequence">
+					<conditions>
+						<event_object_construction_sequence_created object="$station"/>
+					</conditions>
+					<actions>
+						<set_value name="md.$cm90.$stationpending" exact="false"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station sequence raw object=' + @event.object + ' param=' + @event.param + ' param2=' + @event.param2"/>
+						<do_if value="event.param? and event.param2">
+							<set_value name="$storage" exact="$station.buildstorage"/>
+							<do_if value="not $storage.exists">
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build abort: no buildstorage'"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station build raw storage=' + $storage + ' module=' + @$storage.buildmodule"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station build stage=default price=omit reason=vanilla adds the task or applies the plan, not both'"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build ask storage=' + $storage + ' station=' + $station"/>
+								<add_build_to_expand_station result="$build" object="$storage" buildobject="$station" constructionplan="event.param"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build result=' + $build"/>
+							</do_else>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence rejected param2=' + @event.param2 + ' param=' + @event.param"/>
+						</do_else>
+					</actions>
+				</cue>
+			</cues>
+		</cue>
+
+		<cue name="On_Loaded" instantiate="true" namespace="this">
+			<conditions>
+				<event_game_loaded/>
+			</conditions>
+			<actions>
+				<do_if value="@md.$cm90.$stationpending">
+					<set_value name="md.$cm90.$stationpending" exact="false"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence lost on load'"/>
+				</do_if>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>
