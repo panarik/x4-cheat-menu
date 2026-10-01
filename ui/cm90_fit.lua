@@ -8,9 +8,9 @@ local C
 local ffi
 local job = { mode = "compat", loadoutid = "" }
 local warepool = {}
-local has_slot_setter = false
-local has_virt_setter = false
 local has_ammo_setter = false
+local has_save_loadout = false
+local AUTO_LOADOUT_ID = "cm90_auto"
 local pending_wanted = nil
 local pending_kit = nil
 
@@ -176,30 +176,21 @@ local function init_ffi()
       void GetCurrentLoadout(UILoadout* result, UniverseID defensibleid, UniverseID moduleid);
       uint32_t GetLoadoutCounts(UILoadoutCounts* result, UniverseID defensibleid, const char* macroname, const char* loadoutid);
       void GetLoadout(UILoadout* result, UniverseID defensibleid, const char* macroname, const char* loadoutid);
+      void SaveLoadout(const char* macroname, UILoadout uiloadout, const char* source, const char* id, bool overwrite, const char* name, const char* desc);
       uint32_t GetMissileCargo(UIWareInfo* result, uint32_t resultlen, UniverseID containerid);
       UniverseID GetUpgradeSlotCurrentComponent(UniverseID destructibleid, const char* upgradetypename, size_t slot);
       bool SetAmmoOfWeapon(UniverseID weaponid, const char* newammomacro);
     ]]
   end)
-  pcall(function()
-    ffi.cdef[[
-      bool SetUpgradeSlotMacro(UniverseID defensibleid, UniverseID moduleid, const char* upgradetypename, size_t slot, const char* macroname);
-      bool SetVirtualUpgradeSlotMacro(UniverseID defensibleid, const char* upgradetypename, size_t slot, const char* macroname);
-    ]]
-  end)
   C = ffi.C
-  has_slot_setter = pcall(function()
-    return C.SetUpgradeSlotMacro
-  end)
-  has_virt_setter = pcall(function()
-    return C.SetVirtualUpgradeSlotMacro
-  end)
   has_ammo_setter = pcall(function()
     return C.SetAmmoOfWeapon
   end)
-  log_md("HIGH Fit setter slot=" .. tostring(has_slot_setter)
-    .. " virt=" .. tostring(has_virt_setter)
-    .. " ammo=" .. tostring(has_ammo_setter)
+  has_save_loadout = pcall(function()
+    return C.SaveLoadout
+  end)
+  log_md("HIGH Fit ammo=" .. tostring(has_ammo_setter)
+    .. " save_loadout=" .. tostring(has_save_loadout)
     .. " LOG_ONLY=" .. tostring(LOG_ONLY))
   return true
 end
@@ -465,12 +456,7 @@ local function ware_macro(wareid)
 end
 
 local function ware_mk(wareid)
-  local s = tostring(wareid or "")
-  local n = s:match("_mk(%d+)")
-  if n then
-    return tonumber(n) or 0
-  end
-  return 0
+  return _G.CM90FitRule.ware_mk(wareid)
 end
 
 local function list_wares(tags)
@@ -580,34 +566,24 @@ local function snapshot(id, shipmacro, label)
   return filled, empty
 end
 
-local function scan_candidates(id, shipmacro, spec, slot, path, group, wares)
-  local best_macro = nil
-  local best_mk = -1
-  local slotcompat = 0
-  local groupcompat = 0
-  local names = {}
+local function candidate_rows(id, shipmacro, spec, slot, path, group, wares)
+  local rows = {}
   for i = 1, #wares do
     local cand = ware_macro(wares[i])
     if cand and cand ~= "" then
-      local slotok = compatible_slot(id, shipmacro, spec, slot, cand)
-      local groupok = compatible_group(id, shipmacro, spec, path, group, cand)
-      if slotok then
-        slotcompat = slotcompat + 1
-      end
-      if groupok then
-        groupcompat = groupcompat + 1
-      end
-      if slotok or groupok then
-        names[#names + 1] = cand
-        local mk = ware_mk(wares[i])
-        if mk > best_mk or best_macro == nil then
-          best_mk = mk
-          best_macro = cand
-        end
-      end
+      rows[#rows + 1] = {
+        macro = cand,
+        mk = ware_mk(wares[i]),
+        slotok = compatible_slot(id, shipmacro, spec, slot, cand),
+        groupok = compatible_group(id, shipmacro, spec, path, group, cand),
+      }
     end
   end
-  return best_macro, slotcompat, groupcompat, names
+  return rows
+end
+
+local function scan_candidates(id, shipmacro, spec, slot, path, group, wares)
+  return _G.CM90FitRule.pick_best(candidate_rows(id, shipmacro, spec, slot, path, group, wares))
 end
 
 local function spec_by_name(name)
@@ -626,16 +602,18 @@ end
 
 local function collect_found_picks(id, shipmacro)
   log_md("HIGH Fit pretenders start")
-  local picks = {}
+  local slots = {}
   for t = 1, #SLOT_TYPES do
     local spec = SLOT_TYPES[t]
     local wares = list_wares(spec.tags)
     local n = num_slots(id, shipmacro, spec)
     for slot = 1, n do
       local cur = current_macro(id, spec, slot)
+      local path, group = slot_group(id, shipmacro, spec, slot)
+      local candidates = {}
       if cur == "" then
-        local path, group = slot_group(id, shipmacro, spec, slot)
-        local pick, slotcompat, groupcompat, names = scan_candidates(id, shipmacro, spec, slot, path, group, wares)
+        candidates = candidate_rows(id, shipmacro, spec, slot, path, group, wares)
+        local pick, slotcompat, groupcompat, names = _G.CM90FitRule.pick_best(candidates)
         log_md("MID Fit compat " .. spec.name .. " slot=" .. slot
           .. " path=" .. path .. " group=" .. group
           .. " slotcompat=" .. slotcompat
@@ -645,20 +623,25 @@ local function collect_found_picks(id, shipmacro)
         if pick then
           log_md("HIGH Fit fitting pick " .. spec.name .. " slot=" .. slot
             .. " macro=" .. pick .. " compat=" .. slotcompat)
-          picks[#picks + 1] = {
-            spec = spec,
-            slot = slot,
-            path = path,
-            group = group,
-            macro = pick,
-            source = "found-compat",
-          }
         else
           log_md("MID Fit none " .. spec.name .. " slot=" .. slot .. " path=" .. path .. " group=" .. group)
         end
+      else
+        log_md("HIGH Fit found occupied keep " .. spec.name .. " slot=" .. slot
+          .. " macro=" .. cur)
       end
+      slots[#slots + 1] = {
+        spec = spec,
+        name = spec.name,
+        slot = slot,
+        current = cur,
+        path = path,
+        group = group,
+        candidates = candidates,
+      }
     end
   end
+  local picks = _G.CM90FitRule.walk_hull(slots)
   log_md("HIGH Fit fitting n=" .. #picks)
   return picks
 end
@@ -956,112 +939,103 @@ local function macro_to_ware(macroname)
   return macroname:gsub("_macro$", "")
 end
 
-local function setter_for(spec)
-  if spec.virtual then
-    return has_virt_setter
+local function fill_saved_rows(arr, rows, typename, hold)
+  for i = 1, #rows do
+    local row = rows[i]
+    local cell = arr[i - 1]
+    hold[#hold + 1] = row.macro
+    cell.macro = row.macro
+    cell.upgradetypename = typename
+    cell.slot = row.slot or 0
+    cell.optional = false
   end
-  return has_slot_setter
 end
 
-local function install_one(id, spec, slot, macroname, overwrite)
-  local cur = current_macro(id, spec, slot)
-  if cur == macroname then
-    log_md("MID Fit install skip already " .. spec.name .. " slot=" .. slot .. " macro=" .. macroname)
-    return true
-  end
-  if cur ~= "" and not overwrite then
-    log_md("MID Fit install skip occupied " .. spec.name .. " slot=" .. slot .. " have=" .. cur .. " want=" .. macroname)
-    return true
-  end
-  if LOG_ONLY then
-    log_md("HIGH Fit install skipped LOG_ONLY " .. spec.name .. " slot=" .. slot .. " macro=" .. macroname)
+local function save_slot_loadout(shipmacro, wanted)
+  if not has_save_loadout or not shipmacro or shipmacro == "" then
+    log_md("HIGH Fit save loadout skip symbol=" .. tostring(has_save_loadout))
     return false
   end
-  if not setter_for(spec) then
+  local plan = _G.CM90FitRule.plan_slots(wanted)
+  local buckets = {
+    engine = plan.engines,
+    weapon = plan.weapons,
+    turret = plan.turrets,
+    shield = plan.shields,
+  }
+  local thruster = plan.thruster
+  local counts = ffi.new("UILoadoutCounts")
+  counts.numengines = #buckets.engine
+  counts.numweapons = #buckets.weapon
+  counts.numturrets = #buckets.turret
+  counts.numshields = #buckets.shield
+  local lo = alloc_loadout(counts)
+  local function none(ptrname, numname, n)
+    if n < 1 then
+      lo[ptrname] = nil
+      lo[numname] = 0
+    end
+  end
+  none("engines", "numengines", counts.numengines)
+  none("weapons", "numweapons", counts.numweapons)
+  none("turrets", "numturrets", counts.numturrets)
+  none("shields", "numshields", counts.numshields)
+  none("turretgroups", "numturretgroups", 0)
+  none("shieldgroups", "numshieldgroups", 0)
+  none("ammo", "numammo", 0)
+  none("units", "numunits", 0)
+  none("software", "numsoftware", 0)
+  local hold = { shipmacro, thruster }
+  fill_saved_rows(lo.engines, buckets.engine, "engine", hold)
+  fill_saved_rows(lo.weapons, buckets.weapon, "weapon", hold)
+  fill_saved_rows(lo.turrets, buckets.turret, "turret", hold)
+  fill_saved_rows(lo.shields, buckets.shield, "shield", hold)
+  lo.thruster.macro = thruster
+  lo.thruster.optional = (thruster == "")
+  local ok, err = pcall(function()
+    C.SaveLoadout(shipmacro, lo, "local", AUTO_LOADOUT_ID, true, "CM90 Auto", "CM90")
+  end)
+  -- hold keeps the macro strings alive across the SaveLoadout call.
+  if not hold[1] then
     return false
   end
-  local ok, res
-  if spec.virtual then
-    ok, res = pcall(function()
-      return C.SetVirtualUpgradeSlotMacro(id, spec.name, slot, macroname)
-    end)
-  else
-    ok, res = pcall(function()
-      return C.SetUpgradeSlotMacro(id, 0, spec.name, slot, macroname)
-    end)
-  end
-  local got = current_macro(id, spec, slot)
-  if got == macroname then
-    log_md("HIGH Fit install-ok " .. spec.name .. " slot=" .. slot .. " macro=" .. macroname)
-    return true
-  end
-  local why = "no-change"
   if not ok then
-    why = "pcall"
+    log_md("HIGH Fit save loadout fail " .. tostring(err))
+    return false
   end
-  log_md("HIGH Fit install-fail " .. spec.name .. " slot=" .. slot
-    .. " want=" .. macroname
-    .. " got=" .. tostring(got)
-    .. " why=" .. why
-    .. " ret=" .. tostring(res))
-  return false, why
+  log_md("HIGH Fit save loadout id=" .. AUTO_LOADOUT_ID
+    .. " engines=" .. #buckets.engine
+    .. " weapons=" .. #buckets.weapon
+    .. " turrets=" .. #buckets.turret
+    .. " shields=" .. #buckets.shield
+    .. " thruster=" .. (thruster ~= "" and "1" or "0"))
+  return true
 end
 
 local function install_wanted(id, wanted, overwrite)
-  local ok_n = 0
-  local fail_n = 0
   if LOG_ONLY then
     log_md("HIGH Fit install skipped LOG_ONLY n=" .. #wanted)
     return 0, #wanted
   end
-  local can_slot = has_slot_setter or has_virt_setter
-  if not can_slot then
-    log_md("HIGH Fit install no-slot-setter n=" .. #wanted .. " fallback=md")
-    return 0, #wanted
-  end
-  for i = 1, #wanted do
-    local row = wanted[i]
-    local ok_one, why = install_one(id, row.spec, row.slot, row.macro, overwrite)
-    if ok_one then
-      ok_n = ok_n + 1
-    else
-      fail_n = fail_n + 1
-      if why == "pcall" then
-        log_md("HIGH Fit install abort setter-pcall rest=" .. (#wanted - i))
-        fail_n = fail_n + (#wanted - i)
-        break
-      end
-    end
-  end
-  log_md("HIGH Fit install done ok=" .. ok_n .. " fail=" .. fail_n .. " n=" .. #wanted)
-  return ok_n, fail_n
-end
-
-local function add_ware_id(seen, ids, ware)
-  ware = tostring(ware or "")
-  if ware == "" or seen[ware] then
-    return
-  end
-  seen[ware] = true
-  ids[#ids + 1] = ware
+  log_md("HIGH Fit install via loadout n=" .. #wanted)
+  return 0, #wanted
 end
 
 local function ware_ids_for(wanted, kit)
-  local seen = {}
-  local ids = {}
+  local raw = {}
   for i = 1, #(wanted or {}) do
-    add_ware_id(seen, ids, macro_to_ware(wanted[i].macro))
+    raw[#raw + 1] = macro_to_ware(wanted[i].macro)
   end
   if kit then
-    add_ware_id(seen, ids, macro_to_ware(kit.thruster))
+    raw[#raw + 1] = macro_to_ware(kit.thruster)
     for i = 1, #(kit.ammo or {}) do
-      add_ware_id(seen, ids, macro_to_ware(kit.ammo[i].macro))
+      raw[#raw + 1] = macro_to_ware(kit.ammo[i].macro)
     end
     for i = 1, #(kit.software or {}) do
-      add_ware_id(seen, ids, kit.software[i])
+      raw[#raw + 1] = kit.software[i]
     end
   end
-  return ids
+  return _G.CM90FitRule.unique_ids(raw)
 end
 
 local function send_ware_apply(mode, wares, control)
@@ -1347,6 +1321,8 @@ local function fit_api()
     log_before_install = log_before_install,
     finish_stage3 = finish_stage3,
     install_wanted = install_wanted,
+    save_slot_loadout = save_slot_loadout,
+    notify_md = notify_md,
     ware_ids_for = ware_ids_for,
     send_ware_apply = send_ware_apply,
     collect_occupied_virtual = collect_occupied_virtual,
@@ -1378,7 +1354,6 @@ local function on_fit(_, obj)
   log_md("HIGH Fit naked start LOG_ONLY=" .. tostring(LOG_ONLY)
     .. " mode=" .. job.mode
     .. " loadout=" .. job.loadoutid
-    .. " setter=" .. tostring(has_slot_setter)
     .. " hasDefault=" .. tostring(hasdef)
     .. " macro=" .. tostring(macro))
   dump_current_loadout(id, "naked")

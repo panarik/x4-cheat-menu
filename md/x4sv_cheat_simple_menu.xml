@@ -662,6 +662,8 @@
 				</do_if>
 				<set_value name="md.$cm90.$fitmode" exact="$mode"/>
 				<set_value name="md.$cm90.$loadoutid" exact="$loadoutid"/>
+				<set_value name="md.$cm90.$fitqueue" exact="[]"/>
+				<remove_value name="md.$cm90.$fitsaved"/>
 				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Fit mode=' + $mode + ' loadout=' + $loadoutid + ' count=' + $count + ' ware=' + @md.$cm90.$ware.id"/>
 				<do_if value="$mode == 'preset' and $loadoutid">
 					<raise_lua_event name="'CheatMenu90.SetJob'" param="'preset|' + $loadoutid"/>
@@ -903,6 +905,12 @@
 					<do_if value="$ship?">
 						<set_value name="md.$cm90.$lastship" exact="$ship"/>
 						<set_value name="md.$cm90.$lastmacro" exact="$macro"/>
+						<do_if value="@md.$cm90.$fitmode == 'compat'">
+							<do_if value="not md.$cm90.$fitqueue?">
+								<set_value name="md.$cm90.$fitqueue" exact="[]"/>
+							</do_if>
+							<append_to_list name="md.$cm90.$fitqueue" exact="table[$ship = $ship, $macro = $macro]"/>
+						</do_if>
 						<set_value name="$Crew" exact="$ship.people.list"/>
 						<signal_cue_instantly cue="LogFile" param="'HIGH Spawn crew people=' + @$Crew.count"/>
 						<do_all exact="$Crew.count" counter="$j">

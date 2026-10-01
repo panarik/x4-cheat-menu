@@ -113,7 +113,6 @@ Please send reports **on this mod page** (Posts / Bugs).
 In the report, include:
 
 - Launch the game from Steam with these Launch Options (no quotes around the whole line): `-debug all -logfile debuglog.txt -scriptlogfiles`
-- A line `setter slot=false virt=false`, or the names `SetUpgradeSlotMacro` and `SetVirtualUpgradeSlotMacro`, is expected. The game does not export those two calls. That check is left from fitting debug. The menu does not install parts through them.
 - **Game log:** `%USERPROFILE%\Documents\Egosoft\X4\<profile number>\debuglog.txt` — the folder that also has **save** and **config.xml**. If Documents is on OneDrive: `%USERPROFILE%\OneDrive\Documents\Egosoft\X4\<profile number>\debuglog.txt`
 - **Mod log:** `%USERPROFILE%\Documents\Egosoft\X4\<profile number>\logs\cm90\cm90_cheat_log.txt` (same profile folder). This file appears only with `-scriptlogfiles`.
 - What is broken. A screenshot helps if the list or the spawned ship looks wrong.
