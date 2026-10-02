@@ -55,6 +55,9 @@ local function init_ffi()
       int64_t GetBuildPlotPrice(UniverseID sectorid, UIPosRot location, float x, float y, float z, const char* factionid);
       void PayBuildPlotSize(UniverseID stationid, Coord3D plotsize, Coord3D plotcenter);
       UniverseID GetSectorControlStation(UniverseID sectorid);
+      void ForceBuildCompletion(UniverseID containerid);
+      size_t GetNumPlannedStationModules(UniverseID defensibleid, bool includeall);
+      uint32_t GetNumStationModules(UniverseID stationid, bool includeconstructions, bool includewrecks);
     ]]
     end)
   end
@@ -65,7 +68,7 @@ local function init_ffi()
   cdef_done = true
   C = ffi.C
   local sym_ok, sym_err = pcall(function()
-    return C.PayBuildPlotSize
+    return C.PayBuildPlotSize, C.ForceBuildCompletion
   end)
   if not sym_ok then
     log_md("HIGH Station plot ffi fail symbol " .. tostring(sym_err))
@@ -258,6 +261,59 @@ local function on_plot(_, obj)
   plot_result("ok")
 end
 
+local function force_result(token)
+  log_md("HIGH Station force result " .. token)
+  if AddUITriggeredEvent then
+    AddUITriggeredEvent("CM90Station", "force", token)
+  end
+end
+
+local function station_counts(station)
+  local tail_ok, tail = pcall(function()
+    return tonumber(C.GetNumPlannedStationModules(station, false))
+  end)
+  local all_ok, alln = pcall(function()
+    return tonumber(C.GetNumPlannedStationModules(station, true))
+  end)
+  local built_ok, built = pcall(function()
+    return tonumber(C.GetNumStationModules(station, false, false))
+  end)
+  local constructing = nil
+  if IsComponentConstruction then
+    local con_ok, con = pcall(IsComponentConstruction, station)
+    constructing = con_ok and con or ("err " .. tostring(con))
+  end
+  return "tail_ok=" .. tostring(tail_ok) .. " tail=" .. tostring(tail)
+    .. " all_ok=" .. tostring(all_ok) .. " all=" .. tostring(alln)
+    .. " built_ok=" .. tostring(built_ok) .. " built=" .. tostring(built)
+    .. " constructing=" .. tostring(constructing)
+end
+
+local function on_force(_, obj)
+  log_md("LOW Station force raw obj=" .. tostring(obj))
+  if not init_ffi() then
+    force_result("fail-ffi")
+    return
+  end
+  local station = id_of(obj)
+  if not station then
+    log_md("HIGH Station force fail no station id")
+    force_result("fail-id")
+    return
+  end
+  log_md("LOW Station force before " .. station_counts(station))
+  local call_ok, call_err = pcall(function()
+    C.ForceBuildCompletion(station)
+  end)
+  log_md("LOW Station force call_ok=" .. tostring(call_ok) .. " err=" .. tostring(call_err))
+  if not call_ok then
+    force_result("fail-call")
+    return
+  end
+  log_md("LOW Station force after " .. station_counts(station))
+  force_result("ok")
+end
+
 local function init()
   debug("HIGH Station lua init")
   if not RegisterEvent then
@@ -265,6 +321,7 @@ local function init()
     return
   end
   RegisterEvent("CheatMenu90.StationPlot", on_plot)
+  RegisterEvent("CheatMenu90.StationForce", on_force)
   debug("HIGH Station lua ready")
 end
 

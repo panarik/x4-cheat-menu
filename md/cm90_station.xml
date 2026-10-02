@@ -4,6 +4,7 @@
   Test creates an empty station 10 km ahead. The 10 km cube is centred on that point.
   then asks the generator for one Terran M dock, one L pier, and one L container store.
   The sequence becomes a build task on the station build storage. The plan is not applied as well.
+  One second later the missing wares are added to that storage, then the build is forced.
 -->
 <mdscript name="cm90_station" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
@@ -139,14 +140,58 @@
 								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build ask storage=' + $storage + ' station=' + $station"/>
 								<add_build_to_expand_station result="$build" object="$storage" buildobject="$station" constructionplan="event.param"/>
 								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build result=' + $build"/>
+								<set_value name="$supply" exact="true"/>
 							</do_else>
 						</do_if>
 						<do_else>
 							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence rejected param2=' + @event.param2 + ' param=' + @event.param"/>
 						</do_else>
 					</actions>
+					<delay exact="1s"/>
+					<actions>
+						<do_if value="@$supply and $storage.exists">
+							<set_value name="$holder" exact="$storage.buildmodule"/>
+							<set_value name="$wares" exact="@$holder.neededsequenceresources.list"/>
+							<do_if value="@$wares.count == 0">
+								<set_value name="$holder" exact="$storage.buildprocessor"/>
+								<set_value name="$wares" exact="@$holder.neededsequenceresources.list"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station cargo source=buildprocessor reason=buildmodule list was empty'"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station cargo source=buildmodule'"/>
+							</do_else>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station cargo raw holder=' + $holder + ' n=' + @$wares.count"/>
+							<do_if value="@$wares.count gt 0">
+								<do_all exact="$wares.count" counter="$k">
+									<set_value name="$ware" exact="$wares.{$k}"/>
+									<set_value name="$need" exact="$holder.neededsequenceresources.{$ware}.count"/>
+									<add_cargo object="$storage" ware="$ware" exact="$need" result="$added"/>
+									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station cargo ware=' + @$ware.id + ' need=' + $need + ' added=' + $added"/>
+								</do_all>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station cargo done n=' + $wares.count + ' left=' + @$holder.neededsequenceresources.list.count"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station cargo empty'"/>
+							</do_else>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station force ask station=' + $station"/>
+							<raise_lua_event name="'CheatMenu90.StationForce'" param="$station"/>
+						</do_if>
+					</actions>
 				</cue>
 			</cues>
+		</cue>
+
+		<cue name="On_Force" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Station'" control="'force'"/>
+			</conditions>
+			<actions>
+				<set_value name="$token" exact="event.param3"/>
+				<do_if value="not $token">
+					<set_value name="$token" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station force token=' + $token"/>
+			</actions>
 		</cue>
 
 		<cue name="On_Loaded" instantiate="true" namespace="this">
