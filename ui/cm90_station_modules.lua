@@ -1,5 +1,5 @@
--- Station module library dump. Log only.
--- MD sends each ware from get_ware_definition tags=tag.module, then StationModDone.
+-- Station module library. Log every ware, then tell MD which races it belongs to.
+-- MD sends faction pairs, each ware from get_ware_definition tags=tag.module, then StationModDone.
 
 local ffi
 local C
@@ -8,6 +8,8 @@ local cdef_done = false
 
 local rows = {}
 local field_err = {}
+local faction_map = {}
+local norace = 0
 
 local function debug(msg)
   if DebugError then
@@ -21,6 +23,20 @@ local function log_md(line)
   if AddUITriggeredEvent then
     AddUITriggeredEvent("CM90StationMod", "log", line)
   end
+end
+
+local function emit(control, payload)
+  if AddUITriggeredEvent then
+    AddUITriggeredEvent("CM90StationPick", control, tostring(payload or ""))
+  end
+end
+
+local function clean_text(value)
+  local text = tostring(value or "")
+  if text == "nil" or text == "missing" or text == "ERR" then
+    return ""
+  end
+  return text
 end
 
 local function note_fail(field, err)
@@ -156,13 +172,14 @@ local function on_mod(_, param)
     macro = ""
   end
   macro = macro or ""
-  local _, name = read_raw(GetWareData, ware, "name")
-  local _, owners = read_raw(GetWareData, ware, "blueprintsowners")
+  local name_raw, name = read_raw(GetWareData, ware, "name")
+  local owners_raw, owners = read_raw(GetWareData, ware, "blueprintsowners")
   local _, ismodule = read_raw(GetWareData, ware, "ismodule")
   local _, isship = read_raw(GetWareData, ware, "isship")
   local _, isequipment = read_raw(GetWareData, ware, "isequipment")
   local race_raw = nil
   local race_text = "missing"
+  local names_raw = nil
   local racename = "missing"
   local shortname = "missing"
   local tier = "missing"
@@ -175,7 +192,7 @@ local function on_mod(_, param)
   local maker = "missing"
   if macro ~= "" then
     race_raw, race_text = read_raw(GetMacroData, macro, "makerraceid")
-    _, racename = read_raw(GetMacroData, macro, "makerracename")
+    names_raw, racename = read_raw(GetMacroData, macro, "makerracename")
     _, maker = read_raw(GetMacroData, macro, "makerrace")
     _, shortname = read_raw(GetMacroData, macro, "shortname")
     _, tier = read_raw(GetMacroData, macro, "tier")
@@ -211,6 +228,37 @@ local function on_mod(_, param)
     .. " isshowroommodule=" .. tostring(showroom)
     .. " isventuremodule=" .. tostring(venture)
     .. " macroname=" .. tostring(showname))
+  if macro == "" then
+    return
+  end
+  local rule = _G.CM90StationRule
+  if not rule then
+    log_md("HIGH Station mod rule missing")
+    return
+  end
+  local members = rule.memberships(race_raw, names_raw, owners_raw, faction_map)
+  if #members == 0 then
+    norace = norace + 1
+    return
+  end
+  local conn = rows[#rows].connection
+  if conn ~= "1" then
+    conn = "0"
+  end
+  local lib = rule.library_of(library)
+  local shown = clean_text(name_raw)
+  if shown == "" then
+    shown = macro
+  end
+  for i = 1, #members do
+    local member = members[i]
+    emit("m_macro", macro)
+    emit("m_lib", lib)
+    emit("m_conn", conn)
+    emit("m_race", member.id)
+    emit("m_rname", member.name)
+    emit("m_name", shown)
+  end
 end
 
 local function bump(map, key)
@@ -270,8 +318,28 @@ local function on_done()
   end
   log_md("HIGH Station mod done n=" .. tostring(#rows)
     .. " connection=" .. tostring(connection)
+    .. " norace=" .. tostring(norace)
     .. " library=" .. join_counts(libraries)
     .. " race=" .. join_counts(races))
+  emit("ready", tostring(#rows))
+end
+
+local function on_factions(_, param)
+  local rule = _G.CM90StationRule
+  rows = {}
+  norace = 0
+  field_err = {}
+  if not rule then
+    faction_map = {}
+    log_md("HIGH Station mod rule missing")
+    return
+  end
+  faction_map = rule.parse_factions(payload_of(_, param))
+  local n = 0
+  for _ in pairs(faction_map) do
+    n = n + 1
+  end
+  log_md("HIGH Station mod factions n=" .. tostring(n))
 end
 
 local function init()
@@ -280,6 +348,7 @@ local function init()
     debug("HIGH Station mod RegisterEvent missing")
     return
   end
+  RegisterEvent("CheatMenu90.StationFactions", on_factions)
   RegisterEvent("CheatMenu90.StationMod", on_mod)
   RegisterEvent("CheatMenu90.StationModDone", on_done)
   debug("HIGH Station mod lua ready")

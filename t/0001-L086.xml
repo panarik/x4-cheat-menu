@@ -99,6 +99,24 @@
 		<t id="13">Ship for this job is forming near you.</t>
 		<t id="14">Spawn Stations</t>
 		<t id="15">Test</t>
-		<t id="16">Placing a Terran test station.</t>
+		<t id="16">Placing your station.</t>
+		<t id="17">Step 1: Choose module types</t>
+		<t id="18">Step 2: Choose module</t>
+		<t id="19">Build</t>
+		<t id="20">Loading station modules.</t>
+		<t id="21">No station modules found.</t>
+		<t id="22">Choose at least one module.</t>
+		<t id="23">No modules of this type.</t>
+		<t id="30">Docks</t>
+		<t id="31">Storage</t>
+		<t id="32">Production</t>
+		<t id="33">Habitation</t>
+		<t id="34">Welfare</t>
+		<t id="35">Defence</t>
+		<t id="36">Construction</t>
+		<t id="37">Processing</t>
+		<t id="38">Radar</t>
+		<t id="39">Venture</t>
+		<t id="40">Other</t>
 	</page>
 </language>
