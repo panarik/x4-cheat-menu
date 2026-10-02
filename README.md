@@ -38,7 +38,7 @@ The window: ESC → Extension Options → Cheat Menu 9.0.
 You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A narrow column on the left stays on the window: **Build Ship**, **Build Wing**, and **Spawn Stations**. **Spawn Stations** opens a window with a **Test** button. Test places an empty station 10 km ahead, starts a build of a Terran dock, a pier, and a container store, fills the build storage with the wares that build still needs, then asks the game to finish it. Whether that finish step completes the modules is still open. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
+2. A narrow column on the left stays on the window: **Build Ship**, **Build Wing**, and **Spawn Stations**. **Spawn Stations** opens a window with a **Test** button. Test places an empty station 10 km ahead, starts a build of a Terran dock, a pier, and a container store, fills the build storage with the wares that build still needs, then asks the game to finish it. On 2026-10-02 that finished the three modules, and the station could be docked. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
 3. **Build Ship** opens the list of races and factions across the rest of the window. Each row shows how many ships of that group exist in **your** install. Pick one.
 4. The next screen is three columns: **Step 1: Size**, **Step 2: Name**, and **Step 3: Owner**. Pick a size. Names for that size appear in the middle. The size list stays.
 5. Pick a name. The right column lists who receives the hull. **Player** is the first row. The name list stays.
@@ -70,11 +70,11 @@ You need a loaded save (the option is not on the title screen).
 
 **Spawn Stations**
 
-- The row is in the left column. Test places an empty station 10 km ahead of your ship, starts a build of a Terran M dock, one pier, and a large container store, stocks the build storage, then asks the game to finish that build. Finishing it is not confirmed yet.
+- The row is in the left column. Test places an empty station 10 km ahead of your ship, starts a build of a Terran M dock, one pier, and a large container store, stocks the build storage, then asks the game to finish that build. That finish step completed the station in a 2026-10-02 test.
 
 **Planned**
 
-- A finished station from a module list. Test stocks the build and asks the game to finish it. That finish step is not confirmed yet.
+- A finished station from any module list. Test finishes one fixed Terran set: an M dock, one pier, and a large container store.
 - Gate control (same idea as DeadAir).
 - Delete existing ships and stations.
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Station module library dump. Log only.
+  One query: get_ware_definition tags=tag.module.
+  Spawn Stations Draw signals Dump once. Test does not enter this file.
+-->
+<mdscript name="cm90_station_modules" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="On_Mod_Log" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90StationMod'" control="'log'"/>
+			</conditions>
+			<actions>
+				<set_value name="$line" exact="event.param3"/>
+				<do_if value="not $line">
+					<set_value name="$line" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="$line"/>
+			</actions>
+		</cue>
+
+		<cue name="Dump" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<do_if value="md.$cm90.$stationmoddump?">
+					<do_if value="md.$cm90.$stationmoddump">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station mod skip reason=already dumped'"/>
+					</do_if>
+				</do_if>
+				<do_else>
+					<set_value name="md.$cm90.$stationmoddump" exact="true"/>
+					<set_value name="$wares" exact="[]"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station mod query tags=tag.module'"/>
+					<get_ware_definition result="$wares" tags="tag.module"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station mod wares count=' + @$wares.count"/>
+					<do_for_each name="$ware" in="$wares">
+						<set_value name="$macro" exact="@$ware.objectmacro"/>
+						<do_if value="not $macro">
+							<set_value name="$macro" exact="@$ware.component"/>
+						</do_if>
+						<set_value name="$mid" exact="''"/>
+						<do_if value="$macro">
+							<set_value name="$mid" exact="@$macro.id"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station mod skip_macro ware=' + @$ware.id"/>
+						</do_else>
+						<raise_lua_event name="'CheatMenu90.StationMod'" param="@$ware.id + '|' + $mid"/>
+					</do_for_each>
+					<raise_lua_event name="'CheatMenu90.StationModDone'" param="'1'"/>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

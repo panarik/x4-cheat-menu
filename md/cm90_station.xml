@@ -14,6 +14,7 @@
 			</conditions>
 			<actions>
 				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station draw'"/>
+				<signal_cue_instantly cue="md.cm90_station_modules.Dump"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 						$col = 2,

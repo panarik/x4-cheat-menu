@@ -3,6 +3,7 @@
   <environment type="menus">
     <file name="ui/cm90_log.lua"/>
     <file name="ui/cm90_station.lua"/>
+    <file name="ui/cm90_station_modules.lua"/>
     <file name="ui/cm90_fit_rule.lua"/>
     <file name="ui/cm90_fit_preset.lua"/>
     <file name="ui/cm90_fit_found.lua"/>
