@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spawn Stations paint. Reads md.$cm90.$stui and creates widgets.
+  Clicks go to the UI model. This file does not change state and does not refresh.
+-->
+<mdscript name="cm90_station_ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Paint" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="md.$cm90.$stui.$paint == 'loading'">
+					<signal_cue_instantly cue="Fill_Loading"/>
+				</do_if>
+				<do_elseif value="md.$cm90.$stui.$paint == 'build'">
+					<signal_cue_instantly cue="Fill_Build"/>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="Fill_Races"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Loading" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
+						$text = {357424,20}
+					]"/>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Races" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'left', $fontsize = 13,
+						$text = {357424,6}
+					]"/>
+				<do_if value="not @md.$cm90.$stui.$racebtns.count">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
+							$text = {357424,21}
+						]"/>
+				</do_if>
+				<do_else>
+					<do_all exact="md.$cm90.$stui.$racebtns.count" counter="$i">
+						<set_value name="$b" exact="md.$cm90.$stui.$racebtns.{$i}"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+								$col = 2, $colSpan = 3, $echo = $b.$id,
+								$onClick = md.cm90_station_ui_model.On_Race,
+								$text = table[$text = $b.$text, $halign = 'left']
+							]"/>
+					</do_all>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Fill_Build" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Back,
+						$text = table[$text = {357423,9010}, $halign = 'left']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $halign = 'left', $fontsize = 13, $text = {357424,17}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $fontsize = 13, $text = {357424,18}
+					]"/>
+				<do_all exact="@md.$cm90.$stui.$lines.count" counter="$r">
+					<set_value name="$line" exact="md.$cm90.$stui.$lines.{$r}"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<do_if value="$line.$has_type">
+						<do_if value="$line.$t_on">
+							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+									$col = 2, $echo = $line.$t_id,
+									$onClick = md.cm90_station_ui_model.On_Type,
+									$bgColor = 'Color.table_row_highlight',
+									$text = table[$text = $line.$t_text, $halign = 'left']
+								]"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+									$col = 2, $echo = $line.$t_id,
+									$onClick = md.cm90_station_ui_model.On_Type,
+									$text = table[$text = $line.$t_text, $halign = 'left']
+								]"/>
+						</do_else>
+					</do_if>
+					<do_if value="$line.$has_mod">
+						<set_value name="$opts" exact="[]"/>
+						<append_to_list name="$opts" exact="table[$text = '0', $value = 0, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '1', $value = 1, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '2', $value = 2, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '3', $value = 3, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '4', $value = 4, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '5', $value = 5, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '10', $value = 10, $row = $line.$m_row]"/>
+						<append_to_list name="$opts" exact="table[$text = '20', $value = 20, $row = $line.$m_row]"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station draw macro=' + $line.$m_macro + ' override=' + $line.$m_qty"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+								$col = 3, $halign = 'left', $text = $line.$m_name
+							]"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+								$col = 4, $echo = $line.$m_row,
+								$options = $opts,
+								$textOverride = '' + $line.$m_qty,
+								$onDropDownConfirmed = md.cm90_station_ui_model.On_Qty
+							]"/>
+					</do_if>
+				</do_all>
+				<do_if value="md.$cm90.$stui.$nomods">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+							$text = {357424,23}
+						]"/>
+				</do_if>
+				<do_if value="md.$cm90.$stui.$showprev or md.$cm90.$stui.$shownext">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+					<do_if value="md.$cm90.$stui.$showprev">
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+								$col = 3, $onClick = md.cm90_station_ui_model.On_Mod_Prev,
+								$text = table[$text = {357423,9020}, $halign = 'left']
+							]"/>
+					</do_if>
+					<do_if value="md.$cm90.$stui.$shownext">
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+								$col = 4, $onClick = md.cm90_station_ui_model.On_Mod_Next,
+								$text = table[$text = {357423,9019}, $halign = 'left']
+							]"/>
+					</do_if>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Build,
+						$text = table[$text = {357424,19}, $halign = 'left']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status draw text=' + @md.$cm90.$stui.$status"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
+						$text = md.$cm90.$stui.$status
+					]"/>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

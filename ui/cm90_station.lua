@@ -1,4 +1,4 @@
--- Station plot purchase. The menu and the module list stay in md/cm90_station.xml.
+-- Station plot purchase. The build pipeline is md/cm90_station_logic.xml.
 -- This file only calls the plot FFI the map uses, and reports the raw answer.
 
 local ffi

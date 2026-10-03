@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spawn Stations UI model.
+  The hub signals Draw. This file writes md.$cm90.$stui and refreshes once.
+  It does not create widgets. Build hands the picked lists to the logic file.
+-->
+<mdscript name="cm90_station_ui_model" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Ensure_Ui" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<do_if value="not md.$cm90.$stui?">
+					<set_value name="md.$cm90.$stui" exact="table[]"/>
+					<set_value name="md.$cm90.$stui.$view" exact="'races'"/>
+					<set_value name="md.$cm90.$stui.$paint" exact="'races'"/>
+					<set_value name="md.$cm90.$stui.$race" exact="''"/>
+					<set_value name="md.$cm90.$stui.$type" exact="''"/>
+					<set_value name="md.$cm90.$stui.$off" exact="0"/>
+					<set_value name="md.$cm90.$stui.$pk_id" exact="[]"/>
+					<set_value name="md.$cm90.$stui.$pk_n" exact="[]"/>
+					<set_value name="md.$cm90.$stui.$pk_obj" exact="[]"/>
+					<set_value name="md.$cm90.$stui.$racebtns" exact="[]"/>
+					<set_value name="md.$cm90.$stui.$lines" exact="[]"/>
+					<set_value name="md.$cm90.$stui.$showprev" exact="0"/>
+					<set_value name="md.$cm90.$stui.$shownext" exact="0"/>
+					<set_value name="md.$cm90.$stui.$nomods" exact="0"/>
+					<set_value name="md.$cm90.$stui.$status" exact="''"/>
+				</do_if>
+				<do_if value="not md.$cm90.$stui.$status?">
+					<set_value name="md.$cm90.$stui.$status" exact="''"/>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="Draw" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station state view=' + md.$cm90.$stui.$view + ' race=' + md.$cm90.$stui.$race + ' type=' + md.$cm90.$stui.$type + ' off=' + md.$cm90.$stui.$off + ' picks=' + @md.$cm90.$stui.$pk_id.count + ' ready=' + @md.$cm90.$stready"/>
+				<signal_cue_instantly cue="md.cm90_station_logic.Ensure_Catalog"/>
+				<do_if value="not @md.$cm90.$stready">
+					<set_value name="md.$cm90.$stui.$paint" exact="'loading'"/>
+					<do_if value="not @md.$cm90.$stwait">
+						<set_value name="md.$cm90.$stwait" exact="true"/>
+						<set_value name="md.$cm90.$stwaitn" exact="0"/>
+						<signal_cue_instantly cue="Catalog_Wait"/>
+					</do_if>
+				</do_if>
+				<do_elseif value="md.$cm90.$stui.$view == 'build'">
+					<signal_cue_instantly cue="Compose_Build"/>
+					<set_value name="md.$cm90.$stui.$paint" exact="'build'"/>
+				</do_elseif>
+				<do_else>
+					<signal_cue_instantly cue="Compose_Races"/>
+					<set_value name="md.$cm90.$stui.$paint" exact="'races'"/>
+				</do_else>
+				<signal_cue_instantly cue="md.cm90_station_ui.Paint"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Catalog" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station model catalog rows=' + @md.$cm90.$strows.count + ' races=' + @md.$cm90.$straces.count"/>
+				<do_if value="@md.$cm90.$pane == 'station' and @md.$cm90.$stui.$paint == 'loading'">
+					<set_value name="md.$cm90.$stwait" exact="false"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog ready refresh'"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="Catalog_Wait" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$stwaitn" exact="@md.$cm90.$stwaitn + 1"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog wait n=' + md.$cm90.$stwaitn"/>
+			</actions>
+			<cues>
+				<cue name="Catalog_Wait_Fire">
+					<actions>
+						<set_value name="$hold" exact="1"/>
+					</actions>
+					<delay exact="1s"/>
+					<actions>
+						<set_value name="$pane" exact="@md.$cm90.$pane"/>
+						<do_if value="$pane != 'station'">
+							<set_value name="md.$cm90.$stwait" exact="false"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog wait stop pane=' + $pane"/>
+						</do_if>
+						<do_elseif value="@md.$cm90.$stready">
+							<set_value name="md.$cm90.$stwait" exact="false"/>
+							<do_if value="@md.$cm90.$pane == 'station' and @md.$cm90.$stui.$paint == 'loading'">
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog refresh'"/>
+								<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog wait drop paint=' + @md.$cm90.$stui.$paint"/>
+							</do_else>
+						</do_elseif>
+						<do_elseif value="md.$cm90.$stwaitn ge 10">
+							<set_value name="md.$cm90.$stwait" exact="false"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station pick timeout'"/>
+						</do_elseif>
+						<do_else>
+							<signal_cue_instantly cue="Catalog_Wait"/>
+						</do_else>
+					</actions>
+				</cue>
+			</cues>
+		</cue>
+
+		<cue name="Compose_Races" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$stui.$racebtns" exact="[]"/>
+				<do_all exact="@md.$cm90.$straces.count" counter="$i">
+					<set_value name="$b" exact="md.$cm90.$straces.{$i}"/>
+					<append_to_list name="md.$cm90.$stui.$racebtns" exact="table[
+							$id = $b.$id,
+							$text = $b.$label + ' (' + $b.$n + ')'
+						]"/>
+				</do_all>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station races n=' + @md.$cm90.$stui.$racebtns.count"/>
+			</actions>
+		</cue>
+
+		<cue name="Compose_Build" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$pagesize" exact="15"/>
+				<do_if value="not md.$cm90.$stui.$off?">
+					<set_value name="md.$cm90.$stui.$off" exact="0"/>
+				</do_if>
+				<set_value name="$raw" exact="[]"/>
+				<set_value name="$types" exact="[]"/>
+				<set_value name="$pref" exact="[]"/>
+				<append_to_list name="$pref" exact="'dock'"/>
+				<append_to_list name="$pref" exact="'storage'"/>
+				<append_to_list name="$pref" exact="'production'"/>
+				<append_to_list name="$pref" exact="'habitation'"/>
+				<append_to_list name="$pref" exact="'welfare'"/>
+				<append_to_list name="$pref" exact="'defence'"/>
+				<append_to_list name="$pref" exact="'build'"/>
+				<append_to_list name="$pref" exact="'processing'"/>
+				<append_to_list name="$pref" exact="'radar'"/>
+				<append_to_list name="$pref" exact="'venture'"/>
+				<append_to_list name="$pref" exact="'other'"/>
+				<do_all exact="@md.$cm90.$strows.count" counter="$i">
+					<set_value name="$row" exact="md.$cm90.$strows.{$i}"/>
+					<do_if value="$row.$race == md.$cm90.$stui.$race and $row.$conn != '1'">
+						<set_value name="$slot" exact="$raw.indexof.{$row.$lib}"/>
+						<do_if value="not $slot">
+							<append_to_list name="$raw" exact="$row.$lib"/>
+						</do_if>
+					</do_if>
+				</do_all>
+				<do_all exact="$pref.count" counter="$p">
+					<set_value name="$want" exact="$pref.{$p}"/>
+					<set_value name="$slot" exact="$raw.indexof.{$want}"/>
+					<do_if value="$slot">
+						<append_to_list name="$types" exact="$want"/>
+					</do_if>
+				</do_all>
+				<set_value name="$rest" exact="[]"/>
+				<do_all exact="$raw.count" counter="$i">
+					<set_value name="$slot" exact="$types.indexof.{$raw.{$i}}"/>
+					<do_if value="not $slot">
+						<append_to_list name="$rest" exact="$raw.{$i}"/>
+					</do_if>
+				</do_all>
+				<do_if value="$rest.count gt 1">
+					<sort_list list="$rest" sortbyvalue="loop.element"/>
+				</do_if>
+				<do_all exact="$rest.count" counter="$i">
+					<append_to_list name="$types" exact="$rest.{$i}"/>
+				</do_all>
+				<set_value name="$midx" exact="[]"/>
+				<set_value name="$mseen" exact="[]"/>
+				<do_if value="md.$cm90.$stui.$type? and md.$cm90.$stui.$type != ''">
+					<do_all exact="@md.$cm90.$strows.count" counter="$i">
+						<set_value name="$row" exact="md.$cm90.$strows.{$i}"/>
+						<do_if value="$row.$race == md.$cm90.$stui.$race and $row.$lib == md.$cm90.$stui.$type and $row.$conn != '1'">
+							<set_value name="$slot" exact="$mseen.indexof.{$row.$macro}"/>
+							<do_if value="not $slot">
+								<append_to_list name="$mseen" exact="$row.$macro"/>
+								<append_to_list name="$midx" exact="$i"/>
+							</do_if>
+						</do_if>
+					</do_all>
+				</do_if>
+				<do_if value="md.$cm90.$stui.$off lt 0 or (@$midx.count and md.$cm90.$stui.$off ge $midx.count)">
+					<set_value name="md.$cm90.$stui.$off" exact="0"/>
+				</do_if>
+				<set_value name="$shown" exact="0"/>
+				<do_if value="@$midx.count gt md.$cm90.$stui.$off">
+					<set_value name="$shown" exact="$midx.count - md.$cm90.$stui.$off"/>
+					<do_if value="$shown gt $pagesize">
+						<set_value name="$shown" exact="$pagesize"/>
+					</do_if>
+				</do_if>
+				<set_value name="$nrows" exact="$types.count"/>
+				<do_if value="$shown gt $nrows">
+					<set_value name="$nrows" exact="$shown"/>
+				</do_if>
+				<do_if value="$nrows gt $pagesize">
+					<set_value name="$nrows" exact="$pagesize"/>
+				</do_if>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station board race=' + @md.$cm90.$stui.$race + ' type=' + @md.$cm90.$stui.$type + ' types=' + $types.count + ' mods=' + @$midx.count + ' off=' + md.$cm90.$stui.$off"/>
+				<do_if value="$types.count gt $pagesize">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station types truncated n=' + $types.count"/>
+				</do_if>
+				<set_value name="md.$cm90.$stui.$lines" exact="[]"/>
+				<set_value name="md.$cm90.$stui.$nomods" exact="0"/>
+				<do_if value="$nrows gt 0">
+					<do_all exact="$nrows" counter="$r">
+						<set_value name="$has_type" exact="0"/>
+						<set_value name="$t_id" exact="''"/>
+						<set_value name="$t_text" exact="''"/>
+						<set_value name="$t_on" exact="0"/>
+						<set_value name="$has_mod" exact="0"/>
+						<set_value name="$m_name" exact="''"/>
+						<set_value name="$m_macro" exact="''"/>
+						<set_value name="$m_qty" exact="0"/>
+						<set_value name="$m_row" exact="0"/>
+						<do_if value="$r le $types.count and $r le $pagesize">
+							<set_value name="$lib" exact="$types.{$r}"/>
+							<set_value name="$has_type" exact="1"/>
+							<set_value name="$t_id" exact="$lib"/>
+							<set_value name="$t_text" exact="$lib"/>
+							<do_if value="$lib == 'dock'"><set_value name="$t_text" exact="{357424,30}"/></do_if>
+							<do_elseif value="$lib == 'storage'"><set_value name="$t_text" exact="{357424,31}"/></do_elseif>
+							<do_elseif value="$lib == 'production'"><set_value name="$t_text" exact="{357424,32}"/></do_elseif>
+							<do_elseif value="$lib == 'habitation'"><set_value name="$t_text" exact="{357424,33}"/></do_elseif>
+							<do_elseif value="$lib == 'welfare'"><set_value name="$t_text" exact="{357424,34}"/></do_elseif>
+							<do_elseif value="$lib == 'defence'"><set_value name="$t_text" exact="{357424,35}"/></do_elseif>
+							<do_elseif value="$lib == 'build'"><set_value name="$t_text" exact="{357424,36}"/></do_elseif>
+							<do_elseif value="$lib == 'processing'"><set_value name="$t_text" exact="{357424,37}"/></do_elseif>
+							<do_elseif value="$lib == 'radar'"><set_value name="$t_text" exact="{357424,38}"/></do_elseif>
+							<do_elseif value="$lib == 'venture'"><set_value name="$t_text" exact="{357424,39}"/></do_elseif>
+							<do_elseif value="$lib == 'other'"><set_value name="$t_text" exact="{357424,40}"/></do_elseif>
+							<do_if value="$lib == md.$cm90.$stui.$type">
+								<set_value name="$t_on" exact="1"/>
+							</do_if>
+						</do_if>
+						<set_value name="$pos" exact="md.$cm90.$stui.$off + $r"/>
+						<do_if value="$pos le @$midx.count and $pos ge 1">
+							<set_value name="$i" exact="$midx.{$pos}"/>
+							<set_value name="$mod" exact="md.$cm90.$strows.{$i}"/>
+							<set_value name="$qty" exact="0"/>
+							<set_value name="$pslot" exact="md.$cm90.$stui.$pk_id.indexof.{$mod.$macro}"/>
+							<do_if value="$pslot">
+								<set_value name="$qty" exact="md.$cm90.$stui.$pk_n.{$pslot}"/>
+							</do_if>
+							<set_value name="$has_mod" exact="1"/>
+							<set_value name="$m_name" exact="$mod.$name"/>
+							<set_value name="$m_macro" exact="$mod.$macro"/>
+							<set_value name="$m_qty" exact="$qty"/>
+							<set_value name="$m_row" exact="$i"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station cell macro=' + $mod.$macro + ' stored=' + $qty"/>
+						</do_if>
+						<append_to_list name="md.$cm90.$stui.$lines" exact="table[
+								$has_type = $has_type,
+								$t_id = $t_id,
+								$t_text = $t_text,
+								$t_on = $t_on,
+								$has_mod = $has_mod,
+								$m_name = $m_name,
+								$m_macro = $m_macro,
+								$m_qty = $m_qty,
+								$m_row = $m_row
+							]"/>
+					</do_all>
+				</do_if>
+				<do_elseif value="md.$cm90.$stui.$type? and md.$cm90.$stui.$type != ''">
+					<set_value name="md.$cm90.$stui.$nomods" exact="1"/>
+				</do_elseif>
+				<set_value name="md.$cm90.$stui.$showprev" exact="0"/>
+				<set_value name="md.$cm90.$stui.$shownext" exact="0"/>
+				<do_if value="@$midx.count gt $pagesize">
+					<do_if value="md.$cm90.$stui.$off gt 0">
+						<set_value name="md.$cm90.$stui.$showprev" exact="1"/>
+					</do_if>
+					<do_if value="md.$cm90.$stui.$off + $pagesize lt $midx.count">
+						<set_value name="md.$cm90.$stui.$shownext" exact="1"/>
+					</do_if>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="On_Race" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$race" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$stui.$type" exact="''"/>
+				<set_value name="md.$cm90.$stui.$off" exact="0"/>
+				<set_value name="md.$cm90.$stui.$view" exact="'build'"/>
+				<set_value name="md.$cm90.$stui.$pk_id" exact="[]"/>
+				<set_value name="md.$cm90.$stui.$pk_n" exact="[]"/>
+				<set_value name="md.$cm90.$stui.$pk_obj" exact="[]"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station race=' + @md.$cm90.$stui.$race"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Back" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$view" exact="'races'"/>
+				<set_value name="md.$cm90.$stui.$type" exact="''"/>
+				<set_value name="md.$cm90.$stui.$off" exact="0"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station back'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Type" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$type" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$stui.$off" exact="0"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station type=' + @md.$cm90.$stui.$type"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Mod_Next" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$off" exact="@md.$cm90.$stui.$off + 15"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Mod_Prev" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$off" exact="@md.$cm90.$stui.$off - 15"/>
+				<do_if value="md.$cm90.$stui.$off lt 0">
+					<set_value name="md.$cm90.$stui.$off" exact="0"/>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Qty" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$n" exact="@event.param.$option.$value"/>
+				<do_if value="not $n">
+					<set_value name="$n" exact="0"/>
+				</do_if>
+				<set_value name="$row" exact="@event.param.$option.$row"/>
+				<do_if value="not $row">
+					<set_value name="$row" exact="@event.param.$echo"/>
+				</do_if>
+				<do_if value="not $row or not @md.$cm90.$strows.{$row}.$macro">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station qty skip row=' + @$row"/>
+				</do_if>
+				<do_else>
+					<do_if value="$n lt 0">
+						<set_value name="$n" exact="0"/>
+					</do_if>
+					<set_value name="$mid" exact="md.$cm90.$strows.{$row}.$macro"/>
+					<set_value name="$obj" exact="md.$cm90.$strows.{$row}.$obj"/>
+					<do_if value="not md.$cm90.$stui.$pk_id?">
+						<set_value name="md.$cm90.$stui.$pk_id" exact="[]"/>
+						<set_value name="md.$cm90.$stui.$pk_n" exact="[]"/>
+						<set_value name="md.$cm90.$stui.$pk_obj" exact="[]"/>
+					</do_if>
+					<set_value name="$slot" exact="md.$cm90.$stui.$pk_id.indexof.{$mid}"/>
+					<do_if value="$slot">
+						<set_value name="md.$cm90.$stui.$pk_n.{$slot}" exact="$n"/>
+						<set_value name="md.$cm90.$stui.$pk_obj.{$slot}" exact="$obj"/>
+					</do_if>
+					<do_else>
+						<append_to_list name="md.$cm90.$stui.$pk_id" exact="$mid"/>
+						<append_to_list name="md.$cm90.$stui.$pk_n" exact="$n"/>
+						<append_to_list name="md.$cm90.$stui.$pk_obj" exact="$obj"/>
+					</do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station qty macro=' + $mid + ' n=' + $n + ' refresh=1'"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Set_Status" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$code" exact="@event.param.$code"/>
+				<do_if value="$code == 'run'">
+					<set_value name="md.$cm90.$stui.$status" exact="{357424,24}"/>
+				</do_if>
+				<do_elseif value="$code == 'done'">
+					<set_value name="md.$cm90.$stui.$status" exact="{357424,25}"/>
+				</do_elseif>
+				<do_elseif value="$code == 'fail'">
+					<set_value name="md.$cm90.$stui.$status" exact="{357424,26}"/>
+				</do_elseif>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status code=' + $code + ' text=' + @md.$cm90.$stui.$status"/>
+				<do_if value="@event.param.$draw and @md.$cm90.$pane == 'station'">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="On_Build" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$any" exact="0"/>
+				<do_all exact="@md.$cm90.$stui.$pk_id.count" counter="$i">
+					<do_if value="md.$cm90.$stui.$pk_n.{$i} gt 0">
+						<set_value name="$any" exact="1"/>
+					</do_if>
+				</do_all>
+				<do_if value="not $any">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build skip empty'"/>
+					<show_notification text="{357424,22}"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="Set_Status" param="table[$code = 'run', $draw = 0]"/>
+					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
+							$race = md.$cm90.$stui.$race,
+							$pk_id = md.$cm90.$stui.$pk_id,
+							$pk_n = md.$cm90.$stui.$pk_n,
+							$pk_obj = md.$cm90.$stui.$pk_obj
+						]"/>
+					<do_if value="@md.$cm90.$pane == 'station'">
+						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+					</do_if>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

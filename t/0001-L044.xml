@@ -107,6 +107,9 @@
 		<t id="21">No station modules found.</t>
 		<t id="22">Choose at least one module.</t>
 		<t id="23">No modules of this type.</t>
+		<t id="24">Placing your station. Please wait.</t>
+		<t id="25">Station placed. You can take a look.</t>
+		<t id="26">The modules did not fit the plot.</t>
 		<t id="30">Docks</t>
 		<t id="31">Storage</t>
 		<t id="32">Production</t>

@@ -82,7 +82,7 @@
 						]"/>
 				</do_else>
 				<do_if value="md.$cm90.$pane == 'station'">
-					<signal_cue_instantly cue="md.cm90_station.Draw"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Draw"/>
 				</do_if>
 				<do_elseif value="md.$cm90.$pane == 'wing'">
 					<signal_cue_instantly cue="md.cm90_wing.Draw"/>

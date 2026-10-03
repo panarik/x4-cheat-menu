@@ -2,7 +2,7 @@
 <!--
   Station module library.
   One query: get_ware_definition tags=tag.module.
-  Spawn Stations Draw signals Dump once per session.
+  cm90_station_logic.Ensure_Catalog signals Dump once per session.
   Lua classifies races and sends rows back on screen CM90StationPick.
 -->
 <mdscript name="cm90_station_modules" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
