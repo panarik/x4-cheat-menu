@@ -177,7 +177,7 @@
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status draw text=' + @md.$cm90.$stui.$status"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status draw t=' + player.age + ' paint=' + @md.$cm90.$stui.$status_paint + ' text=' + @md.$cm90.$stui.$status"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
 						$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
 						$text = md.$cm90.$stui.$status

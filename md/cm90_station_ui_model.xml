@@ -424,25 +424,28 @@
 			<actions>
 				<signal_cue_instantly cue="Ensure_Ui"/>
 				<set_value name="$code" exact="@event.param.$code"/>
-				<do_if value="$code == 'run'">
-					<set_value name="md.$cm90.$stui.$status" exact="{357424,24}"/>
-				</do_if>
-				<do_elseif value="$code == 'done'">
+				<set_value name="$prev" exact="@md.$cm90.$stui.$status"/>
+				<do_if value="$code == 'done'">
 					<set_value name="md.$cm90.$stui.$status" exact="{357424,25}"/>
-				</do_elseif>
+				</do_if>
 				<do_elseif value="$code == 'fail'">
 					<set_value name="md.$cm90.$stui.$status" exact="{357424,26}"/>
 				</do_elseif>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status code=' + $code + ' text=' + @md.$cm90.$stui.$status + ' draw=' + @event.param.$draw + ' later=' + @event.param.$later + ' pane=' + @md.$cm90.$pane"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status code=' + $code + ' prev=' + $prev + ' text=' + @md.$cm90.$stui.$status + ' draw=' + @event.param.$draw + ' later=' + @event.param.$later + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				<do_if value="@event.param.$draw and @md.$cm90.$pane == 'station'">
 					<do_if value="@event.param.$later">
 						<set_value name="md.$cm90.$stui.$status_paint" exact="1"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status paint scheduled t=' + player.age"/>
 						<signal_cue cue="Redraw"/>
 					</do_if>
 					<do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status refresh now t=' + player.age"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 					</do_else>
 				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID UI station status no repaint draw=' + @event.param.$draw + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
+				</do_else>
 			</actions>
 		</cue>
 
@@ -453,9 +456,12 @@
 			<actions>
 				<do_if value="@md.$cm90.$stui.$status_paint and @md.$cm90.$pane == 'station'">
 					<set_value name="md.$cm90.$stui.$status_paint" exact="0"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status paint text=' + @md.$cm90.$stui.$status"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status paint t=' + player.age + ' text=' + @md.$cm90.$stui.$status"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID UI station status redraw skip paint=' + @md.$cm90.$stui.$status_paint + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
+				</do_else>
 			</actions>
 		</cue>
 
@@ -476,7 +482,6 @@
 					<show_notification text="{357424,22}"/>
 				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="Set_Status" param="table[$code = 'run', $draw = 0]"/>
 					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
 							$race = md.$cm90.$stui.$race,
 							$pk_id = md.$cm90.$stui.$pk_id,
@@ -508,7 +513,6 @@
 					<show_notification text="{357424,22}"/>
 				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="Set_Status" param="table[$code = 'run', $draw = 0]"/>
 					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
 							$race = md.$cm90.$stui.$race,
 							$pk_id = md.$cm90.$stui.$pk_id,

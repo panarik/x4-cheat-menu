@@ -62,7 +62,7 @@
 					<do_if value="md.$cm90.$stnorm">
 						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence glue skip reason=normalizer'"/>
 					</do_if>
-					<do_else>
+					<do_elseif value="$race == 'terran'">
 					<set_value name="$glue" exact="($player_n / 3)i"/>
 					<set_value name="$g_vert_rank" exact="0"/>
 					<set_value name="$g_cross_rank" exact="0"/>
@@ -105,7 +105,15 @@
 							<append_to_list name="$seq" exact="$g_base"/>
 						</do_all>
 					</do_if>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence glue player=' + $player_n + ' each=' + $glue + ' vertical=' + $g_vert_id + ' cross=' + $g_cross_id + ' base=' + $g_base_id + ' macros=' + $seq.count"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence glue strategy=default player=' + $player_n + ' each=' + $glue + ' vertical=' + $g_vert_id + ' cross=' + $g_cross_id + ' base=' + $g_base_id + ' macros=' + $seq.count"/>
+					</do_elseif>
+					<do_else>
+					<do_all exact="$player_n" counter="$k">
+						<do_all exact="$conn.count" counter="$j">
+							<append_to_list name="$seq" exact="$conn.{$j}"/>
+						</do_all>
+					</do_all>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence glue strategy=debug race=' + $race + ' player=' + $player_n + ' kinds=' + $conn.count + ' macros=' + $seq.count"/>
 					</do_else>
 					<set_value name="md.$cm90.$stseq" exact="$seq"/>
 					<set_value name="md.$cm90.$stseq_conn" exact="$conn"/>
@@ -411,7 +419,7 @@
 							<set_value name="$storage" exact="$station.buildstorage"/>
 							<do_if value="not $storage.exists">
 								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build abort: no buildstorage'"/>
-								<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+								<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 							</do_if>
 							<do_else>
 								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station build raw storage=' + $storage + ' module=' + @$storage.buildmodule"/>
@@ -424,7 +432,7 @@
 						</do_if>
 						<do_else>
 							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station sequence rejected param2=' + @event.param2 + ' param=' + @event.param"/>
-							<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+							<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 						</do_else>
 					</actions>
 					<delay exact="1s"/>
@@ -469,15 +477,15 @@
 				<set_value name="$station" exact="event.param"/>
 				<do_if value="not $station.exists">
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer abort: no station'"/>
-					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 				</do_if>
 				<do_elseif value="not @md.$cm90.$stseq.count">
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer abort: empty list'"/>
-					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 				</do_elseif>
 				<do_elseif value="@$station.plannedconstruction.sequence.hasstages">
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer abort reason=plan already has stages'"/>
-					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 				</do_elseif>
 				<do_else>
 					<set_value name="$set" exact="@$station.modulesets.{1}"/>
@@ -508,7 +516,7 @@
 						</do_if>
 						<do_else>
 							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer sequence rejected param2=' + @event.param2 + ' param=' + @event.param"/>
-							<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+							<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 						</do_else>
 					</actions>
 				</cue>
@@ -531,12 +539,12 @@
 					</do_if>
 					<do_else>
 						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer abort: no buildstorage'"/>
-						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 					</do_else>
 				</do_if>
 				<do_else>
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer report empty reason=no plan or already staged'"/>
-					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1]"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 1, $later = 1]"/>
 				</do_else>
 			</actions>
 			<delay exact="1s"/>
