@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Preset. The found path does not enter this file.
+  Basket: md.$cm90.$presetwares. Queue: md.$cm90.$presetqueue.
+  Named kit via get_loadout. Empty result falls back to generate_loadout
+  of this basket only. Do not pass a player_ id string to apply_loadout.
+-->
+<mdscript name="cm90_fit_preset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="On_Preset_Clear" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'preset_clear'"/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$presetwares" exact="[]"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit preset_clear'"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Preset_Ware" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'preset_ware'"/>
+			</conditions>
+			<actions>
+				<set_value name="$id" exact="event.param3"/>
+				<do_if value="not $id">
+					<set_value name="$id" exact="event.param"/>
+				</do_if>
+				<do_if value="$id">
+					<set_value name="$ware" exact="ware.{$id}"/>
+					<do_if value="$ware?">
+						<append_to_list name="md.$cm90.$presetwares" exact="$ware"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fit preset_ware id=' + $id + ' ware=' + @$ware.id + ' n=' + md.$cm90.$presetwares.count"/>
+					</do_if>
+					<do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit preset_ware miss id=' + $id"/>
+					</do_else>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="On_Preset_Ready" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'kit_ready'"/>
+			</conditions>
+			<actions>
+				<set_value name="$n" exact="event.param3"/>
+				<do_if value="not $n">
+					<set_value name="$n" exact="event.param"/>
+				</do_if>
+				<do_if value="md.$cm90.$fitmode != 'preset'">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit kit_ready ignored mode=' + @md.$cm90.$fitmode"/>
+				</do_if>
+				<do_else>
+					<set_value name="$ship" exact="null"/>
+					<set_value name="$macro" exact="null"/>
+					<do_if value="@md.$cm90.$presetqueue.count gt 0">
+						<set_value name="$row" exact="md.$cm90.$presetqueue.{1}"/>
+						<set_value name="$ship" exact="$row.$ship"/>
+						<set_value name="$macro" exact="$row.$macro"/>
+						<remove_from_list name="md.$cm90.$presetqueue" exact="$row"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit queue ship=' + $ship + ' left=' + @md.$cm90.$presetqueue.count + ' queue=preset'"/>
+					</do_if>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit kit_ready n=' + $n + ' wares=' + @md.$cm90.$presetwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid"/>
+					<set_value name="$applied" exact="false"/>
+					<do_if value="not @$ship.exists">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit queue miss queue=preset reason=empty'"/>
+					</do_if>
+					<do_else>
+						<do_if value="not $macro">
+							<set_value name="$macro" exact="@$ship.macro"/>
+						</do_if>
+						<do_if value="md.$cm90.$loadoutid">
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit get_loadout start id=' + md.$cm90.$loadoutid + ' macro=' + @$macro.id"/>
+							<get_loadout result="$lo" loadout="md.$cm90.$loadoutid" macro="$macro"/>
+							<do_if value="$lo?">
+								<apply_loadout object="$ship" loadout="$lo"/>
+								<set_value name="$applied" exact="true"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit get_loadout applied id=' + md.$cm90.$loadoutid + ' macro=' + @$macro.id + ' ship=' + $ship"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit get_loadout empty id=' + md.$cm90.$loadoutid + ' fallback=wares'"/>
+							</do_else>
+						</do_if>
+						<do_if value="not $applied and @md.$cm90.$presetwares.count gt 0">
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout start mode=preset macro=' + @$macro.id + ' wares=' + md.$cm90.$presetwares.count"/>
+							<generate_loadout result="$los" macro="$macro" faction="faction.player" wares="md.$cm90.$presetwares" level="1.0" variation="0"/>
+							<do_if value="$los.count">
+								<apply_loadout object="$ship" loadout="$los.{1}"/>
+								<set_value name="$applied" exact="true"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout applied n=' + $los.count + ' wares=' + md.$cm90.$presetwares.count + ' mode=preset'"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout empty wares=' + md.$cm90.$presetwares.count + ' mode=preset'"/>
+							</do_else>
+						</do_if>
+						<do_elseif value="not $applied">
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply skip: no loadout mode=preset'"/>
+						</do_elseif>
+						<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
+					</do_else>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

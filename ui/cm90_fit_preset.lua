@@ -7,7 +7,7 @@ _G.CM90Fit = _G.CM90Fit or {}
 function _G.CM90Fit.install_preset(api, id, macro)
   api.log_md("HIGH Fit preset apply id=" .. api.job.loadoutid)
   local wanted, kit = api.collect_preset_wanted(id, macro, api.job.loadoutid)
-  api.set_pending(wanted, kit)
+  api.set_pending(id, wanted, kit)
   api.log_before_install("preset", wanted, " id=" .. api.job.loadoutid)
   if api.LOG_ONLY then
     api.log_md("HIGH Fit install skipped LOG_ONLY n=" .. #wanted)

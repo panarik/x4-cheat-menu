@@ -9,10 +9,7 @@ local ffi
 local job = { mode = "compat", loadoutid = "" }
 local warepool = {}
 local has_ammo_setter = false
-local has_save_loadout = false
-local AUTO_LOADOUT_ID = "cm90_auto"
-local pending_wanted = nil
-local pending_kit = nil
+local pending_by_ship = {}
 
 local function debug(msg)
   if DebugError then
@@ -186,11 +183,7 @@ local function init_ffi()
   has_ammo_setter = pcall(function()
     return C.SetAmmoOfWeapon
   end)
-  has_save_loadout = pcall(function()
-    return C.SaveLoadout
-  end)
   log_md("HIGH Fit ammo=" .. tostring(has_ammo_setter)
-    .. " save_loadout=" .. tostring(has_save_loadout)
     .. " LOG_ONLY=" .. tostring(LOG_ONLY))
   return true
 end
@@ -939,79 +932,6 @@ local function macro_to_ware(macroname)
   return macroname:gsub("_macro$", "")
 end
 
-local function fill_saved_rows(arr, rows, typename, hold)
-  for i = 1, #rows do
-    local row = rows[i]
-    local cell = arr[i - 1]
-    hold[#hold + 1] = row.macro
-    cell.macro = row.macro
-    cell.upgradetypename = typename
-    cell.slot = row.slot or 0
-    cell.optional = false
-  end
-end
-
-local function save_slot_loadout(shipmacro, wanted)
-  if not has_save_loadout or not shipmacro or shipmacro == "" then
-    log_md("HIGH Fit save loadout skip symbol=" .. tostring(has_save_loadout))
-    return false
-  end
-  local plan = _G.CM90FitRule.plan_slots(wanted)
-  local buckets = {
-    engine = plan.engines,
-    weapon = plan.weapons,
-    turret = plan.turrets,
-    shield = plan.shields,
-  }
-  local thruster = plan.thruster
-  local counts = ffi.new("UILoadoutCounts")
-  counts.numengines = #buckets.engine
-  counts.numweapons = #buckets.weapon
-  counts.numturrets = #buckets.turret
-  counts.numshields = #buckets.shield
-  local lo = alloc_loadout(counts)
-  local function none(ptrname, numname, n)
-    if n < 1 then
-      lo[ptrname] = nil
-      lo[numname] = 0
-    end
-  end
-  none("engines", "numengines", counts.numengines)
-  none("weapons", "numweapons", counts.numweapons)
-  none("turrets", "numturrets", counts.numturrets)
-  none("shields", "numshields", counts.numshields)
-  none("turretgroups", "numturretgroups", 0)
-  none("shieldgroups", "numshieldgroups", 0)
-  none("ammo", "numammo", 0)
-  none("units", "numunits", 0)
-  none("software", "numsoftware", 0)
-  local hold = { shipmacro, thruster }
-  fill_saved_rows(lo.engines, buckets.engine, "engine", hold)
-  fill_saved_rows(lo.weapons, buckets.weapon, "weapon", hold)
-  fill_saved_rows(lo.turrets, buckets.turret, "turret", hold)
-  fill_saved_rows(lo.shields, buckets.shield, "shield", hold)
-  lo.thruster.macro = thruster
-  lo.thruster.optional = (thruster == "")
-  local ok, err = pcall(function()
-    C.SaveLoadout(shipmacro, lo, "local", AUTO_LOADOUT_ID, true, "CM90 Auto", "CM90")
-  end)
-  -- hold keeps the macro strings alive across the SaveLoadout call.
-  if not hold[1] then
-    return false
-  end
-  if not ok then
-    log_md("HIGH Fit save loadout fail " .. tostring(err))
-    return false
-  end
-  log_md("HIGH Fit save loadout id=" .. AUTO_LOADOUT_ID
-    .. " engines=" .. #buckets.engine
-    .. " weapons=" .. #buckets.weapon
-    .. " turrets=" .. #buckets.turret
-    .. " shields=" .. #buckets.shield
-    .. " thruster=" .. (thruster ~= "" and "1" or "0"))
-  return true
-end
-
 local function install_wanted(id, wanted, overwrite)
   if LOG_ONLY then
     log_md("HIGH Fit install skipped LOG_ONLY n=" .. #wanted)
@@ -1039,11 +959,17 @@ local function ware_ids_for(wanted, kit)
 end
 
 local function send_ware_apply(mode, wares, control)
+  local clear_name = "found_clear"
+  local ware_name = "found_ware"
+  if mode == "preset" then
+    clear_name = "preset_clear"
+    ware_name = "preset_ware"
+  end
   log_md("HIGH Fit md-wares mode=" .. mode .. " n=" .. #wares .. " control=" .. tostring(control))
-  notify_md("kit_clear", "1")
+  notify_md(clear_name, "1")
   for i = 1, #wares do
     log_md("LOW Fit md-ware i=" .. i .. " id=" .. wares[i])
-    notify_md("kit_ware", wares[i])
+    notify_md(ware_name, wares[i])
   end
   notify_md(control, tostring(#wares))
 end
@@ -1309,7 +1235,11 @@ local function on_fit_verify(_, obj)
     return
   end
   log_md("HIGH Fit after-install after md apply mode=" .. job.mode .. " loadout=" .. job.loadoutid)
-  finish_stage3(id, macro, pending_wanted, pending_kit)
+  local remembered = pending_by_ship[tostring(id)]
+  pending_by_ship[tostring(id)] = nil
+  local wanted = remembered and remembered.wanted or nil
+  local kit = remembered and remembered.kit or nil
+  finish_stage3(id, macro, wanted, kit)
 end
 
 local function fit_api()
@@ -1321,15 +1251,14 @@ local function fit_api()
     log_before_install = log_before_install,
     finish_stage3 = finish_stage3,
     install_wanted = install_wanted,
-    save_slot_loadout = save_slot_loadout,
     notify_md = notify_md,
     ware_ids_for = ware_ids_for,
     send_ware_apply = send_ware_apply,
+    collect_found_picks = collect_found_picks,
     collect_occupied_virtual = collect_occupied_virtual,
     collect_occupied = collect_occupied,
-    set_pending = function(wanted, kit)
-      pending_wanted = wanted
-      pending_kit = kit
+    set_pending = function(id, wanted, kit)
+      pending_by_ship[tostring(id)] = { wanted = wanted, kit = kit }
     end,
   }
 end
@@ -1361,7 +1290,6 @@ local function on_fit(_, obj)
   local naked_filled, naked_empty = snapshot(id, macro, "naked")
   log_md("HIGH Fit naked done filled=" .. tostring(naked_filled) .. " empty=" .. tostring(naked_empty))
   log_ammo(id, macro, "naked")
-  local fitting = collect_found_picks(id, macro)
   local api = fit_api()
   if job.mode == "preset" and job.loadoutid ~= "" then
     if not (_G.CM90Fit and _G.CM90Fit.install_preset) then

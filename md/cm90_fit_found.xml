@@ -1,18 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Found modules. The preset path does not enter this file.
-  Bridge: event found_apply. Ship is the head of md.$cm90.$fitqueue.
-  Slot picks are saved as loadout id cm90_auto, then get_loadout + apply_loadout.
-  generate_loadout from md.$cm90.$kitwares runs only when that id is missing.
+  Basket: md.$cm90.$foundwares. Queue: md.$cm90.$foundqueue.
+  Install is generate_loadout of this basket, then apply_loadout.
+  SaveLoadout id cm90_auto does not equip a live hull (Centurion, 2026-10-03).
 -->
 <mdscript name="cm90_fit_found" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
-		<cue name="On_Fit_Found_Saved" instantiate="true" namespace="this">
+		<cue name="On_Found_Clear" instantiate="true" namespace="this">
 			<conditions>
-				<event_ui_triggered screen="'CM90Fit'" control="'found_saved'"/>
+				<event_ui_triggered screen="'CM90Fit'" control="'found_clear'"/>
 			</conditions>
 			<actions>
-				<set_value name="md.$cm90.$fitsaved" exact="true"/>
+				<set_value name="md.$cm90.$foundwares" exact="[]"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found_clear'"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Found_Ware" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Fit'" control="'found_ware'"/>
+			</conditions>
+			<actions>
+				<set_value name="$id" exact="event.param3"/>
+				<do_if value="not $id">
+					<set_value name="$id" exact="event.param"/>
+				</do_if>
+				<do_if value="$id">
+					<set_value name="$ware" exact="ware.{$id}"/>
+					<do_if value="$ware?">
+						<append_to_list name="md.$cm90.$foundwares" exact="$ware"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fit found_ware id=' + $id + ' ware=' + @$ware.id + ' n=' + md.$cm90.$foundwares.count"/>
+					</do_if>
+					<do_else>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found_ware miss id=' + $id"/>
+					</do_else>
+				</do_if>
 			</actions>
 		</cue>
 
@@ -25,62 +48,44 @@
 				<do_if value="not $n">
 					<set_value name="$n" exact="event.param"/>
 				</do_if>
-				<set_value name="$ship" exact="null"/>
-				<set_value name="$macro" exact="null"/>
-				<do_if value="@md.$cm90.$fitqueue.count gt 0">
-					<set_value name="$row" exact="md.$cm90.$fitqueue.{1}"/>
-					<set_value name="$ship" exact="$row.$ship"/>
-					<set_value name="$macro" exact="$row.$macro"/>
-					<remove_from_list name="md.$cm90.$fitqueue" exact="$row"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit queue ship=' + $ship + ' left=' + @md.$cm90.$fitqueue.count"/>
-				</do_if>
-				<do_if value="not $ship?">
-					<set_value name="$ship" exact="md.$cm90.$lastship"/>
-					<set_value name="$macro" exact="md.$cm90.$lastmacro"/>
-				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found_apply n=' + $n + ' wares=' + @md.$cm90.$kitwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode + ' saved=' + @md.$cm90.$fitsaved"/>
 				<do_if value="@md.$cm90.$fitmode == 'preset'">
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found cue ignored mode=preset'"/>
 				</do_if>
-				<do_elseif value="not $ship?">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply abort: no lastship'"/>
-				</do_elseif>
 				<do_else>
-					<do_if value="not $macro">
-						<set_value name="$macro" exact="@$ship.macro"/>
+					<set_value name="$ship" exact="null"/>
+					<set_value name="$macro" exact="null"/>
+					<do_if value="@md.$cm90.$foundqueue.count gt 0">
+						<set_value name="$row" exact="md.$cm90.$foundqueue.{1}"/>
+						<set_value name="$ship" exact="$row.$ship"/>
+						<set_value name="$macro" exact="$row.$macro"/>
+						<remove_from_list name="md.$cm90.$foundqueue" exact="$row"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit queue ship=' + $ship + ' left=' + @md.$cm90.$foundqueue.count + ' queue=found'"/>
 					</do_if>
-					<set_value name="$applied" exact="false"/>
-					<do_if value="@md.$cm90.$fitsaved">
-						<remove_value name="md.$cm90.$fitsaved"/>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit get_loadout start id=cm90_auto macro=' + @$macro.id"/>
-						<get_loadout result="$lo" loadout="'cm90_auto'" macro="$macro"/>
-						<do_if value="$lo?">
-							<apply_loadout object="$ship" loadout="$lo"/>
-							<set_value name="$applied" exact="true"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply saved loadout id=cm90_auto ship=' + $ship"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit found_apply n=' + $n + ' wares=' + @md.$cm90.$foundwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode"/>
+					<do_if value="not @$ship.exists">
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit queue miss queue=found reason=empty'"/>
+					</do_if>
+					<do_else>
+						<do_if value="not $macro">
+							<set_value name="$macro" exact="@$ship.macro"/>
+						</do_if>
+						<do_if value="@md.$cm90.$foundwares.count gt 0">
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout start mode=found-modules macro=' + @$macro.id + ' wares=' + md.$cm90.$foundwares.count"/>
+							<generate_loadout result="$los" macro="$macro" faction="faction.player" wares="md.$cm90.$foundwares" level="1.0" variation="0"/>
+							<do_if value="$los.count">
+								<apply_loadout object="$ship" loadout="$los.{1}"/>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout applied n=' + $los.count + ' wares=' + md.$cm90.$foundwares.count + ' mode=found-modules ship=' + $ship"/>
+							</do_if>
+							<do_else>
+								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout empty wares=' + md.$cm90.$foundwares.count + ' mode=found-modules'"/>
+							</do_else>
 						</do_if>
 						<do_else>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit saved loadout miss id=cm90_auto'"/>
+							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply skip: no loadout mode=found-modules'"/>
 						</do_else>
-					</do_if>
-					<do_if value="not $applied and @md.$cm90.$kitwares.count gt 0">
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout start mode=found-modules macro=' + @$macro.id + ' wares=' + md.$cm90.$kitwares.count"/>
-						<generate_loadout result="$los" macro="$macro" faction="faction.player" wares="md.$cm90.$kitwares" level="1.0" variation="0"/>
-						<do_if value="$los.count">
-							<apply_loadout object="$ship" loadout="$los.{1}"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout applied n=' + $los.count + ' wares=' + md.$cm90.$kitwares.count + ' mode=found-modules'"/>
-						</do_if>
-						<do_else>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit generate_loadout empty wares=' + md.$cm90.$kitwares.count + ' mode=found-modules'"/>
-						</do_else>
-					</do_if>
-					<do_elseif value="not $applied">
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fit apply skip: no loadout mode=found-modules'"/>
-					</do_elseif>
+						<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
+					</do_else>
 				</do_else>
-				<do_if value="$ship?">
-					<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
-				</do_if>
 			</actions>
 		</cue>
 	</cues>

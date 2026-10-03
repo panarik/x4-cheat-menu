@@ -6,9 +6,10 @@ local C
 local ready = false
 local cdef_done = false
 
-local PLOT_X = 10000
-local PLOT_Y = 10000
-local PLOT_Z = 10000
+-- Full axis in meters. 10 km each side is 20 km across, which is what the map prices.
+local PLOT_X = 20000
+local PLOT_Y = 20000
+local PLOT_Z = 20000
 
 local function debug(msg)
   if DebugError then

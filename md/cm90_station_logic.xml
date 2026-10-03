@@ -309,7 +309,7 @@
 				</do_elseif>
 				<do_else>
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station anchor id=' + @player.ship.id + ' pos=' + @player.ship.position + ' zone=' + @player.zone"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station place z=20km y=0km no-radius no-includeplotbox reason=20km cube extends 10km toward the ship'"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station place z=20km y=0km no-radius no-includeplotbox reason=center 20km, side 10km, near face 10km from the ship'"/>
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone"/>
 					<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
 						<safepos object="player.ship" z="20km" y="0km"/>
@@ -352,12 +352,12 @@
 						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot buy accepted'"/>
 					</do_if>
 					<do_else>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot buy rejected token=' + $token + ' fallback=both boxes 20km'"/>
+						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station plot buy rejected token=' + $token + ' fallback=both boxes 10km'"/>
 					</do_else>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station set_build_plot object=' + $station + ' x=20km y=20km z=20km paid=false reason=full axis 20km is 10km each way'"/>
-					<set_build_plot object="$station" x="20km" y="20km" z="20km"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Station set_build_plot object=' + $station + ' x=10km y=10km z=10km paid=false reason=zip 3 showed the argument is the side, map max is 10km each way'"/>
+					<set_build_plot object="$station" x="10km" y="10km" z="10km"/>
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station set_build_plot real done length=' + @$station.buildplot.max.length"/>
-					<set_build_plot object="$station" x="20km" y="20km" z="20km" paid="true"/>
+					<set_build_plot object="$station" x="10km" y="10km" z="10km" paid="true"/>
 					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station set_build_plot paid done length=' + @$station.buildplot.max.length"/>
 					<raise_lua_event name="'CheatMenu90.StationPlotBox'" param="$station"/>
 					<do_if value="@md.$cm90.$stnorm">

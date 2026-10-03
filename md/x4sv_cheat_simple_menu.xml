@@ -103,8 +103,10 @@
 				<set_value name="md.$cm90.$presets" exact="[]"/>
 				<set_value name="md.$cm90.$fitmode" exact="'compat'"/>
 				<set_value name="md.$cm90.$loadoutid" exact="''"/>
-				<set_value name="md.$cm90.$kitwares" exact="[]"/>
-				<set_value name="md.$cm90.$lastship" exact="null"/>
+				<set_value name="md.$cm90.$presetqueue" exact="[]"/>
+				<set_value name="md.$cm90.$foundqueue" exact="[]"/>
+				<set_value name="md.$cm90.$presetwares" exact="[]"/>
+				<set_value name="md.$cm90.$foundwares" exact="[]"/>
 				<signal_cue_instantly cue="LogFile" param="'HIGH Cat Build: ask lua to group'"/>
 				<raise_lua_event name="'CheatMenu90.CatBuild'" param="'1'"/>
 				<raise_lua_event name="'CheatMenu90.LogWrite'" param="'1'"/>
@@ -662,8 +664,10 @@
 				</do_if>
 				<set_value name="md.$cm90.$fitmode" exact="$mode"/>
 				<set_value name="md.$cm90.$loadoutid" exact="$loadoutid"/>
-				<set_value name="md.$cm90.$fitqueue" exact="[]"/>
-				<remove_value name="md.$cm90.$fitsaved"/>
+				<set_value name="md.$cm90.$presetqueue" exact="[]"/>
+				<set_value name="md.$cm90.$foundqueue" exact="[]"/>
+				<set_value name="md.$cm90.$presetwares" exact="[]"/>
+				<set_value name="md.$cm90.$foundwares" exact="[]"/>
 				<signal_cue_instantly cue="LogFile" param="'HIGH UI On_Fit mode=' + $mode + ' loadout=' + $loadoutid + ' count=' + $count + ' ware=' + @md.$cm90.$ware.id"/>
 				<do_if value="$mode == 'preset' and $loadoutid">
 					<raise_lua_event name="'CheatMenu90.SetJob'" param="'preset|' + $loadoutid"/>
@@ -759,105 +763,6 @@
 			</actions>
 		</cue>
 
-		<cue name="On_Fit_Kit_Clear" instantiate="true" namespace="this">
-			<conditions>
-				<event_ui_triggered screen="'CM90Fit'" control="'kit_clear'"/>
-			</conditions>
-			<actions>
-				<set_value name="md.$cm90.$kitwares" exact="[]"/>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_clear'"/>
-			</actions>
-		</cue>
-
-		<cue name="On_Fit_Kit_Ware" instantiate="true" namespace="this">
-			<conditions>
-				<event_ui_triggered screen="'CM90Fit'" control="'kit_ware'"/>
-			</conditions>
-			<actions>
-				<set_value name="$id" exact="event.param3"/>
-				<do_if value="not $id">
-					<set_value name="$id" exact="event.param"/>
-				</do_if>
-				<do_if value="$id">
-					<set_value name="$ware" exact="ware.{$id}"/>
-					<do_if value="$ware?">
-						<append_to_list name="md.$cm90.$kitwares" exact="$ware"/>
-						<signal_cue_instantly cue="LogFile" param="'LOW Fit kit_ware id=' + $id + ' ware=' + @$ware.id + ' n=' + md.$cm90.$kitwares.count"/>
-					</do_if>
-					<do_else>
-						<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_ware miss id=' + $id"/>
-					</do_else>
-				</do_if>
-			</actions>
-		</cue>
-
-		<!-- Preset. Sealed: test_3 SUCCESS. Found modules: md/cm90_fit_found.xml, event found_apply. -->
-		<cue name="On_Fit_Kit_Ready" instantiate="true" namespace="this">
-			<conditions>
-				<event_ui_triggered screen="'CM90Fit'" control="'kit_ready'"/>
-			</conditions>
-			<actions>
-				<set_value name="$n" exact="event.param3"/>
-				<do_if value="not $n">
-					<set_value name="$n" exact="event.param"/>
-				</do_if>
-				<set_value name="$ship" exact="null"/>
-				<set_value name="$macro" exact="null"/>
-				<do_if value="@md.$cm90.$fitqueue.count gt 0">
-					<set_value name="$row" exact="md.$cm90.$fitqueue.{1}"/>
-					<set_value name="$ship" exact="$row.$ship"/>
-					<set_value name="$macro" exact="$row.$macro"/>
-					<remove_from_list name="md.$cm90.$fitqueue" exact="$row"/>
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit queue ship=' + $ship + ' left=' + @md.$cm90.$fitqueue.count"/>
-				</do_if>
-				<do_if value="not @$ship.exists">
-					<set_value name="$ship" exact="md.$cm90.$lastship"/>
-					<set_value name="$macro" exact="md.$cm90.$lastmacro"/>
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit queue miss fallback=lastship ship=' + $ship"/>
-				</do_if>
-				<signal_cue_instantly cue="LogFile" param="'HIGH Fit kit_ready n=' + $n + ' wares=' + @md.$cm90.$kitwares.count + ' ship=' + $ship + ' mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid"/>
-				<set_value name="$applied" exact="false"/>
-				<do_if value="not @$ship.exists">
-					<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply abort: no ship'"/>
-				</do_if>
-				<do_else>
-					<do_if value="not $macro">
-						<set_value name="$macro" exact="@$ship.macro"/>
-					</do_if>
-					<do_if value="md.$cm90.$fitmode == 'preset' and md.$cm90.$loadoutid">
-						<signal_cue_instantly cue="LogFile" param="'HIGH Fit get_loadout start id=' + md.$cm90.$loadoutid + ' macro=' + @$macro.id"/>
-						<get_loadout result="$lo" loadout="md.$cm90.$loadoutid" macro="$macro"/>
-						<do_if value="$lo?">
-							<apply_loadout object="$ship" loadout="$lo"/>
-							<set_value name="$applied" exact="true"/>
-							<signal_cue_instantly cue="LogFile" param="'HIGH Fit get_loadout applied id=' + md.$cm90.$loadoutid + ' macro=' + @$macro.id + ' ship=' + $ship"/>
-						</do_if>
-						<do_else>
-							<signal_cue_instantly cue="LogFile" param="'HIGH Fit get_loadout empty id=' + md.$cm90.$loadoutid + ' fallback=wares'"/>
-						</do_else>
-					</do_if>
-					<do_if value="not $applied and @md.$cm90.$kitwares.count gt 0">
-						<signal_cue_instantly cue="LogFile" param="'HIGH Fit generate_loadout start mode=' + @md.$cm90.$fitmode + ' macro=' + @$macro.id + ' wares=' + md.$cm90.$kitwares.count"/>
-						<generate_loadout result="$los" macro="$macro" faction="faction.player" wares="md.$cm90.$kitwares" level="1.0" variation="0"/>
-						<do_if value="$los.count">
-							<apply_loadout object="$ship" loadout="$los.{1}"/>
-							<set_value name="$applied" exact="true"/>
-							<signal_cue_instantly cue="LogFile" param="'HIGH Fit generate_loadout applied n=' + $los.count + ' wares=' + md.$cm90.$kitwares.count + ' mode=' + @md.$cm90.$fitmode"/>
-						</do_if>
-						<do_else>
-							<signal_cue_instantly cue="LogFile" param="'HIGH Fit generate_loadout empty wares=' + md.$cm90.$kitwares.count + ' mode=' + @md.$cm90.$fitmode"/>
-						</do_else>
-					</do_if>
-					<do_elseif value="not $applied">
-						<signal_cue_instantly cue="LogFile" param="'HIGH Fit apply skip: no loadout mode=' + @md.$cm90.$fitmode"/>
-					</do_elseif>
-				</do_else>
-				<do_if value="@$ship.exists">
-					<raise_lua_event name="'CheatMenu90.FitVerify'" param="$ship"/>
-				</do_if>
-			</actions>
-		</cue>
-
 		<cue name="Spawn_Empty" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
@@ -898,8 +803,6 @@
 					<set_value name="$pos" exact="$anchor.position"/>
 					<signal_cue_instantly cue="LogFile" param="'HIGH Spawn pos original-style object=' + @$anchor.id + ' pos=' + $pos + ' zone=' + @player.zone"/>
 					<signal_cue_instantly cue="LogFile" param="'HIGH Fit stage1 empty hull ware=' + @$ware.id + ' macro=' + @$macro.id + ' mode=' + @md.$cm90.$fitmode + ' loadout=' + @md.$cm90.$loadoutid"/>
-					<set_value name="md.$cm90.$kitwares" exact="[]"/>
-					<set_value name="md.$cm90.$lastship" exact="null"/>
 					<create_ship name="$ship" macro="$macro" zone="player.zone">
 						<owner exact="$own" overridenpc="true"/>
 						<show_notification text="@$ware.name"/>
@@ -915,13 +818,20 @@
 						<safepos object="$anchor" value="$pos"/>
 					</create_ship>
 					<do_if value="$ship?">
-						<set_value name="md.$cm90.$lastship" exact="$ship"/>
-						<set_value name="md.$cm90.$lastmacro" exact="$macro"/>
-						<do_if value="not md.$cm90.$fitqueue?">
-							<set_value name="md.$cm90.$fitqueue" exact="[]"/>
+						<do_if value="md.$cm90.$fitmode == 'preset'">
+							<do_if value="not md.$cm90.$presetqueue?">
+								<set_value name="md.$cm90.$presetqueue" exact="[]"/>
+							</do_if>
+							<append_to_list name="md.$cm90.$presetqueue" exact="table[$ship = $ship, $macro = $macro]"/>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Spawn queue ship=' + $ship + ' n=' + md.$cm90.$presetqueue.count + ' mode=' + @md.$cm90.$fitmode + ' queue=preset'"/>
 						</do_if>
-						<append_to_list name="md.$cm90.$fitqueue" exact="table[$ship = $ship, $macro = $macro]"/>
-						<signal_cue_instantly cue="LogFile" param="'HIGH Spawn queue ship=' + $ship + ' n=' + md.$cm90.$fitqueue.count + ' mode=' + @md.$cm90.$fitmode"/>
+						<do_else>
+							<do_if value="not md.$cm90.$foundqueue?">
+								<set_value name="md.$cm90.$foundqueue" exact="[]"/>
+							</do_if>
+							<append_to_list name="md.$cm90.$foundqueue" exact="table[$ship = $ship, $macro = $macro]"/>
+							<signal_cue_instantly cue="LogFile" param="'HIGH Spawn queue ship=' + $ship + ' n=' + md.$cm90.$foundqueue.count + ' mode=' + @md.$cm90.$fitmode + ' queue=found'"/>
+						</do_else>
 						<set_value name="$Crew" exact="$ship.people.list"/>
 						<signal_cue_instantly cue="LogFile" param="'HIGH Spawn crew people=' + @$Crew.count"/>
 						<do_all exact="$Crew.count" counter="$j">
