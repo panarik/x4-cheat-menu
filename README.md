@@ -38,7 +38,7 @@ The window: ESC → Extension Options → Cheat Menu 9.0.
 You need a loaded save (the option is not on the title screen).
 
 1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A narrow column on the left stays on the window: **Build Ship**, **Build Wing**, and **Spawn Stations**. **Spawn Stations** opens races, then module types and quantities. Set a quantity above zero and press **Build**. Build places an empty station 20 km ahead and builds those modules. A line under Build says to wait, then that the station is ready to look at. Connectors for that race are added for you. The layout inside the plot is the game's own. A fixed Terran dock, pier, and container store finished this way on 2026-10-02. A list you compose uses the same steps and has not been tried in game yet. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
+2. A narrow column on the left stays on the window: **Build Ship**, **Build Wing**, and **Spawn Stations**. **Spawn Stations** opens races, then module types and quantities. Set a quantity above zero and press **Build**. Build places an empty station 20 km ahead and builds those modules. For every three of them it also places one vertical connector, one cross, and one base connector of that race. A line under Build says to wait, then that the station is ready to look at. Connectors for that race are added for you. The layout inside the plot is the game's own. A fixed Terran dock, pier, and container store finished this way on 2026-10-02. A list you compose uses the same steps and has not been tried in game yet. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
 3. **Build Ship** opens the list of races and factions across the rest of the window. Each row shows how many ships of that group exist in **your** install. Pick one.
 4. The next screen is three columns: **Step 1: Size**, **Step 2: Name**, and **Step 3: Owner**. Pick a size. Names for that size appear in the middle. The size list stays.
 5. Pick a name. The right column lists who receives the hull. **Player** is the first row. The name list stays.
@@ -70,8 +70,8 @@ You need a loaded save (the option is not on the title screen).
 
 **Spawn Stations**
 
-- Pick a race, then a module type, then a quantity (0, 1, 2, 3, 4, 5, 10, or 20). **Build** places an empty station 20 km ahead and builds every module whose quantity is above zero. Connectors for that race are added for you. You do not pick them.
-- Under Build, one line says the build is in progress, then that the station is placed and you can look. If the modules do not fit the plot, that line says so.
+- Pick a race, then a module type, then a quantity (0, 1, 2, 3, 4, 5, 10, or 20). **Build** places an empty station 20 km ahead and builds every module whose quantity is above zero. Connectors for that race are added for you. You do not pick them. For every three modules you set above zero, the build also places one vertical connector, one cross, and one base connector of that race.
+- Under Build, one line says the build is in progress, then that the station is placed and you can look. If the modules do not fit the plot, that line says so. **Test station normalizer** asks the game to add habitation, docks, piers, and defence on top of the modules you picked, then builds that plan. It is a test. The added modules come from the player faction, so the list can stay just what you picked.
 - The station is finished the same way as the 2026-10-02 test: the build storage is filled, then the game is asked to complete the build. A short list you compose can finish. A long list can be refused when the modules do not fit the plot.
 
 **Planned**
@@ -82,9 +82,9 @@ You need a loaded save (the option is not on the title screen).
 
 **Known limits**
 
-- A station from a list you compose is in this version. A short list can finish. A long list can be refused when the modules do not fit the plot. Gates and delete are not in this version.
+- A station from a list you compose is in this version. A short list can finish. A long list can be refused when the modules do not fit the plot. The extra connectors count toward that fit. Gates and delete are not in this version.
 - One race per build. A module with no maker race is shown only for races whose factions own that blueprint.
-- The plot is 10 km up, down, left, right, forward, and back: a 20 km cube. The station center is 20 km ahead, so the near face stays 10 km from your ship. Where modules sit inside it is the game's random layout. Direction is not on this screen.
+- The plot is 10 km up, down, left, right, forward, and back: a 20 km cube. The station center is 20 km ahead, so the near face stays 10 km from your ship. Where modules sit inside it is the game's random layout, stacked upward. There is no direction button on this screen.
 - The hull owner changes. The crew race does not follow that faction yet.
 - Auto-fit still builds its kit as the player faction. A saved preset does not.
 - A fleet follows that faction's own orders. The click does not start a war or an invasion.

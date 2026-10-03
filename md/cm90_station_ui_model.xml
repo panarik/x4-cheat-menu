@@ -433,8 +433,27 @@
 				<do_elseif value="$code == 'fail'">
 					<set_value name="md.$cm90.$stui.$status" exact="{357424,26}"/>
 				</do_elseif>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status code=' + $code + ' text=' + @md.$cm90.$stui.$status"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status code=' + $code + ' text=' + @md.$cm90.$stui.$status + ' draw=' + @event.param.$draw + ' later=' + @event.param.$later + ' pane=' + @md.$cm90.$pane"/>
 				<do_if value="@event.param.$draw and @md.$cm90.$pane == 'station'">
+					<do_if value="@event.param.$later">
+						<set_value name="md.$cm90.$stui.$status_paint" exact="1"/>
+						<signal_cue cue="Redraw"/>
+					</do_if>
+					<do_else>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+					</do_else>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="Redraw" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="@md.$cm90.$stui.$status_paint and @md.$cm90.$pane == 'station'">
+					<set_value name="md.$cm90.$stui.$status_paint" exact="0"/>
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status paint text=' + @md.$cm90.$stui.$status"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_if>
 			</actions>
@@ -462,7 +481,40 @@
 							$race = md.$cm90.$stui.$race,
 							$pk_id = md.$cm90.$stui.$pk_id,
 							$pk_n = md.$cm90.$stui.$pk_n,
-							$pk_obj = md.$cm90.$stui.$pk_obj
+							$pk_obj = md.$cm90.$stui.$pk_obj,
+							$norm = 0
+						]"/>
+					<do_if value="@md.$cm90.$pane == 'station'">
+						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+					</do_if>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Test_Normalizer" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$any" exact="0"/>
+				<do_all exact="@md.$cm90.$stui.$pk_id.count" counter="$i">
+					<do_if value="md.$cm90.$stui.$pk_n.{$i} gt 0">
+						<set_value name="$any" exact="1"/>
+					</do_if>
+				</do_all>
+				<do_if value="not $any">
+					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer skip empty'"/>
+					<show_notification text="{357424,22}"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="Set_Status" param="table[$code = 'run', $draw = 0]"/>
+					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
+							$race = md.$cm90.$stui.$race,
+							$pk_id = md.$cm90.$stui.$pk_id,
+							$pk_n = md.$cm90.$stui.$pk_n,
+							$pk_obj = md.$cm90.$stui.$pk_obj,
+							$norm = 1
 						]"/>
 					<do_if value="@md.$cm90.$pane == 'station'">
 						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>

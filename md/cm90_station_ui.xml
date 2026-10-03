@@ -71,6 +71,24 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidthPercent',
+						$col = 4,
+						$width = 12
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidthMinPercent',
+						$col = 2,
+						$width = 16,
+						$weight = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidthMinPercent',
+						$col = 3,
+						$width = 16,
+						$weight = 3
+					]"/>
+				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station cols type=16w1 name=16w3 qty=12'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Back,
@@ -151,6 +169,11 @@
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Build,
 						$text = table[$text = {357424,19}, $halign = 'left']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Test_Normalizer,
+						$text = table[$text = {357424,41}, $halign = 'left']
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>

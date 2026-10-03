@@ -255,8 +255,12 @@ local function on_mod(_, param)
     emit("m_macro", macro)
     emit("m_lib", lib)
     emit("m_conn", conn)
+    local joint = rule.joint_of(macro)
+    local rank = rule.glue_rank(macro, member.id, joint)
     emit("m_race", member.id)
     emit("m_rname", member.name)
+    emit("m_joint", joint)
+    emit("m_rank", tostring(rank))
     emit("m_name", shown)
   end
 end

@@ -2,7 +2,11 @@
 -- A module with maker races belongs only to those races.
 -- A module with no maker race belongs to a race only when one of its
 -- blueprint owners maps to that race. It is not copied into every race.
--- MD Fill_Build copies TYPE_ORDER. Connectors are not multiplied by count.
+-- MD Fill_Build copies TYPE_ORDER.
+-- The connector palette stays one of each. Three joints are also repeated
+-- in the module list: floor(player count / 3) of one vertical, one cross,
+-- and one base. Rank prefers the race token in the macro, then _01
+-- (vertical and cross) or _02 (base, the HQ debug piece).
 
 local M = {}
 
@@ -149,6 +153,71 @@ function M.expand(ids, counts)
     end
   end
   return out
+end
+
+local RACE_MARK = {
+  argon = "_arg_",
+  boron = "_bor_",
+  paranid = "_par_",
+  split = "_spl_",
+  teladi = "_tel_",
+  terran = "_ter_",
+}
+
+function M.joint_of(macro)
+  if type(macro) ~= "string" then
+    return ""
+  end
+  local id = macro:lower()
+  if id:find("vertical", 1, true) then
+    return "vertical"
+  end
+  if id:find("cross", 1, true) then
+    return "cross"
+  end
+  if id:find("base", 1, true) then
+    return "base"
+  end
+  return ""
+end
+
+function M.glue_rank(macro, race, joint)
+  if type(macro) ~= "string" or joint == nil or joint == "" then
+    return 0
+  end
+  if M.joint_of(macro) ~= joint then
+    return 0
+  end
+  local id = macro:lower()
+  local mark = nil
+  if type(race) == "string" then
+    mark = RACE_MARK[race]
+  end
+  local raced = mark ~= nil and id:find(mark, 1, true) ~= nil
+  local prefer = false
+  if joint == "base" then
+    prefer = id:find("base_02", 1, true) ~= nil
+  elseif joint == "vertical" then
+    prefer = id:find("vertical_01", 1, true) ~= nil
+  elseif joint == "cross" then
+    prefer = id:find("cross_01", 1, true) ~= nil
+  end
+  local rank = 1
+  if prefer then
+    rank = rank + 1
+  end
+  if raced then
+    rank = rank + 2
+  end
+  return rank
+end
+
+function M.glue_count(player_count)
+  local n = tonumber(player_count) or 0
+  if n < 3 then
+    return 0
+  end
+  return math.floor(n / 3)
 end
 
 function M.connectors_for(rows, race)

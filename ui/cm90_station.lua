@@ -99,6 +99,51 @@ local function coord_text(c)
   return tostring(c.x) .. "," .. tostring(c.y) .. "," .. tostring(c.z)
 end
 
+local function map_side(half, center, positive)
+  local v = (half + (positive and center or -center)) / 1000
+  if positive then
+    return math.ceil(v)
+  end
+  return math.floor(v)
+end
+
+local function on_plot_box(_, obj)
+  log_md("LOW Station plot box raw obj=" .. tostring(obj))
+  if not init_ffi() then
+    log_md("HIGH Station plot box fail ffi")
+    return
+  end
+  local station = id_of(obj)
+  if not station then
+    log_md("HIGH Station plot box fail no station id")
+    return
+  end
+  local size_ok, size = pcall(function()
+    return C.GetBuildPlotSize(station)
+  end)
+  local paid_ok, paid = pcall(function()
+    return C.GetPaidBuildPlotSize(station)
+  end)
+  local center_ok, center = pcall(function()
+    return C.GetBuildPlotCenterOffset(station)
+  end)
+  local cx = center_ok and center and center.x or 0
+  local cy = center_ok and center and center.y or 0
+  local cz = center_ok and center and center.z or 0
+  local sides = "nil"
+  if size_ok and size then
+    sides = "+x " .. map_side(size.x / 2, cx, true)
+      .. " -x " .. map_side(size.x / 2, cx, false)
+      .. " +y " .. map_side(size.y / 2, cy, true)
+      .. " -y " .. map_side(size.y / 2, cy, false)
+      .. " +z " .. map_side(size.z / 2, cz, true)
+      .. " -z " .. map_side(size.z / 2, cz, false)
+  end
+  log_md("HIGH Station plot box size=" .. coord_text(size_ok and size or nil)
+    .. " paid=" .. coord_text(paid_ok and paid or nil)
+    .. " sides=" .. sides)
+end
+
 local function on_plot(_, obj)
   log_md("LOW Station plot raw obj=" .. tostring(obj))
   if not init_ffi() then
@@ -321,6 +366,7 @@ local function init()
     return
   end
   RegisterEvent("CheatMenu90.StationPlot", on_plot)
+  RegisterEvent("CheatMenu90.StationPlotBox", on_plot_box)
   RegisterEvent("CheatMenu90.StationForce", on_force)
   debug("HIGH Station lua ready")
 end
