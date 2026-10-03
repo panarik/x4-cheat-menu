@@ -12,7 +12,7 @@
 				<event_cue_signalled cue="md.Simple_Menu_API.Reloaded"/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI Register_Options_Menu cm90_menu'"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI Register_Options_Menu cm90_menu'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Register_Options_Menu" param="table[
 						$id      = 'cm90_menu',
 						$columns = 4,
@@ -33,7 +33,7 @@
 				<do_if value="not md.$cm90.$pane?">
 					<set_value name="md.$cm90.$pane" exact="'ship'"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI menu open pane=' + md.$cm90.$pane + ' t=' + player.age"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI menu open pane=' + md.$cm90.$pane + ' t=' + player.age"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
 						$method = 'setColWidthPercent',
 						$col = 1,

@@ -1,122 +1,68 @@
 # Cheat Menu 9.0
 
-Cheat menu for X4 Foundations. Version **1.33**. Spawn any ship the game currently has loaded, including ships from your other mods, then fit it. Spawn the combat fleets defined for the races and factions in your install. The faction AI takes the fleet. Requires SirNukes Mod Support APIs.
+## About this mod
 
-## Version
+A cheat menu for X4 Foundations — a constructor for game situations. Version **1.34**, author **qadetmir**.
 
-Current version: **1.33**. Author: **qadetmir**.
+The menu reads what your install actually has loaded — the same ware library as the in-game creative constructor. Vanilla, the DLC you own, and every enabled mod. No hardcoded lists: ships, combat fleets, and stations that normally take hours of waiting appear in a few clicks.
 
-## Description
+Three tools in one window: **Build Ship**, **Build Wing**, and **Spawn Stations**. Open it with ESC → Extension Options → Cheat Menu 9.0. You need a loaded save: the option is not on the title screen.
 
-Spawn **any** ship that exists in **your** install: vanilla, the DLC you own, and every ship from enabled mods. No hardcoded ship list. The menu reads the same ware library as the in-game creative constructor.
+New in 1.34: station spawning, and fixes to ship spawning — a preset now fits every hull in a batch, and the saved-preset path no longer mixes with the automatic one.
 
-The list is grouped by races and factions from that install, including custom ones from ship mods. Then by size, then by name.
+## Requirements and installation
 
-Each ship can be created in either of two ways:
-
-1. **Saved preset.** A kit you saved in the game for this ship. Slots that preset left empty stay empty.
-2. **Automatic preset.** Built from the compatible modules loaded in your game (vanilla, your DLC, and enabled mods).
-
-You choose how many ships to create: 1, 2, 3, 4, 5, 10, or 20.
-
-If the hull ships with its own kit, that author preset is listed too. Empty slots in it stay empty.
-
-You can drop a third-party fighter, a Kha'ak XL, or a vanilla courier in front of you and see how it actually behaves.
-
-**Build Wing** places a combat fleet from the jobs in your install. The list is grouped by race, then by faction. Terran fleets are split into Defence and Attack. Point your ship and pick a fleet. The lead ship and the escorts that fleet brings appear ahead of your nose, stacked upward. They belong to that faction. Its AI flies them. They are not added to your property.
-
-The window: ESC → Extension Options → Cheat Menu 9.0.
-
-## Installation instructions
-
-1. Install and enable **SirNukes Mod Support APIs** (Simple Menu API). The mod window will not open without it.
-2. Copy the inner mod folder (the one that contains **content.xml**) into **X4 Foundations/extensions/**.
+1. **Required:** [SirNukes Mod Support APIs](https://www.nexusmods.com/x4foundations/mods/503) (Simple Menu API). Also on [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2042901274). The mod window will not open without it.
+2. Copy the inner mod folder (the one that contains **content.xml**) into `X4 Foundations/extensions/`.
 3. Enable **Cheat Menu 9.0** in the in-game extensions list.
 
-## How to use
+Tested on X4 Foundations **8.00** and **9.00**, and with the latest version of the Star Wars Interworlds overhaul.
 
-You need a loaded save (the option is not on the title screen).
+## Features
 
-1. In the in-game menu (ESC): **Extension Options → Cheat Menu 9.0**. Click it.
-2. A narrow column on the left stays on the window: **Build Ship**, **Build Wing**, and **Spawn Stations**. **Spawn Stations** opens races, then module types and quantities. Set a quantity above zero and press **Build**. Build places an empty station 20 km ahead and builds those modules. For every three of them it also places one vertical connector, one cross, and one base connector of that race. A line under Build says to wait, then that the station is ready to look at. Connectors for that race are added for you. The layout inside the plot is the game's own. A fixed Terran dock, pier, and container store finished this way on 2026-10-02. A list you compose uses the same steps and has not been tried in game yet. Point your ship before you pick a fleet: it forms ahead of the nose. **Build Wing** opens races, then the factions of that race. The Terran faction then opens Defence or Attack, and the next page is the fleets in that group. Any other faction opens its fleets directly. Click one. The lead ship and its escorts appear in front of you. The faction AI controls the fleet. It is not added to your property.
-3. **Build Ship** opens the list of races and factions across the rest of the window. Each row shows how many ships of that group exist in **your** install. Pick one.
-4. The next screen is three columns: **Step 1: Size**, **Step 2: Name**, and **Step 3: Owner**. Pick a size. Names for that size appear in the middle. The size list stays.
-5. Pick a name. The right column lists who receives the hull. **Player** is the first row. The name list stays.
-6. Pick an owner. Under the columns there is a blank row, then **Step 4: Choose ship modules** and **Step 5: Choose quantity of ships**. Until you pick a ship name, those rows are only labels.
-7. Pick a name. The game looks up kits for that hull. **Step 4** then opens a list: **Auto from found modules** first, then every saved preset for this hull. Pick one. The list closes and the row shows that kit. The window stays open.
-8. **Step 5** opens the numbers 1 through 20. Pick one to create the ships. If you have not picked a kit, nothing is created.
-9. **Player preset:** copies a kit you saved in the game for this ship. Slots the preset left empty stay empty.
-10. **Auto from found modules:** builds a kit from compatible modules that are loaded. **Author preset:** shown when the hull ships with its own kit. Same rules as a player preset.
-11. The ships appear near you. They belong to the owner you picked. Until you pick one, they stay yours. Crew is still a full 5-star set from the original argon / paranid / teladi list. You can keep the window open.
+### Build Ship — spawn any ship from your install
 
-## Main features
+Any ship that exists in your install: vanilla, your DLC, and every ship from enabled mods. The list is grouped by races and factions from that install, including custom ones from ship mods, then by size, then by name. Each group row shows how many of its ships exist in your install.
 
-**Now**
+1. Click **Build Ship** in the left column. The races and factions open across the window. Pick one.
+2. The next screen is three columns: **Step 1: Size**, **Step 2: Name**, **Step 3: Owner**. Pick a size, then a name. The right column lists who receives the hull — **Player** is the first row, so you can also give a Teladi hull to the Terrans.
+3. **Step 4: Choose ship modules.** Pick a kit for that hull: **Auto from found modules**, every preset you saved in the game for this hull, and an author kit when the hull ships with one. Saved kits are copied as they are — slots a kit left empty stay empty.
+4. **Step 5: Choose quantity of ships.** Any count from 1 to 20. The ships appear near you, at a safe position, and belong to the owner you picked. Until you pick one, they stay yours.
 
-**Build Ship**
+The crew is a full five-star set. Crew race is argon / paranid / teladi. The automatic kit is built from compatible modules that are loaded; equipment a ship pack excluded from its generated loadouts is left off the automatic path — a saved preset still installs it.
 
-- Any ship the game has loaded, including ships from installed mods.
-- The list is grouped by races and factions from the installed game, then XL / L / M / S, then names.
-- Create a ship from a preset you saved in the game for that hull.
-- Or create it from an automatic preset built from the loaded module list.
-- Choose who receives the hull: you, or another faction. A Teladi hull can be given to the Terrans. Until you pick, the ship stays yours.
-- Choose how many ships to create: any count from 1 to 20.
-- Full crew, skills set to 15 (five stars). Crew race is still argon / paranid / teladi.
+### Build Wing — place a combat fleet
 
-**Build Wing**
+Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack. The lead ship and the escorts appear ahead of your nose, stacked upward. The faction AI takes the fleet: it is not added to your property, and the click does not start a war or an invasion.
 
-- Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack.
-- A click places the lead ship and its escorts ahead of your nose. The faction AI flies the fleet.
+1. Point your ship where you want the fleet: it forms on your heading when you click.
+2. Click **Build Wing**, pick a race, then a faction (Terran opens Defence or Attack), then a fleet.
 
-**Spawn Stations**
+### Spawn Stations — build your own station
 
-- Pick a race, then a module type, then a quantity (0, 1, 2, 3, 4, 5, 10, or 20). **Build** places an empty station 20 km ahead and builds every module whose quantity is above zero. Connectors for that race are added for you. You do not pick them. For every three modules you set above zero, the build also places one vertical connector, one cross, and one base connector of that race.
-- Under Build, one line says the build is in progress, then that the station is placed and you can look. If the modules do not fit the plot, that line says so. **Test station normalizer** asks the game to add habitation, docks, piers, and defence on top of the modules you picked, then builds that plan. It is a test. The added modules come from the player faction, so the list can stay just what you picked.
-- The station is finished the same way as the 2026-10-02 test: the build storage is filled, then the game is asked to complete the build. A short list you compose can finish. A long list can be refused when the modules do not fit the plot.
+Build a station from the module list of any race, connectors included. The finished station is yours.
 
-**Planned**
+1. Click **Spawn Stations** and pick a race. One build is one race: the modules and the connectors all come from that race. A module with no maker race is listed only for races whose factions own its blueprint.
+2. Set a quantity for each module type you want: 0, 1, 2, 3, 4, 5, 10, or 20. Zero means "do not build". You do not pick connectors: for every three modules above zero, the build adds one vertical connector, one cross, and one base connector of that race.
+3. Press **Build**. The mod sets a 20 km build plot 20 km ahead of your ship — the near face stays 10 km from you — places an empty station there, and builds your list. Where the modules sit inside the plot is the game's own layout, stacked upward; there is no direction control yet.
+4. Watch the status line under **Build**: it asks you to wait while the modules are placed, then says the station is ready to look at — or that the build was refused because the modules did not fit the plot. A short list finishes; a long list can be refused, and the connectors count toward that fit.
+5. **Test station normalizer** asks the game to plan habitation, docks, piers, and defence on top of the modules you picked, then builds that plan. The added modules come from the player faction, so your list stays exactly as you picked it. You can keep the window open and build another station.
 
-- Choosing the station's shape, and station turret loadouts.
-- Gate control (same idea as DeadAir).
-- Delete existing ships and stations.
-
-**Known limits**
-
-- A station from a list you compose is in this version. A short list can finish. A long list can be refused when the modules do not fit the plot. The extra connectors count toward that fit. Gates and delete are not in this version.
-- One race per build. A module with no maker race is shown only for races whose factions own that blueprint.
-- The plot is 10 km up, down, left, right, forward, and back: a 20 km cube. The station center is 20 km ahead, so the near face stays 10 km from your ship. Where modules sit inside it is the game's random layout, stacked upward. There is no direction button on this screen.
-- The hull owner changes. The crew race does not follow that faction yet.
-- Auto-fit still builds its kit as the player faction. A saved preset does not.
-- A fleet follows that faction's own orders. The click does not start a war or an invasion.
-- A fleet forms on your heading when you click. Turning afterwards does not move it.
-- A preset does not fill slots that were empty in that kit.
-- Auto-fit skips equipment a ship pack excluded from generated loadouts. If that equipment is already in a saved preset, the preset path still installs it.
-- Build Ship uses the original cheat's safe position next to your ship. A fleet is placed ahead of your nose instead.
-- Pilot/crew race pick is still the original argon / paranid / teladi set.
-
-## Requirements
-
-- **Required:** [SirNukes Mod Support APIs](https://www.nexusmods.com/x4foundations/mods/503) (Simple Menu API). Also on [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2042901274).
-- Tested on X4 Foundations **8.00** and **9.00**.
-- Tested with the latest version of the Star Wars Interworlds overhaul.
+**Planned:** choosing the station's shape and station turret loadouts, gate control, deleting existing ships and stations.
 
 ## Shout outs
 
 Original Cheat Menu: **Slan** (2018) and **ehtschu123** (Split / 2020). The spawn, loadout, and crew stars still follow that logic.
 
-**SirNukes** — Mod Support APIs / Simple Menu. The new window sits on that API.
+**SirNukes** — Mod Support APIs / Simple Menu. The window sits on that API.
 
 Egosoft — the live ware list is the same idea as the creative constructor. That is the catalogue this menu reads.
 
 **DeadAir** — reference for how Simple Menu is used in the wild; gate tools are planned in that spirit later.
 
-## Feedback
+## Feedback and bug reports
 
-This mod is meant to work with **other people's ship mods**. If ships from your mods are missing from the list, show up in the wrong group, or spawn wrong — please report it.
-
-**Disclaimer.** A saved preset copies that kit, including mod equipment stored in it. The automatic preset asks the game to build a loadout from compatible modules that are loaded. Equipment a ship pack excluded from generated loadouts is left off the automatic path.
-
-Please send reports **on this mod page** (Posts / Bugs).
+This mod is meant to work with **other people's ship mods**. If ships from your mods are missing from the list, show up in the wrong group, or spawn wrong — please report it on this mod page (Posts / Bugs).
 
 In the report, include:
 

@@ -5,7 +5,7 @@
   Bucket rule lives in ui/cm90_catalog.lua. This file draws rows and keeps ware objects.
   Log: LEVEL topic (Cat/UI/Spawn/Fit/Lua). File or debuglog. Not shown in the log window.
 -->
-<mdscript name="x4sv_cheat_simple_menu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+<mdscript name="cm90_window" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
 		<cue name="Register_Options_Menu" instantiate="true" namespace="this">
 			<conditions>

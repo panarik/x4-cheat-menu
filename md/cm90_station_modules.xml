@@ -16,7 +16,7 @@
 				<do_if value="not $line">
 					<set_value name="$line" exact="event.param"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="$line"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="$line"/>
 			</actions>
 		</cue>
 
@@ -29,10 +29,10 @@
 					<set_value name="md.$cm90" exact="table[]"/>
 				</do_if>
 				<do_if value="@md.$cm90.$stdumping">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station mod skip reason=dump in progress'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station mod skip reason=dump in progress'"/>
 				</do_if>
 				<do_elseif value="@md.$cm90.$stcatalog">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station mod skip reason=already dumped'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station mod skip reason=already dumped'"/>
 				</do_elseif>
 				<do_else>
 					<set_value name="md.$cm90.$stdumping" exact="true"/>
@@ -62,11 +62,11 @@
 							</do_if>
 						</do_if>
 					</do_for_each>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station mod factions ask n=' + $fn"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station mod factions ask n=' + $fn"/>
 					<raise_lua_event name="'CheatMenu90.StationFactions'" param="$fmap"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station mod query tags=tag.module'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station mod query tags=tag.module'"/>
 					<get_ware_definition result="$wares" tags="tag.module"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station mod wares count=' + @$wares.count"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station mod wares count=' + @$wares.count"/>
 					<do_for_each name="$ware" in="$wares">
 						<set_value name="$macro" exact="@$ware.objectmacro"/>
 						<do_if value="not $macro">
@@ -79,7 +79,7 @@
 							<append_to_list name="md.$cm90.$st_obj" exact="$macro"/>
 						</do_if>
 						<do_else>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Station mod skip_macro ware=' + @$ware.id"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station mod skip_macro ware=' + @$ware.id"/>
 						</do_else>
 						<raise_lua_event name="'CheatMenu90.StationMod'" param="@$ware.id + '|' + $mid"/>
 					</do_for_each>

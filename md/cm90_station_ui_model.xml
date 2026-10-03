@@ -43,7 +43,7 @@
 			</conditions>
 			<actions>
 				<signal_cue_instantly cue="Ensure_Ui"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station state view=' + md.$cm90.$stui.$view + ' race=' + md.$cm90.$stui.$race + ' type=' + md.$cm90.$stui.$type + ' off=' + md.$cm90.$stui.$off + ' picks=' + @md.$cm90.$stui.$pk_id.count + ' ready=' + @md.$cm90.$stready"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station state view=' + md.$cm90.$stui.$view + ' race=' + md.$cm90.$stui.$race + ' type=' + md.$cm90.$stui.$type + ' off=' + md.$cm90.$stui.$off + ' picks=' + @md.$cm90.$stui.$pk_id.count + ' ready=' + @md.$cm90.$stready"/>
 				<signal_cue_instantly cue="md.cm90_station_logic.Ensure_Catalog"/>
 				<do_if value="not @md.$cm90.$stready">
 					<set_value name="md.$cm90.$stui.$paint" exact="'loading'"/>
@@ -70,10 +70,10 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station model catalog rows=' + @md.$cm90.$strows.count + ' races=' + @md.$cm90.$straces.count"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station model catalog rows=' + @md.$cm90.$strows.count + ' races=' + @md.$cm90.$straces.count"/>
 				<do_if value="@md.$cm90.$pane == 'station' and @md.$cm90.$stui.$paint == 'loading'">
 					<set_value name="md.$cm90.$stwait" exact="false"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog ready refresh'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station catalog ready refresh'"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_if>
 			</actions>
@@ -85,7 +85,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$stwaitn" exact="@md.$cm90.$stwaitn + 1"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog wait n=' + md.$cm90.$stwaitn"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station catalog wait n=' + md.$cm90.$stwaitn"/>
 			</actions>
 			<cues>
 				<cue name="Catalog_Wait_Fire">
@@ -97,21 +97,21 @@
 						<set_value name="$pane" exact="@md.$cm90.$pane"/>
 						<do_if value="$pane != 'station'">
 							<set_value name="md.$cm90.$stwait" exact="false"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog wait stop pane=' + $pane"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station catalog wait stop pane=' + $pane"/>
 						</do_if>
 						<do_elseif value="@md.$cm90.$stready">
 							<set_value name="md.$cm90.$stwait" exact="false"/>
 							<do_if value="@md.$cm90.$pane == 'station' and @md.$cm90.$stui.$paint == 'loading'">
-								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog refresh'"/>
+								<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station catalog refresh'"/>
 								<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 							</do_if>
 							<do_else>
-								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station catalog wait drop paint=' + @md.$cm90.$stui.$paint"/>
+								<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station catalog wait drop paint=' + @md.$cm90.$stui.$paint"/>
 							</do_else>
 						</do_elseif>
 						<do_elseif value="md.$cm90.$stwaitn ge 10">
 							<set_value name="md.$cm90.$stwait" exact="false"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station pick timeout'"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station pick timeout'"/>
 						</do_elseif>
 						<do_else>
 							<signal_cue_instantly cue="Catalog_Wait"/>
@@ -134,7 +134,7 @@
 							$text = $b.$label + ' (' + $b.$n + ')'
 						]"/>
 				</do_all>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station races n=' + @md.$cm90.$stui.$racebtns.count"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station races n=' + @md.$cm90.$stui.$racebtns.count"/>
 			</actions>
 		</cue>
 
@@ -221,9 +221,9 @@
 				<do_if value="$nrows gt $pagesize">
 					<set_value name="$nrows" exact="$pagesize"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station board race=' + @md.$cm90.$stui.$race + ' type=' + @md.$cm90.$stui.$type + ' types=' + $types.count + ' mods=' + @$midx.count + ' off=' + md.$cm90.$stui.$off"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station board race=' + @md.$cm90.$stui.$race + ' type=' + @md.$cm90.$stui.$type + ' types=' + $types.count + ' mods=' + @$midx.count + ' off=' + md.$cm90.$stui.$off"/>
 				<do_if value="$types.count gt $pagesize">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station types truncated n=' + $types.count"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station types truncated n=' + $types.count"/>
 				</do_if>
 				<set_value name="md.$cm90.$stui.$lines" exact="[]"/>
 				<set_value name="md.$cm90.$stui.$nomods" exact="0"/>
@@ -272,7 +272,7 @@
 							<set_value name="$m_macro" exact="$mod.$macro"/>
 							<set_value name="$m_qty" exact="$qty"/>
 							<set_value name="$m_row" exact="$i"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station cell macro=' + $mod.$macro + ' stored=' + $qty"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station cell macro=' + $mod.$macro + ' stored=' + $qty"/>
 						</do_if>
 						<append_to_list name="md.$cm90.$stui.$lines" exact="table[
 								$has_type = $has_type,
@@ -316,7 +316,7 @@
 				<set_value name="md.$cm90.$stui.$pk_id" exact="[]"/>
 				<set_value name="md.$cm90.$stui.$pk_n" exact="[]"/>
 				<set_value name="md.$cm90.$stui.$pk_obj" exact="[]"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station race=' + @md.$cm90.$stui.$race"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station race=' + @md.$cm90.$stui.$race"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -330,7 +330,7 @@
 				<set_value name="md.$cm90.$stui.$view" exact="'races'"/>
 				<set_value name="md.$cm90.$stui.$type" exact="''"/>
 				<set_value name="md.$cm90.$stui.$off" exact="0"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station back'"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station back'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -343,7 +343,7 @@
 				<signal_cue_instantly cue="Ensure_Ui"/>
 				<set_value name="md.$cm90.$stui.$type" exact="event.param.$echo"/>
 				<set_value name="md.$cm90.$stui.$off" exact="0"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station type=' + @md.$cm90.$stui.$type"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station type=' + @md.$cm90.$stui.$type"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -388,7 +388,7 @@
 					<set_value name="$row" exact="@event.param.$echo"/>
 				</do_if>
 				<do_if value="not $row or not @md.$cm90.$strows.{$row}.$macro">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station qty skip row=' + @$row"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station qty skip row=' + @$row"/>
 				</do_if>
 				<do_else>
 					<do_if value="$n lt 0">
@@ -411,7 +411,7 @@
 						<append_to_list name="md.$cm90.$stui.$pk_n" exact="$n"/>
 						<append_to_list name="md.$cm90.$stui.$pk_obj" exact="$obj"/>
 					</do_else>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station qty macro=' + $mid + ' n=' + $n + ' refresh=1'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station qty macro=' + $mid + ' n=' + $n + ' refresh=1'"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_else>
 			</actions>
@@ -431,20 +431,20 @@
 				<do_elseif value="$code == 'fail'">
 					<set_value name="md.$cm90.$stui.$status" exact="{357424,26}"/>
 				</do_elseif>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status code=' + $code + ' prev=' + $prev + ' text=' + @md.$cm90.$stui.$status + ' draw=' + @event.param.$draw + ' later=' + @event.param.$later + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status code=' + $code + ' prev=' + $prev + ' text=' + @md.$cm90.$stui.$status + ' draw=' + @event.param.$draw + ' later=' + @event.param.$later + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				<do_if value="@event.param.$draw and @md.$cm90.$pane == 'station'">
 					<do_if value="@event.param.$later">
 						<set_value name="md.$cm90.$stui.$status_paint" exact="1"/>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status paint scheduled t=' + player.age"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status paint scheduled t=' + player.age"/>
 						<signal_cue cue="Redraw"/>
 					</do_if>
 					<do_else>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status refresh now t=' + player.age"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status refresh now t=' + player.age"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 					</do_else>
 				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID UI station status no repaint draw=' + @event.param.$draw + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID UI station status no repaint draw=' + @event.param.$draw + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				</do_else>
 			</actions>
 		</cue>
@@ -456,11 +456,11 @@
 			<actions>
 				<do_if value="@md.$cm90.$stui.$status_paint and @md.$cm90.$pane == 'station'">
 					<set_value name="md.$cm90.$stui.$status_paint" exact="0"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status paint t=' + player.age + ' text=' + @md.$cm90.$stui.$status"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status paint t=' + player.age + ' text=' + @md.$cm90.$stui.$status"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID UI station status redraw skip paint=' + @md.$cm90.$stui.$status_paint + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID UI station status redraw skip paint=' + @md.$cm90.$stui.$status_paint + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				</do_else>
 			</actions>
 		</cue>
@@ -478,7 +478,7 @@
 					</do_if>
 				</do_all>
 				<do_if value="not $any">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station build skip empty'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build skip empty'"/>
 					<show_notification text="{357424,22}"/>
 				</do_if>
 				<do_else>
@@ -509,7 +509,7 @@
 					</do_if>
 				</do_all>
 				<do_if value="not $any">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Station normalizer skip empty'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station normalizer skip empty'"/>
 					<show_notification text="{357424,22}"/>
 				</do_if>
 				<do_else>

@@ -88,7 +88,7 @@
 						$width = 16,
 						$weight = 3
 					]"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station cols type=16w1 name=16w3 qty=12'"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station cols type=16w1 name=16w3 qty=12'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Back,
@@ -131,7 +131,7 @@
 						<append_to_list name="$opts" exact="table[$text = '5', $value = 5, $row = $line.$m_row]"/>
 						<append_to_list name="$opts" exact="table[$text = '10', $value = 10, $row = $line.$m_row]"/>
 						<append_to_list name="$opts" exact="table[$text = '20', $value = 20, $row = $line.$m_row]"/>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station draw macro=' + $line.$m_macro + ' override=' + $line.$m_qty"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station draw macro=' + $line.$m_macro + ' override=' + $line.$m_qty"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
 								$col = 3, $halign = 'left', $text = $line.$m_name
 							]"/>
@@ -177,7 +177,7 @@
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI station status draw t=' + player.age + ' paint=' + @md.$cm90.$stui.$status_paint + ' text=' + @md.$cm90.$stui.$status"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status draw t=' + player.age + ' paint=' + @md.$cm90.$stui.$status_paint + ' text=' + @md.$cm90.$stui.$status"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
 						$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
 						$text = md.$cm90.$stui.$status
