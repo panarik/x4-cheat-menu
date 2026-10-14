@@ -4,7 +4,10 @@
   Pages: race, then factions of that race.
   Terran faction then opens Defence / Attack, then the job ids of that group.
   Other factions open job ids directly.
-  A job click only signals md.cm90_wing_fill.Spawn with the job id.
+  A job click stores the id. It does not spawn.
+  Add to list appends one row on md.$cm90_session.$fleet: ahead, or the slider X Y Z.
+  The list is drawn under both buttons. SPAWN signals Spawn once per row, then clears $fleet.
+  The nose counter $fleet_f is not in the session table. Closing the cheat page sets it to 0.
   The wing walk lives in that file. On_Patrol remains the old patrol spawn.
 -->
 <mdscript name="cm90_wing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
@@ -300,7 +303,7 @@
 						<set_value name="$from" exact="1"/>
 						<set_value name="md.$cm90.$wingoff" exact="0"/>
 					</do_if>
-					<set_value name="$to" exact="md.$cm90.$wingoff + 40"/>
+					<set_value name="$to" exact="md.$cm90.$wingoff + 20"/>
 					<do_if value="$to gt $ids.count">
 						<set_value name="$to" exact="$ids.count"/>
 					</do_if>
@@ -337,10 +340,19 @@
 						<set_value name="$jid" exact="$ids.{$i}"/>
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet screen job i=' + $i + ' id=' + $jid"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
-						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-								$col = 2, $colSpan = 3, $echo = $jid, $onClick = On_Job,
-								$text = table[$text = $jid, $halign = 'left']
-							]"/>
+						<do_if value="md.$cm90.$wingjob? and md.$cm90.$wingjob == $jid">
+							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+									$col = 2, $colSpan = 3, $echo = $jid, $onClick = On_Job,
+									$bgColor = 'Color.table_row_highlight',
+									$text = table[$text = $jid, $halign = 'left']
+								]"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+									$col = 2, $colSpan = 3, $echo = $jid, $onClick = On_Job,
+									$text = table[$text = $jid, $halign = 'left']
+								]"/>
+						</do_else>
 					</do_all>
 				</do_if>
 				<do_if value="$ids.count gt $to">
@@ -350,6 +362,130 @@
 							$text = table[$text = {357423,9019}, $halign = 'center']
 						]"/>
 				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<do_if value="md.$cm90.$wingjob?">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
+							$text = {357424,45} + ' ' + md.$cm90.$wingjob
+						]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+							$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
+							$text = {357424,44}
+						]"/>
+				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $text = ' '
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'center', $wordwrap = true,
+						$text = {357424,46}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $halign = 'center', $wordwrap = true,
+						$font = 'Helper.standardFontBold', $fontsize = 13,
+						$text = {357424,42}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'center', $wordwrap = true,
+						$font = 'Helper.standardFontBold', $fontsize = 13,
+						$text = {357424,43}
+					]"/>
+				<set_value name="$xkm" exact="0"/>
+				<set_value name="$ykm" exact="0"/>
+				<set_value name="$zkm" exact="0"/>
+				<do_if value="md.$cm90.$wingx?">
+					<set_value name="$xkm" exact="md.$cm90.$wingx"/>
+				</do_if>
+				<do_if value="md.$cm90.$wingy?">
+					<set_value name="$ykm" exact="md.$cm90.$wingy"/>
+				</do_if>
+				<do_if value="md.$cm90.$wingz?">
+					<set_value name="$zkm" exact="md.$cm90.$wingz"/>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $onClick = On_Add_Ahead,
+						$text = table[$text = {357424,52}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+						$text = {357424,47}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Slider" param="table[
+						$col = 3, $colSpan = 2,
+						$onSliderCellConfirm = On_X_Slider,
+						$min = -500, $minSelect = -500,
+						$max = 500, $maxSelect = 500,
+						$fromCenter = true,
+						$exceedMaxValue = false,
+						$start = $xkm, $step = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+						$text = {357424,50}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Slider" param="table[
+						$col = 3, $colSpan = 2,
+						$onSliderCellConfirm = On_Y_Slider,
+						$min = -500, $minSelect = -500,
+						$max = 500, $maxSelect = 500,
+						$fromCenter = true,
+						$exceedMaxValue = false,
+						$start = $ykm, $step = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+						$text = {357424,51}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Slider" param="table[
+						$col = 3, $colSpan = 2,
+						$onSliderCellConfirm = On_Z_Slider,
+						$min = -500, $minSelect = -500,
+						$max = 500, $maxSelect = 500,
+						$fromCenter = true,
+						$exceedMaxValue = false,
+						$start = $zkm, $step = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 3, $colSpan = 2, $onClick = On_Add_Coords,
+						$text = table[$text = {357424,52}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $text = ' '
+					]"/>
+				<do_if value="@md.$cm90_session.$fleet.count gt 0">
+					<do_for_each name="$row" in="md.$cm90_session.$fleet">
+						<set_value name="$line" exact="$row.$job"/>
+						<do_if value="$row.$place == 'abs'">
+							<set_value name="$line" exact="$row.$job + '  X ' + $row.$xkm + ' Y ' + $row.$ykm + ' Z ' + $row.$zkm"/>
+						</do_if>
+						<do_else>
+							<set_value name="$line" exact="$row.$job + '  ahead'"/>
+						</do_else>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+								$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
+								$text = $line
+							]"/>
+					</do_for_each>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = On_Spawn_List,
+						$text = table[$text = {357424,49}, $halign = 'center']
+					]"/>
 				</do_else>
 			</actions>
 		</cue>
@@ -360,6 +496,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$wingrace" exact="event.param.$echo"/>
+				<remove_value name="md.$cm90.$wingjob"/>
 				<set_value name="md.$cm90.$wingpage" exact="'factions'"/>
 				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet race=' + md.$cm90.$wingrace"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
@@ -372,6 +509,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$wingfaction" exact="event.param.$echo"/>
+				<remove_value name="md.$cm90.$wingjob"/>
 				<set_value name="md.$cm90.$wingoff" exact="0"/>
 				<set_value name="md.$cm90.$winggroup" exact="''"/>
 				<do_if value="event.param.$echo == 'terran'">
@@ -391,6 +529,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$winggroup" exact="event.param.$echo"/>
+				<remove_value name="md.$cm90.$wingjob"/>
 				<set_value name="md.$cm90.$wingoff" exact="0"/>
 				<set_value name="md.$cm90.$wingpage" exact="'jobs'"/>
 				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet group=' + md.$cm90.$winggroup"/>
@@ -404,8 +543,126 @@
 			</conditions>
 			<actions>
 				<set_value name="$jobid" exact="event.param.$echo"/>
+				<set_value name="md.$cm90.$wingjob" exact="$jobid"/>
 				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet job pick id=' + $jobid"/>
-				<signal_cue_instantly cue="md.cm90_wing_fill.Spawn" param="table[$job = $jobid]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Add_Ahead" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90.$wingjob?">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet list add abort: no job place=ahead'"/>
+				</do_if>
+				<do_else>
+					<do_if value="not md.$cm90_session?">
+						<set_value name="md.$cm90_session" exact="table[]"/>
+					</do_if>
+					<do_if value="not md.$cm90_session.$fleet?">
+						<set_value name="md.$cm90_session.$fleet" exact="[]"/>
+					</do_if>
+					<append_to_list name="md.$cm90_session.$fleet" exact="table[$job = md.$cm90.$wingjob, $place = 'ahead']"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet list add place=ahead job=' + md.$cm90.$wingjob + ' n=' + md.$cm90_session.$fleet.count"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Add_Coords" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90.$wingjob?">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet list add abort: no job place=abs'"/>
+				</do_if>
+				<do_else>
+					<set_value name="$xkm" exact="0"/>
+					<set_value name="$ykm" exact="0"/>
+					<set_value name="$zkm" exact="0"/>
+					<do_if value="md.$cm90.$wingx?">
+						<set_value name="$xkm" exact="md.$cm90.$wingx"/>
+					</do_if>
+					<do_if value="md.$cm90.$wingy?">
+						<set_value name="$ykm" exact="md.$cm90.$wingy"/>
+					</do_if>
+					<do_if value="md.$cm90.$wingz?">
+						<set_value name="$zkm" exact="md.$cm90.$wingz"/>
+					</do_if>
+					<do_if value="not md.$cm90_session?">
+						<set_value name="md.$cm90_session" exact="table[]"/>
+					</do_if>
+					<do_if value="not md.$cm90_session.$fleet?">
+						<set_value name="md.$cm90_session.$fleet" exact="[]"/>
+					</do_if>
+					<append_to_list name="md.$cm90_session.$fleet" exact="table[$job = md.$cm90.$wingjob, $place = 'abs', $xkm = $xkm, $ykm = $ykm, $zkm = $zkm]"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet list add place=abs job=' + md.$cm90.$wingjob + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' n=' + md.$cm90_session.$fleet.count"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Spawn_List" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not @md.$cm90_session.$fleet.count">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet list spawn abort: empty'"/>
+				</do_if>
+				<do_else>
+					<set_value name="$n" exact="md.$cm90_session.$fleet.count"/>
+					<do_for_each name="$row" in="md.$cm90_session.$fleet">
+						<do_if value="$row.$place == 'abs'">
+							<signal_cue_instantly cue="md.cm90_wing_fill.Spawn" param="table[
+									$job = $row.$job, $place = 'abs', $label = 'list',
+									$xkm = $row.$xkm, $ykm = $row.$ykm, $zkm = $row.$zkm
+								]"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.cm90_wing_fill.Spawn" param="table[$job = $row.$job]"/>
+						</do_else>
+					</do_for_each>
+					<remove_value name="md.$cm90_session.$fleet"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet list spawn n=' + $n"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Y_Slider" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingy" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet y slider value=' + event.param.$value + ' changed=' + event.param.$valuechanged"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Z_Slider" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingz" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet z slider value=' + event.param.$value + ' changed=' + event.param.$valuechanged"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_X_Slider" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$wingx" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet x slider value=' + event.param.$value + ' changed=' + event.param.$valuechanged"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
 
@@ -429,6 +686,7 @@
 				<do_else>
 					<set_value name="md.$cm90.$wingpage" exact="'races'"/>
 				</do_else>
+				<remove_value name="md.$cm90.$wingjob"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -438,7 +696,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<set_value name="md.$cm90.$wingoff" exact="md.$cm90.$wingoff - 40"/>
+				<set_value name="md.$cm90.$wingoff" exact="md.$cm90.$wingoff - 20"/>
 				<do_if value="md.$cm90.$wingoff lt 0">
 					<set_value name="md.$cm90.$wingoff" exact="0"/>
 				</do_if>
@@ -451,7 +709,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<set_value name="md.$cm90.$wingoff" exact="md.$cm90.$wingoff + 40"/>
+				<set_value name="md.$cm90.$wingoff" exact="md.$cm90.$wingoff + 20"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>

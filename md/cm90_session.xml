@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Session state. One table so values that outlive the window stay in one place.
+  Not md.$cm90: Build_Catalog replaces that table on game start and load.
+  Groups are named fields. $fleet is the fleet queue.
+  The nose-distance counter $fleet_f stays in md.$cm90 and resets when the cheat page closes.
+  A new game or a loaded save starts this table empty. Closing the window does not.
+-->
+<mdscript name="cm90_session" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="On_Game" instantiate="true">
+			<conditions>
+				<check_any>
+					<event_cue_signalled cue="md.Setup.GameStart"/>
+					<event_game_loaded/>
+				</check_any>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90_session" exact="table[]"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Session start'"/>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

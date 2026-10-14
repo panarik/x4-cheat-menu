@@ -2,13 +2,13 @@
 
 ## About this mod
 
-A cheat menu for X4 Foundations — a constructor for game situations. Version **1.34**, author **qadetmir**.
+A cheat menu for X4 Foundations — a constructor for game situations. Version **1.35**, author **qadetmir**.
 
 The menu reads what your install actually has loaded — the same ware library as the in-game creative constructor. Vanilla, the DLC you own, and every enabled mod. No hardcoded lists: ships, combat fleets, and stations that normally take hours of waiting appear in a few clicks.
 
 Three tools in one window: **Build Ship**, **Build Wing**, and **Spawn Stations**. Open it with ESC → Extension Options → Cheat Menu 9.0. You need a loaded save: the option is not on the title screen.
 
-New in 1.34: station spawning, and fixes to ship spawning — a preset now fits every hull in a batch, and the saved-preset path no longer mixes with the automatic one.
+New in 1.35: Build Wing selects a fleet first. Spawn ahead of player places it in front of your ship. Spawn with coordinates places seven copies on the sector grid so you can see where each axis lands. Station spawning from 1.34 stays.
 
 ## Requirements and installation
 
@@ -35,8 +35,10 @@ The crew is a full five-star set. Crew race is argon / paranid / teladi. The aut
 
 Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack. The lead ship and the escorts appear ahead of your nose, stacked upward. The faction AI takes the fleet: it is not added to your property, and the click does not start a war or an invasion.
 
-1. Point your ship where you want the fleet: it forms on your heading when you click.
-2. Click **Build Wing**, pick a race, then a faction (Terran opens Defence or Attack), then a fleet.
+1. Point your ship where you want the fleet. **Spawn ahead of player** uses your heading at the moment you press it.
+2. Click **Build Wing**, pick a race, then a faction (Terran opens Defence or Attack), then a fleet. Picking a fleet only selects it.
+3. **Spawn ahead of player** places that fleet in front of your ship. Another fleet from this button, while the window stays open, sits 5 km further ahead. Close the window and the next one starts at 10 km again.
+4. Under **Step №2** the two sides are headings. **Add to list** on the left queues the selected fleet ahead of your ship. **Add to list** on the right queues it at the current X, Y, and Z. Each click adds one row: the job id and where it will appear. **SPAWN** under the rows places every queued fleet, then clears the list.
 
 ### Spawn Stations — build your own station
 
