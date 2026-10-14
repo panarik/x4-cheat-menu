@@ -19,12 +19,12 @@
 			</conditions>
 			<actions>
 				<set_value name="$jobid" exact="event.param.$job"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet spawn start job=' + $jobid + ' zone=' + @player.zone + ' sector=' + @player.sector"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet spawn start job=' + $jobid + ' zone=' + @player.zone + ' sector=' + @player.sector"/>
 				<do_if value="not player.zone?">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: no player.zone'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet abort: no player.zone'"/>
 				</do_if>
 				<do_elseif value="not $jobid">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: no job id'"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet abort: no job id'"/>
 				</do_elseif>
 				<do_else>
 					<set_value name="$anchor" exact="player.ship"/>
@@ -43,7 +43,7 @@
 					<request_job_ship name="$ship" job="$jobid" requester="$sector" zone="player.zone"/>
 					<do_if value="not $ship">
 						<set_value name="md.$cm90.$fleet_f" exact="$f"/>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet request miss job=' + $jobid"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet request miss job=' + $jobid"/>
 					</do_if>
 					<do_else>
 						<spawn_waiting_job_ship ship="$ship" zone="player.zone" result="$placed">
@@ -52,16 +52,16 @@
 						<do_if value="not $placed">
 							<set_value name="md.$cm90.$fleet_f" exact="$f"/>
 							<remove_job_ship_request ship="$ship"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet abort: not placed job=' + $jobid"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet abort: not placed job=' + $jobid"/>
 						</do_if>
 						<do_else>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet spawn done job=' + $jobid + ' ship=' + @$ship + ' id=' + @$ship.id + ' f=' + $f + ' zkm=' + (10 + ($f * 5)) + ' ykm=0'"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet spawn done job=' + $jobid + ' ship=' + @$ship + ' id=' + @$ship.id + ' f=' + $f + ' zkm=' + (10 + ($f * 5)) + ' ykm=0'"/>
 							<set_value name="md.$cm90.$wing_n" exact="1"/>
 							<remove_value name="md.$cm90.$wing_capped"/>
 							<set_value name="$path" exact="[]"/>
 							<append_to_list name="$path" exact="$jobid"/>
 							<signal_cue_instantly cue="Fill" param="table[$ship = $ship, $job = $jobid, $depth = 1, $path = $path, $f = $f]"/>
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing result job=' + $jobid + ' ships=' + md.$cm90.$wing_n"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet wing result job=' + $jobid + ' ships=' + md.$cm90.$wing_n"/>
 							<show_notification text="{357424,13}"/>
 						</do_else>
 					</do_else>
@@ -86,30 +86,30 @@
 				<set_value name="$steps" exact="0"/>
 				<set_value name="$f" exact="event.param.$f"/>
 				<set_value name="$y" exact="0"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue start job=' + event.param.$job + ' ship=' + @event.param.$ship + ' depth=' + event.param.$depth"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet wing queue start job=' + event.param.$job + ' ship=' + @event.param.$ship + ' depth=' + event.param.$depth"/>
 				<do_while value="$qi le $qship.count and $steps lt 1000">
 					<set_value name="$steps" exact="$steps + 1"/>
 					<set_value name="$ship" exact="$qship.{$qi}"/>
 					<set_value name="$job" exact="$qjob.{$qi}"/>
 					<set_value name="$depth" exact="$qdepth.{$qi}"/>
 					<set_value name="$path" exact="$qpath.{$qi}"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing node step=' + $steps + ' depth=' + $depth + ' job=' + $job + ' ship=' + @$ship + ' queue=' + $qship.count + ' pathtype=' + typeof $path"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet wing node step=' + $steps + ' depth=' + $depth + ' job=' + $job + ' ship=' + @$ship + ' queue=' + $qship.count + ' pathtype=' + typeof $path"/>
 					<set_value name="$chain" exact="''"/>
 					<do_for_each name="$step" in="$path">
 						<set_value name="$chain" exact="$chain + '/' + $step"/>
 					</do_for_each>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse chain step=' + $steps + ' chain=' + $chain"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse chain step=' + $steps + ' chain=' + $chain"/>
 					<do_if value="$depth gt 8">
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=depth job=' + $job + ' depth=' + $depth"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=depth job=' + $job + ' depth=' + $depth"/>
 					</do_if>
 					<do_elseif value="not $ship">
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=noship job=' + $job + ' depth=' + $depth"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=noship job=' + $job + ' depth=' + $depth"/>
 					</do_elseif>
 					<do_else>
 						<get_subordinate_jobs commander="$ship" init="true" jobs="$kids" amount="$nums"/>
-						<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet wing raw container depth=' + $depth + ' job=' + $job + ' typeof=' + typeof $kids + ' n=' + @$kids.count + ' nums=' + @$nums.count"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'LOW Fleet wing raw container depth=' + $depth + ' job=' + $job + ' typeof=' + typeof $kids + ' n=' + @$kids.count + ' nums=' + @$nums.count"/>
 						<do_if value="not $kids? or not $kids.count">
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=empty depth=' + $depth + ' job=' + $job"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=empty depth=' + $depth + ' job=' + $job"/>
 						</do_if>
 						<do_else>
 							<do_all exact="$kids.count" counter="$i">
@@ -118,20 +118,20 @@
 								<do_if value="$nums? and $nums.{$i}?">
 									<set_value name="$n" exact="$nums.{$i}"/>
 								</do_if>
-								<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'LOW Fleet wing raw depth=' + $depth + ' parent=' + $job + ' i=' + $i + ' child=' + $child + ' n=' + $n"/>
+								<signal_cue_instantly cue="md.cm90_window.LogFile" param="'LOW Fleet wing raw depth=' + $depth + ' parent=' + $job + ' i=' + $i + ' child=' + $child + ' n=' + $n"/>
 								<do_if value="$path.indexof.{$child}">
-									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=cycle depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' chain=' + $chain"/>
+									<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=cycle depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' chain=' + $chain"/>
 								</do_if>
 								<do_elseif value="not $n">
-									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=zero depth=' + $depth + ' parent=' + $job + ' child=' + $child"/>
+									<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=zero depth=' + $depth + ' parent=' + $job + ' child=' + $child"/>
 								</do_elseif>
 								<do_else>
-									<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' n=' + $n"/>
+									<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' n=' + $n"/>
 									<do_all exact="$n" counter="$k">
 										<do_if value="md.$cm90.$wing_n ge 1000">
 											<do_if value="not md.$cm90.$wing_capped?">
 												<set_value name="md.$cm90.$wing_capped" exact="1"/>
-												<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=cap n=1000 job=' + $child"/>
+												<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=cap n=1000 job=' + $child"/>
 											</do_if>
 										</do_if>
 										<do_else>
@@ -141,7 +141,7 @@
 											</do_if>
 											<request_job_ship name="$born" job="$child" requester="$ship" zone="player.zone"/>
 											<do_if value="not $born">
-												<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing request miss depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k"/>
+												<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing request miss depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k"/>
 											</do_if>
 											<do_else>
 												<set_value name="$y" exact="$y + 1"/>
@@ -151,12 +151,12 @@
 												<do_if value="not $born_placed">
 													<set_value name="$y" exact="$y - 1"/>
 													<remove_job_ship_request ship="$born"/>
-													<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing not placed depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k"/>
+													<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing not placed depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k"/>
 												</do_if>
 												<do_else>
 													<set_object_commander object="$born" commander="$ship"/>
 													<set_value name="md.$cm90.$wing_n" exact="md.$cm90.$wing_n + 1"/>
-													<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k + ' ship=' + @$born + ' id=' + @$born.id + ' f=' + $f + ' y=' + $y + ' zkm=' + (10 + ($f * 5)) + ' ykm=' + $y"/>
+													<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet wing spawn depth=' + $depth + ' parent=' + $job + ' child=' + $child + ' k=' + $k + ' ship=' + @$born + ' id=' + @$born.id + ' f=' + $f + ' y=' + $y + ' zkm=' + (10 + ($f * 5)) + ' ykm=' + $y"/>
 													<set_value name="$next" exact="[]"/>
 													<do_for_each name="$step" in="$path">
 														<append_to_list name="$next" exact="$step"/>
@@ -167,14 +167,14 @@
 														<set_value name="$nextchain" exact="$nextchain + '/' + $step"/>
 													</do_for_each>
 													<do_if value="$depth + 1 gt 8">
-														<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing parse decision=depth child=' + $child + ' depth=' + ($depth + 1) + ' chain=' + $nextchain"/>
+														<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing parse decision=depth child=' + $child + ' depth=' + ($depth + 1) + ' chain=' + $nextchain"/>
 													</do_if>
 													<do_else>
 														<append_to_list name="$qship" exact="$born"/>
 														<append_to_list name="$qjob" exact="$child"/>
 														<append_to_list name="$qdepth" exact="$depth + 1"/>
 														<append_to_list name="$qpath" exact="$next"/>
-														<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID Fleet wing enqueue depth=' + ($depth + 1) + ' job=' + $child + ' queue=' + $qship.count + ' chain=' + $nextchain"/>
+														<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Fleet wing enqueue depth=' + ($depth + 1) + ' job=' + $child + ' queue=' + $qship.count + ' chain=' + $nextchain"/>
 													</do_else>
 												</do_else>
 											</do_else>
@@ -187,9 +187,9 @@
 					<set_value name="$qi" exact="$qi + 1"/>
 				</do_while>
 				<do_if value="$steps ge 1000">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue stop steps=1000 ships=' + md.$cm90.$wing_n"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet wing queue stop steps=1000 ships=' + md.$cm90.$wing_n"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH Fleet wing queue done steps=' + $steps + ' ships=' + md.$cm90.$wing_n + ' queued=' + $qship.count"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Fleet wing queue done steps=' + $steps + ' ships=' + md.$cm90.$wing_n + ' queued=' + $qship.count"/>
 			</actions>
 		</cue>
 	</cues>

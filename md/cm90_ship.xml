@@ -4,7 +4,7 @@
   Races use columns 2-4. The board splits them: size, name, owner.
   Three rows under that block are the fit: auto, then up to two presets.
   A count dropdown on one of those rows signals the existing spawn cue.
-  Catalog build and create_ship stay in x4sv_cheat_simple_menu.
+  Catalog build and create_ship stay in cm90_window.
 -->
 <mdscript name="cm90_ship" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
@@ -20,10 +20,10 @@
 					<set_value name="md.$cm90.$menuopen" exact="true"/>
 					<set_value name="md.$cm90.$page" exact="'shipboard'"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship draw view=' + @md.$cm90.$shipview + ' built=' + @md.$cm90.$built"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship draw view=' + @md.$cm90.$shipview + ' built=' + @md.$cm90.$built"/>
 				<do_if value="(not md.$cm90? or not md.$cm90.$built) and not @md.$cm90.$building">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship draw: catalog missing, rebuild'"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.Build_Catalog"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship draw: catalog missing, rebuild'"/>
+					<signal_cue_instantly cue="md.cm90_window.Build_Catalog"/>
 				</do_if>
 				<do_if value="md.$cm90.$shipview == 'board'">
 					<signal_cue_instantly cue="Fill_Board"/>
@@ -40,7 +40,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship races n=' + @md.$cm90.$races.count"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship races n=' + @md.$cm90.$races.count"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
 						$col = 2, $colSpan = 3, $halign = 'left', $fontsize = 13, $wordwrap = true,
@@ -79,7 +79,7 @@
 					<set_value name="$b" exact="md.$cm90.$races.{$slot}"/>
 					<set_value name="$hasbucket" exact="1"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship board race=' + @md.$cm90.$race + ' class=' + @md.$cm90.$class + ' ware=' + @md.$cm90.$ware.id + ' owner=' + @md.$cm90.$shipownerid + ' slot=' + $slot"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship board race=' + @md.$cm90.$race + ' class=' + @md.$cm90.$class + ' ware=' + @md.$cm90.$ware.id + ' owner=' + @md.$cm90.$shipownerid + ' slot=' + $slot"/>
 
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
@@ -174,7 +174,7 @@
 						<append_to_list name="$sh_ware" exact="''"/>
 						<append_to_list name="$sh_label" exact="{357423,9019}"/>
 					</do_if>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship names n=' + @$list.count + ' from=' + $from + ' to=' + $to"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship names n=' + @$list.count + ' from=' + $from + ' to=' + $to"/>
 				</do_if>
 
 				<set_value name="$ow_kind" exact="[]"/>
@@ -184,7 +184,7 @@
 					<set_value name="$factions" exact="[]"/>
 					<do_for_each name="$f" in="lookup.faction.list">
 						<do_if value="$f.id == 'visitor'">
-							<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'MID UI ship owner skip id=visitor'"/>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID UI ship owner skip id=visitor'"/>
 						</do_if>
 						<do_elseif value="$f.isactive and $f.id != 'player'">
 							<set_value name="$nm" exact="@$f.knownname"/>
@@ -239,7 +239,7 @@
 						<append_to_list name="$ow_id" exact="''"/>
 						<append_to_list name="$ow_label" exact="{357423,9019}"/>
 					</do_if>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship owners n=' + $factions.count + ' from=' + $ofrom + ' to=' + $oto"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship owners n=' + $factions.count + ' from=' + $ofrom + ' to=' + $oto"/>
 				</do_if>
 
 				<set_value name="$nrows" exact="$sz_id.count"/>
@@ -345,7 +345,7 @@
 						</do_if>
 						<append_to_list name="$mods" exact="table[$text = $pprefix + ': ' + $plabel, $value = $lo.$id, $mode = 'preset', $loadoutid = $lo.$id]"/>
 					</do_for_each>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship modules presets=' + @md.$cm90.$presets.count"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship modules presets=' + @md.$cm90.$presets.count"/>
 				</do_if>
 				<set_value name="$step4" exact="{357423,9038}"/>
 				<do_if value="md.$cm90.$fitlabel? and md.$cm90.$fitlabel != ''">
@@ -402,7 +402,7 @@
 				<set_value name="md.$cm90.$fitlabel" exact="''"/>
 				<set_value name="md.$cm90.$shipoff" exact="0"/>
 				<set_value name="md.$cm90.$shipview" exact="'board'"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship race key=' + md.$cm90.$race"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship race key=' + md.$cm90.$race"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -419,7 +419,7 @@
 				<set_value name="md.$cm90.$fitmode" exact="''"/>
 				<set_value name="md.$cm90.$loadoutid" exact="''"/>
 				<set_value name="md.$cm90.$fitlabel" exact="''"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship back'"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship back'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -436,7 +436,7 @@
 				<set_value name="md.$cm90.$loadoutid" exact="''"/>
 				<set_value name="md.$cm90.$fitlabel" exact="''"/>
 				<set_value name="md.$cm90.$shipoff" exact="0"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship size=' + md.$cm90.$class"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship size=' + md.$cm90.$class"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -450,7 +450,7 @@
 				<do_if value="md.$cm90.$shipoff lt 0">
 					<set_value name="md.$cm90.$shipoff" exact="0"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship names page off=' + md.$cm90.$shipoff"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship names page off=' + md.$cm90.$shipoff"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -461,7 +461,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$shipoff" exact="md.$cm90.$shipoff + md.$cm90.$shippage"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship names page off=' + md.$cm90.$shipoff"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship names page off=' + md.$cm90.$shipoff"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -482,7 +482,7 @@
 				<do_if value="not $macro">
 					<set_value name="$macro" exact="@md.$cm90.$ware.component"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship name id=' + @md.$cm90.$ware.id + ' name=' + @md.$cm90.$ware.name + ' macro=' + @$macro.id"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship name id=' + @md.$cm90.$ware.id + ' name=' + @md.$cm90.$ware.name + ' macro=' + @$macro.id"/>
 				<raise_lua_event name="'CheatMenu90.ListLoadouts'" param="@$macro.id"/>
 			</actions>
 		</cue>
@@ -496,7 +496,7 @@
 				<do_if value="md.$cm90.$ownoff lt 0">
 					<set_value name="md.$cm90.$ownoff" exact="0"/>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship owners page off=' + md.$cm90.$ownoff"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship owners page off=' + md.$cm90.$ownoff"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -507,7 +507,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$ownoff" exact="md.$cm90.$ownoff + md.$cm90.$shippage"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship owners page off=' + md.$cm90.$ownoff"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship owners page off=' + md.$cm90.$ownoff"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -518,7 +518,7 @@
 			</conditions>
 			<actions>
 				<set_value name="md.$cm90.$shipownerid" exact="event.param.$echo"/>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship owner id=' + md.$cm90.$shipownerid + ' ware=' + @md.$cm90.$ware.id"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship owner id=' + md.$cm90.$shipownerid + ' ware=' + @md.$cm90.$ware.id"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -544,7 +544,7 @@
 						<set_value name="md.$cm90.$fitmode" exact="''"/>
 					</do_else>
 				</do_if>
-				<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship module mode=' + md.$cm90.$fitmode + ' loadout=' + md.$cm90.$loadoutid + ' label=' + md.$cm90.$fitlabel"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship module mode=' + md.$cm90.$fitmode + ' loadout=' + md.$cm90.$loadoutid + ' label=' + md.$cm90.$fitlabel"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>
@@ -559,12 +559,12 @@
 					<set_value name="$count" exact="1"/>
 				</do_if>
 				<do_if value="not md.$cm90.$fitmode or md.$cm90.$fitmode == ''">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship qty skip no module count=' + $count"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship qty skip no module count=' + $count"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship qty mode=' + md.$cm90.$fitmode + ' loadout=' + md.$cm90.$loadoutid + ' count=' + $count"/>
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.On_Fit" param="table[
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship qty mode=' + md.$cm90.$fitmode + ' loadout=' + md.$cm90.$loadoutid + ' count=' + $count"/>
+					<signal_cue_instantly cue="md.cm90_window.On_Fit" param="table[
 							$echo = table[$mode = md.$cm90.$fitmode, $loadoutid = md.$cm90.$loadoutid],
 							$option = table[$value = $count]
 						]"/>
@@ -578,7 +578,7 @@
 			</conditions>
 			<actions>
 				<do_if value="@md.$cm90.$pane == 'ship' and @md.$cm90.$shipview == 'board' and @md.$cm90.$menuopen">
-					<signal_cue_instantly cue="md.x4sv_cheat_simple_menu.LogFile" param="'HIGH UI ship presets ready draw n=' + @md.$cm90.$presets.count"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI ship presets ready draw n=' + @md.$cm90.$presets.count"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_if>
 			</actions>

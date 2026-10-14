@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Station module library.
+  One query: get_ware_definition tags=tag.module.
+  cm90_station_logic.Ensure_Catalog signals Dump once per session.
+  Lua classifies races and sends rows back on screen CM90StationPick.
+-->
+<mdscript name="cm90_station_modules" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="On_Mod_Log" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90StationMod'" control="'log'"/>
+			</conditions>
+			<actions>
+				<set_value name="$line" exact="event.param3"/>
+				<do_if value="not $line">
+					<set_value name="$line" exact="event.param"/>
+				</do_if>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="$line"/>
+			</actions>
+		</cue>
+
+		<cue name="Dump" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<do_if value="@md.$cm90.$stdumping">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station mod skip reason=dump in progress'"/>
+				</do_if>
+				<do_elseif value="@md.$cm90.$stcatalog">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station mod skip reason=already dumped'"/>
+				</do_elseif>
+				<do_else>
+					<set_value name="md.$cm90.$stdumping" exact="true"/>
+					<set_value name="md.$cm90.$stationmoddump" exact="true"/>
+					<set_value name="md.$cm90.$stready" exact="false"/>
+					<set_value name="md.$cm90.$st_id" exact="[]"/>
+					<set_value name="md.$cm90.$st_obj" exact="[]"/>
+					<set_value name="md.$cm90.$strows" exact="[]"/>
+					<set_value name="md.$cm90.$stdup" exact="[]"/>
+					<set_value name="md.$cm90.$straces" exact="[]"/>
+					<set_value name="$wares" exact="[]"/>
+					<set_value name="$fmap" exact="''"/>
+					<set_value name="$fn" exact="0"/>
+					<do_for_each name="$faction" in="lookup.faction.list">
+						<do_if value="$faction.primaryrace?">
+							<do_if value="$faction.primaryrace.id?">
+								<do_if value="$faction.primaryrace.id != ''">
+									<set_value name="$rname" exact="$faction.primaryrace.id"/>
+									<do_if value="$faction.primaryrace.name?">
+										<do_if value="$faction.primaryrace.name != ''">
+											<set_value name="$rname" exact="$faction.primaryrace.name"/>
+										</do_if>
+									</do_if>
+									<set_value name="$fmap" exact="$fmap + $faction.id + '|' + $faction.primaryrace.id + '|' + $rname + ';'"/>
+									<set_value name="$fn" exact="$fn + 1"/>
+								</do_if>
+							</do_if>
+						</do_if>
+					</do_for_each>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station mod factions ask n=' + $fn"/>
+					<raise_lua_event name="'CheatMenu90.StationFactions'" param="$fmap"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station mod query tags=tag.module'"/>
+					<get_ware_definition result="$wares" tags="tag.module"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station mod wares count=' + @$wares.count"/>
+					<do_for_each name="$ware" in="$wares">
+						<set_value name="$macro" exact="@$ware.objectmacro"/>
+						<do_if value="not $macro">
+							<set_value name="$macro" exact="@$ware.component"/>
+						</do_if>
+						<set_value name="$mid" exact="''"/>
+						<do_if value="$macro">
+							<set_value name="$mid" exact="@$macro.id"/>
+							<append_to_list name="md.$cm90.$st_id" exact="$mid"/>
+							<append_to_list name="md.$cm90.$st_obj" exact="$macro"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station mod skip_macro ware=' + @$ware.id"/>
+						</do_else>
+						<raise_lua_event name="'CheatMenu90.StationMod'" param="@$ware.id + '|' + $mid"/>
+					</do_for_each>
+					<raise_lua_event name="'CheatMenu90.StationModDone'" param="'1'"/>
+					<set_value name="md.$cm90.$stdumping" exact="false"/>
+					<set_value name="md.$cm90.$stcatalog" exact="true"/>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>
