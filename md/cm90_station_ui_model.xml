@@ -2,6 +2,7 @@
 <!--
   Spawn Stations UI model.
   The hub signals Draw. This file writes md.$cm90.$stui and refreshes once.
+  The station queue is md.$cm90_session.$station. Closing the window does not clear it.
   It does not create widgets. Build hands the picked lists to the logic file.
 -->
 <mdscript name="cm90_station_ui_model" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
@@ -446,6 +447,8 @@
 				<do_else>
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID UI station status no repaint draw=' + @event.param.$draw + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				</do_else>
+				<set_value name="md.$cm90.$stbusy" exact="0"/>
+				<signal_cue_instantly cue="md.cm90_station_logic.Build_Next"/>
 			</actions>
 		</cue>
 
@@ -477,10 +480,13 @@
 						<set_value name="$any" exact="1"/>
 					</do_if>
 				</do_all>
-				<do_if value="not $any">
+				<do_if value="@md.$cm90.$stbusy">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build skip queue busy'"/>
+				</do_if>
+				<do_elseif value="not $any">
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build skip empty'"/>
 					<show_notification text="{357424,22}"/>
-				</do_if>
+				</do_elseif>
 				<do_else>
 					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
 							$race = md.$cm90.$stui.$race,
@@ -508,10 +514,13 @@
 						<set_value name="$any" exact="1"/>
 					</do_if>
 				</do_all>
-				<do_if value="not $any">
+				<do_if value="@md.$cm90.$stbusy">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station normalizer skip queue busy'"/>
+				</do_if>
+				<do_elseif value="not $any">
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station normalizer skip empty'"/>
 					<show_notification text="{357424,22}"/>
-				</do_if>
+				</do_elseif>
 				<do_else>
 					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
 							$race = md.$cm90.$stui.$race,
@@ -523,6 +532,159 @@
 					<do_if value="@md.$cm90.$pane == 'station'">
 						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 					</do_if>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_X_Slider" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$xkm" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station slider x=' + md.$cm90.$stui.$xkm"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Y_Slider" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$ykm" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station slider y=' + md.$cm90.$stui.$ykm"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Z_Slider" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$zkm" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station slider z=' + md.$cm90.$stui.$zkm"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Add_Ahead" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Append_Row" param="table[$place = 'ahead']"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Add_Coords" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Append_Row" param="table[$place = 'abs']"/>
+			</actions>
+		</cue>
+
+		<cue name="Append_Row" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$any" exact="0"/>
+				<set_value name="$count" exact="0"/>
+				<set_value name="$ids" exact="[]"/>
+				<set_value name="$ns" exact="[]"/>
+				<set_value name="$objs" exact="[]"/>
+				<do_all exact="@md.$cm90.$stui.$pk_id.count" counter="$i">
+					<append_to_list name="$ids" exact="md.$cm90.$stui.$pk_id.{$i}"/>
+					<append_to_list name="$ns" exact="md.$cm90.$stui.$pk_n.{$i}"/>
+					<append_to_list name="$objs" exact="md.$cm90.$stui.$pk_obj.{$i}"/>
+					<do_if value="md.$cm90.$stui.$pk_n.{$i} gt 0">
+						<set_value name="$any" exact="1"/>
+						<set_value name="$count" exact="$count + md.$cm90.$stui.$pk_n.{$i}"/>
+					</do_if>
+				</do_all>
+				<do_if value="not md.$cm90.$stui.$race">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add abort: no race'"/>
+				</do_if>
+				<do_elseif value="not $any">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add abort: empty'"/>
+				</do_elseif>
+				<do_else>
+					<set_value name="$label" exact="md.$cm90.$stui.$race"/>
+					<do_all exact="@md.$cm90.$straces.count" counter="$i">
+						<do_if value="md.$cm90.$straces.{$i}.$id == md.$cm90.$stui.$race">
+							<set_value name="$label" exact="md.$cm90.$straces.{$i}.$label"/>
+						</do_if>
+					</do_all>
+					<set_value name="$place" exact="'ahead'"/>
+					<set_value name="$xkm" exact="0"/>
+					<set_value name="$ykm" exact="0"/>
+					<set_value name="$zkm" exact="0"/>
+					<do_if value="@event.param.$place == 'abs'">
+						<set_value name="$place" exact="'abs'"/>
+						<do_if value="md.$cm90.$stui.$xkm?">
+							<set_value name="$xkm" exact="md.$cm90.$stui.$xkm"/>
+						</do_if>
+						<do_if value="md.$cm90.$stui.$ykm?">
+							<set_value name="$ykm" exact="md.$cm90.$stui.$ykm"/>
+						</do_if>
+						<do_if value="md.$cm90.$stui.$zkm?">
+							<set_value name="$zkm" exact="md.$cm90.$stui.$zkm"/>
+						</do_if>
+					</do_if>
+					<do_if value="not md.$cm90_session?">
+						<set_value name="md.$cm90_session" exact="table[]"/>
+					</do_if>
+					<do_if value="not md.$cm90_session.$station?">
+						<set_value name="md.$cm90_session.$station" exact="[]"/>
+					</do_if>
+					<append_to_list name="md.$cm90_session.$station" exact="table[
+							$race = md.$cm90.$stui.$race,
+							$label = $label,
+							$count = $count,
+							$place = $place,
+							$xkm = $xkm,
+							$ykm = $ykm,
+							$zkm = $zkm,
+							$pk_id = $ids,
+							$pk_n = $ns,
+							$pk_obj = $objs,
+							$norm = 0
+						]"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add place=' + $place + ' race=' + $label + ' count=' + $count + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' n=' + md.$cm90_session.$station.count"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="On_Spawn_List" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not @md.$cm90_session.$station.count">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list spawn abort: empty'"/>
+				</do_if>
+				<do_elseif value="@md.$cm90.$stbusy">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list spawn abort: busy'"/>
+				</do_elseif>
+				<do_else>
+					<set_value name="md.$cm90.$stqueue" exact="[]"/>
+					<do_all exact="md.$cm90_session.$station.count" counter="$i">
+						<append_to_list name="md.$cm90.$stqueue" exact="md.$cm90_session.$station.{$i}"/>
+					</do_all>
+					<remove_value name="md.$cm90_session.$station"/>
+					<set_value name="md.$cm90.$stqi" exact="1"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list spawn n=' + md.$cm90.$stqueue.count"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+					<signal_cue_instantly cue="md.cm90_station_logic.Build_Next"/>
 				</do_else>
 			</actions>
 		</cue>

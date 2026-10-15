@@ -20,6 +20,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
+				<set_value name="md.$cm90.$stbusy" exact="1"/>
 				<set_value name="$picks" exact="event.param"/>
 				<set_value name="$race" exact="@$picks.$race"/>
 				<set_value name="md.$cm90.$stbuild_race" exact="$race"/>
@@ -39,6 +40,7 @@
 				</do_all>
 				<do_if value="not $seq.count">
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build skip empty'"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
 				</do_if>
 				<do_else>
 					<set_value name="$conn" exact="[]"/>
@@ -121,7 +123,54 @@
 					<do_if value="not $conn.count">
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station sequence connectors n=0 reason=failsafe may leave modules unjoined'"/>
 					</do_if>
-					<signal_cue_instantly cue="On_Place"/>
+					<signal_cue_instantly cue="On_Place" param="table[
+							$place = @$picks.$place,
+							$xkm = @$picks.$xkm,
+							$ykm = @$picks.$ykm,
+							$zkm = @$picks.$zkm
+						]"/>
+				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Build_Next" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not @md.$cm90.$stqueue.count">
+					<set_value name="md.$cm90.$stbusy" exact="0"/>
+				</do_if>
+				<do_elseif value="@md.$cm90.$stbusy">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station queue wait n=' + md.$cm90.$stqueue.count"/>
+				</do_elseif>
+				<do_else>
+					<do_if value="not md.$cm90.$stqi?">
+						<set_value name="md.$cm90.$stqi" exact="1"/>
+					</do_if>
+					<do_if value="md.$cm90.$stqi gt md.$cm90.$stqueue.count">
+						<remove_value name="md.$cm90.$stqueue"/>
+						<remove_value name="md.$cm90.$stqi"/>
+						<set_value name="md.$cm90.$stbusy" exact="0"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station queue done'"/>
+					</do_if>
+					<do_else>
+						<set_value name="$row" exact="md.$cm90.$stqueue.{md.$cm90.$stqi}"/>
+						<set_value name="md.$cm90.$stqi" exact="md.$cm90.$stqi + 1"/>
+						<set_value name="md.$cm90.$stbusy" exact="1"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station queue row place=' + $row.$place + ' race=' + $row.$label + ' count=' + $row.$count + ' i=' + (md.$cm90.$stqi - 1)"/>
+						<signal_cue_instantly cue="Build" param="table[
+								$race = $row.$race,
+								$pk_id = $row.$pk_id,
+								$pk_n = $row.$pk_n,
+								$pk_obj = $row.$pk_obj,
+								$norm = $row.$norm,
+								$place = $row.$place,
+								$xkm = $row.$xkm,
+								$ykm = $row.$ykm,
+								$zkm = $row.$zkm
+							]"/>
+					</do_else>
 				</do_else>
 			</actions>
 		</cue>
@@ -308,20 +357,61 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build start zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship + ' entity=' + @player.entity"/>
-				<do_if value="not player.ship?">
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.ship'"/>
+				<set_value name="$place" exact="'ahead'"/>
+				<do_if value="@event.param.$place == 'abs'">
+					<set_value name="$place" exact="'abs'"/>
 				</do_if>
-				<do_elseif value="not player.zone?">
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.zone'"/>
-				</do_elseif>
+				<set_value name="$xkm" exact="0"/>
+				<set_value name="$ykm" exact="0"/>
+				<set_value name="$zkm" exact="0"/>
+				<do_if value="event.param.$xkm?">
+					<set_value name="$xkm" exact="event.param.$xkm"/>
+				</do_if>
+				<do_if value="event.param.$ykm?">
+					<set_value name="$ykm" exact="event.param.$ykm"/>
+				</do_if>
+				<do_if value="event.param.$zkm?">
+					<set_value name="$zkm" exact="event.param.$zkm"/>
+				</do_if>
+				<set_value name="$have" exact="0"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build start place=' + $place + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship"/>
+				<do_if value="$place == 'abs'">
+					<do_if value="not player.sector?">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.sector'"/>
+						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
+					</do_if>
+					<do_elseif value="not player.zone?">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.zone'"/>
+						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
+					</do_elseif>
+					<do_else>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone + ' safepos=sector x=' + $xkm + ' y=' + $ykm + ' z=' + $zkm"/>
+						<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
+							<safepos object="player.sector" x="$xkm * 1km" y="$ykm * 1km" z="$zkm * 1km"/>
+						</create_station>
+						<set_value name="$have" exact="1"/>
+					</do_else>
+				</do_if>
 				<do_else>
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'LOW Station anchor id=' + @player.ship.id + ' pos=' + @player.ship.position + ' zone=' + @player.zone"/>
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station place z=20km y=0km no-radius no-includeplotbox reason=center 20km, side 10km, near face 10km from the ship'"/>
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone"/>
-					<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
-						<safepos object="player.ship" z="20km" y="0km"/>
-					</create_station>
+					<do_if value="not player.ship?">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.ship'"/>
+						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
+					</do_if>
+					<do_elseif value="not player.zone?">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.zone'"/>
+						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
+					</do_elseif>
+					<do_else>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'LOW Station anchor id=' + @player.ship.id + ' pos=' + @player.ship.position + ' zone=' + @player.zone"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station place z=20km y=0km no-radius no-includeplotbox reason=center 20km, side 10km, near face 10km from the ship'"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone"/>
+						<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
+							<safepos object="player.ship" z="20km" y="0km"/>
+						</create_station>
+						<set_value name="$have" exact="1"/>
+					</do_else>
+				</do_else>
+				<do_if value="$have">
 					<do_if value="not $station.exists">
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create fail exists=0'"/>
 						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
@@ -337,7 +427,7 @@
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station plot ask'"/>
 						<raise_lua_event name="'CheatMenu90.StationPlot'" param="$station"/>
 					</do_else>
-				</do_else>
+				</do_if>
 			</actions>
 		</cue>
 
@@ -354,6 +444,7 @@
 				<set_value name="$station" exact="md.$cm90.$station"/>
 				<do_if value="not $station.exists">
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station plot abort: no station'"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
 				</do_if>
 				<do_else>
 					<do_if value="$token == 'ok'">
@@ -386,10 +477,12 @@
 				<set_value name="$station" exact="event.param"/>
 				<do_if value="not $station.exists">
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station sequence abort: no station'"/>
+					<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
 				</do_if>
 				<do_else>
 					<do_if value="not @md.$cm90.$stseq.count">
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station sequence abort: empty list'"/>
+						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
 					</do_if>
 					<do_else>
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'LOW Station sequence macros n=' + md.$cm90.$stseq.count + ' race=' + @md.$cm90.$stbuild_race"/>

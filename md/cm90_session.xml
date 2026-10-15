@@ -2,7 +2,7 @@
 <!--
   Session state. One table so values that outlive the window stay in one place.
   Not md.$cm90: Build_Catalog replaces that table on game start and load.
-  Groups are named fields. $fleet is the fleet queue.
+  Groups are named fields. $fleet is the fleet queue. $station is the station queue.
   The nose-distance counter $fleet_f stays in md.$cm90 and resets when the cheat page closes.
   A new game or a loaded save starts this table empty. Closing the window does not.
 -->
