@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Spawn Stations paint. Reads md.$cm90.$stui and creates widgets.
+  The queue under Build is md.$cm90_session.$station. This file only draws it.
   Clicks go to the UI model. This file does not change state and does not refresh.
 -->
 <mdscript name="cm90_station_ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
@@ -10,6 +11,7 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
+				<signal_cue_instantly cue="Set_Cols"/>
 				<do_if value="md.$cm90.$stui.$paint == 'loading'">
 					<signal_cue_instantly cue="Fill_Loading"/>
 				</do_if>
@@ -19,6 +21,32 @@
 				<do_else>
 					<signal_cue_instantly cue="Fill_Races"/>
 				</do_else>
+			</actions>
+		</cue>
+
+		<cue name="Set_Cols" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidth',
+						$col = 4,
+						$width = 80
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidthMinPercent',
+						$col = 2,
+						$width = 16,
+						$weight = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
+						$method = 'setColWidthMinPercent',
+						$col = 3,
+						$width = 16,
+						$weight = 3
+					]"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station cols type=16w1 name=16w3 qty=80'"/>
 			</actions>
 		</cue>
 
@@ -71,24 +99,6 @@
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
-						$method = 'setColWidthPercent',
-						$col = 4,
-						$width = 12
-					]"/>
-				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
-						$method = 'setColWidthMinPercent',
-						$col = 2,
-						$width = 16,
-						$weight = 1
-					]"/>
-				<signal_cue_instantly cue="md.Simple_Menu_API.Call_Table_Method" param="table[
-						$method = 'setColWidthMinPercent',
-						$col = 3,
-						$width = 16,
-						$weight = 3
-					]"/>
-				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station cols type=16w1 name=16w3 qty=12'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
 						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Back,
@@ -165,15 +175,140 @@
 							]"/>
 					</do_if>
 				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $text = ' '
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'left', $fontsize = 13,
+						$text = {357424,53}
+					]"/>
+				<set_value name="$opts" exact="[]"/>
+				<do_all exact="@md.$cm90.$stui.$owners.count" counter="$i">
+					<set_value name="$own" exact="md.$cm90.$stui.$owners.{$i}"/>
+					<append_to_list name="$opts" exact="table[$text = $own.$label, $value = $own.$id]"/>
+				</do_all>
+				<set_value name="$ownertext" exact="{357424,54}"/>
+				<do_if value="@md.$cm90.$stui.$ownerlabel">
+					<set_value name="$ownertext" exact="md.$cm90.$stui.$ownerlabel"/>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+						$col = 2, $colSpan = 3,
+						$options = $opts,
+						$textOverride = $ownertext,
+						$onDropDownConfirmed = md.cm90_station_ui_model.On_Owner
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $text = ' '
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $halign = 'center', $wordwrap = true,
+						$font = 'Helper.standardFontBold', $fontsize = 13,
+						$text = {357424,42}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'center', $wordwrap = true,
+						$font = 'Helper.standardFontBold', $fontsize = 13,
+						$text = {357424,43}
+					]"/>
+				<set_value name="$xkm" exact="0"/>
+				<set_value name="$ykm" exact="0"/>
+				<set_value name="$zkm" exact="0"/>
+				<do_if value="md.$cm90.$stui.$xkm?">
+					<set_value name="$xkm" exact="md.$cm90.$stui.$xkm"/>
+				</do_if>
+				<do_if value="md.$cm90.$stui.$ykm?">
+					<set_value name="$ykm" exact="md.$cm90.$stui.$ykm"/>
+				</do_if>
+				<do_if value="md.$cm90.$stui.$zkm?">
+					<set_value name="$zkm" exact="md.$cm90.$stui.$zkm"/>
+				</do_if>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Build,
-						$text = table[$text = {357424,19}, $halign = 'left']
+						$col = 2, $onClick = md.cm90_station_ui_model.On_Add_Ahead,
+						$text = table[$text = {357424,52}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+						$text = {357424,47}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Slider" param="table[
+						$col = 3, $colSpan = 2,
+						$onSliderCellConfirm = md.cm90_station_ui_model.On_X_Slider,
+						$min = -500, $minSelect = -500,
+						$max = 500, $maxSelect = 500,
+						$fromCenter = true,
+						$exceedMaxValue = false,
+						$start = $xkm, $step = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+						$text = {357424,50}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Slider" param="table[
+						$col = 3, $colSpan = 2,
+						$onSliderCellConfirm = md.cm90_station_ui_model.On_Y_Slider,
+						$min = -500, $minSelect = -500,
+						$max = 500, $maxSelect = 500,
+						$fromCenter = true,
+						$exceedMaxValue = false,
+						$start = $ykm, $step = 1
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 3, $colSpan = 2, $halign = 'left', $wordwrap = true,
+						$text = {357424,51}
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Slider" param="table[
+						$col = 3, $colSpan = 2,
+						$onSliderCellConfirm = md.cm90_station_ui_model.On_Z_Slider,
+						$min = -500, $minSelect = -500,
+						$max = 500, $maxSelect = 500,
+						$fromCenter = true,
+						$exceedMaxValue = false,
+						$start = $zkm, $step = 1
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
-						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Test_Normalizer,
-						$text = table[$text = {357424,41}, $halign = 'left']
+						$col = 3, $colSpan = 2, $onClick = md.cm90_station_ui_model.On_Add_Coords,
+						$text = table[$text = {357424,52}, $halign = 'center']
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $text = ' '
+					]"/>
+				<do_if value="@md.$cm90_session.$station.count gt 0">
+					<do_for_each name="$row" in="md.$cm90_session.$station">
+						<set_value name="$who" exact="@$row.$ownerlabel"/>
+						<do_if value="not $who">
+							<set_value name="$who" exact="@$row.$ownerid"/>
+						</do_if>
+						<do_if value="not $who">
+							<set_value name="$who" exact="'player'"/>
+						</do_if>
+						<set_value name="$line" exact="$row.$label + '  ' + $row.$count + '  ' + $who + '  ahead'"/>
+						<do_if value="$row.$place == 'abs'">
+							<set_value name="$line" exact="$row.$label + '  ' + $row.$count + '  ' + $who + '  X ' + $row.$xkm + ' Y ' + $row.$ykm + ' Z ' + $row.$zkm"/>
+						</do_if>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+								$col = 2, $colSpan = 3, $halign = 'left', $wordwrap = true,
+								$text = $line
+							]"/>
+					</do_for_each>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+						$col = 2, $colSpan = 3, $onClick = md.cm90_station_ui_model.On_Spawn_List,
+						$text = table[$text = {357424,49}, $halign = 'center']
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>

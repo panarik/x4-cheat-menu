@@ -2,13 +2,11 @@
 
 ## About this mod
 
-A cheat menu for X4 Foundations — a constructor for game situations. Version **1.34**, author **qadetmir**.
+A cheat menu for X4 Foundations — a constructor for game situations. Version **1.36**, author **qadetmir**.
 
 The menu reads what your install actually has loaded — the same ware library as the in-game creative constructor. Vanilla, the DLC you own, and every enabled mod. No hardcoded lists: ships, combat fleets, and stations that normally take hours of waiting appear in a few clicks.
 
 Three tools in one window: **Build Ship**, **Build Wing**, and **Spawn Stations**. Open it with ESC → Extension Options → Cheat Menu 9.0. You need a loaded save: the option is not on the title screen.
-
-New in 1.34: station spawning, and fixes to ship spawning — a preset now fits every hull in a batch, and the saved-preset path no longer mixes with the automatic one.
 
 ## Requirements and installation
 
@@ -31,22 +29,23 @@ Any ship that exists in your install: vanilla, your DLC, and every ship from ena
 
 The crew is a full five-star set. Crew race is argon / paranid / teladi. The automatic kit is built from compatible modules that are loaded; equipment a ship pack excluded from its generated loadouts is left off the automatic path — a saved preset still installs it.
 
-### Build Wing — place a combat fleet
+### Build Wing — place several combat fleets
 
-Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack. The lead ship and the escorts appear ahead of your nose, stacked upward. The faction AI takes the fleet: it is not added to your property, and the click does not start a war or an invasion.
+Combat fleets from the jobs in your install, grouped by race and faction. Terran fleets are split into Defence and Attack. The faction AI takes each fleet: it is not added to your property, and the click does not start a war or an invasion.
 
-1. Point your ship where you want the fleet: it forms on your heading when you click.
-2. Click **Build Wing**, pick a race, then a faction (Terran opens Defence or Attack), then a fleet.
+1. Click **Build Wing**, pick a race, then a faction. Terran opens Defence or Attack. Then pick a fleet. Picking a fleet only selects it.
+2. **Step №2: Choose destination type.** The two sides are headings. **Spawn ahead of player** queues that fleet in front of your ship. **Spawn with coordinates** sets X, Y, and Z in kilometres, from −500 to 500, zero in the middle. Click the number to type a value. **Add to list** on either side adds one row: the fleet and where it will appear. Add as many rows as you want, including the same fleet more than once.
+3. **SPAWN** places every queued fleet, then clears the list. A row queued ahead of you appears in front of your ship. A row queued with coordinates appears at the X Y Z you stored.
 
 ### Spawn Stations — build your own station
 
-Build a station from the module list of any race, connectors included. The finished station is yours.
+Build a station from the module list of any race, connectors included. The station belongs to the owner you pick. Until you pick one, it is yours.
 
 1. Click **Spawn Stations** and pick a race. One build is one race: the modules and the connectors all come from that race. A module with no maker race is listed only for races whose factions own its blueprint.
 2. Set a quantity for each module type you want: 0, 1, 2, 3, 4, 5, 10, or 20. Zero means "do not build". You do not pick connectors: for every three modules above zero, the build adds one vertical connector, one cross, and one base connector of that race.
-3. Press **Build**. The mod sets a 20 km build plot 20 km ahead of your ship — the near face stays 10 km from you — places an empty station there, and builds your list. Where the modules sit inside the plot is the game's own layout, stacked upward; there is no direction control yet.
-4. Watch the status line under **Build**: it asks you to wait while the modules are placed, then says the station is ready to look at — or that the build was refused because the modules did not fit the plot. A short list finishes; a long list can be refused, and the connectors count toward that fit.
-5. **Test station normalizer** asks the game to plan habitation, docks, piers, and defence on top of the modules you picked, then builds that plan. The added modules come from the player faction, so your list stays exactly as you picked it. You can keep the window open and build another station.
+3. **Step 3: Choose owner.** Pick who receives the station. Custom factions from your mods stay in the list. Any faction named Visitor is left out. The vanilla service factions Civilian, Ownerless, Smuggler and Outlaw are left out too. Criminal stays as one entry. **Add to list** stores one row: the race, how many modules you set, that owner, and either "ahead" or the coordinates. **Spawn ahead of player** adds a station in front of your ship. **Spawn with coordinates** sets X, Y, and Z in kilometres, from −500 to 500, zero in the middle. Click the number to type a value. Add as many rows as you want.
+4. **SPAWN** builds every queued station, each at its own place, then clears the list. Leave room between stations so their plots do not overlap. Where the modules sit inside the plot is the game's own layout, stacked upward. Each module is fitted at the highest loadout the station constructor offers.
+5. Watch the status line: it says the station is ready to look at, or that the build was refused because the modules did not fit the plot. A short list finishes; a long list can be refused, and the connectors count toward that fit.
 
 **Planned:** choosing the station's shape and station turret loadouts, gate control, deleting existing ships and stations.
 

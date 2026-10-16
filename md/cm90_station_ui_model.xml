@@ -2,6 +2,7 @@
 <!--
   Spawn Stations UI model.
   The hub signals Draw. This file writes md.$cm90.$stui and refreshes once.
+  The station queue is md.$cm90_session.$station. Closing the window does not clear it.
   It does not create widgets. Build hands the picked lists to the logic file.
 -->
 <mdscript name="cm90_station_ui_model" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
@@ -37,12 +38,45 @@
 			</actions>
 		</cue>
 
+		<cue name="On_Menu_Closed" instantiate="true" namespace="this">
+			<conditions>
+				<event_ui_triggered screen="'CM90Menu'" control="'closed'"/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$status_reset" exact="1"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status reset armed reason=' + event.param3"/>
+			</actions>
+		</cue>
+
 		<cue name="Draw" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
 				<signal_cue_instantly cue="Ensure_Ui"/>
+				<do_if value="@md.$cm90.$stui.$status_reset">
+					<set_value name="md.$cm90.$stui.$status" exact="''"/>
+					<set_value name="md.$cm90.$stui.$status_paint" exact="0"/>
+					<set_value name="md.$cm90.$stui.$status_reset" exact="0"/>
+					<remove_value name="md.$cm90.$stui.$status_t"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status reset on open'"/>
+				</do_if>
+				<do_elseif value="@md.$cm90.$stui.$status">
+					<set_value name="$stale" exact="0"/>
+					<do_if value="not md.$cm90.$stui.$status_t?">
+						<set_value name="$stale" exact="1"/>
+					</do_if>
+					<do_elseif value="player.age gt (md.$cm90.$stui.$status_t + 1)">
+						<set_value name="$stale" exact="1"/>
+					</do_elseif>
+					<do_if value="$stale">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status reset stale t=' + player.age + ' was=' + @md.$cm90.$stui.$status_t"/>
+						<set_value name="md.$cm90.$stui.$status" exact="''"/>
+						<set_value name="md.$cm90.$stui.$status_paint" exact="0"/>
+						<remove_value name="md.$cm90.$stui.$status_t"/>
+					</do_if>
+				</do_elseif>
 				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station state view=' + md.$cm90.$stui.$view + ' race=' + md.$cm90.$stui.$race + ' type=' + md.$cm90.$stui.$type + ' off=' + md.$cm90.$stui.$off + ' picks=' + @md.$cm90.$stui.$pk_id.count + ' ready=' + @md.$cm90.$stready"/>
 				<signal_cue_instantly cue="md.cm90_station_logic.Ensure_Catalog"/>
 				<do_if value="not @md.$cm90.$stready">
@@ -55,6 +89,7 @@
 				</do_if>
 				<do_elseif value="md.$cm90.$stui.$view == 'build'">
 					<signal_cue_instantly cue="Compose_Build"/>
+					<signal_cue_instantly cue="Compose_Owners"/>
 					<set_value name="md.$cm90.$stui.$paint" exact="'build'"/>
 				</do_elseif>
 				<do_else>
@@ -373,6 +408,93 @@
 			</actions>
 		</cue>
 
+		<cue name="Compose_Owners" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$stui.$owners" exact="[]"/>
+				<set_value name="$seen" exact="[]"/>
+				<set_value name="$kept_criminal" exact="0"/>
+				<set_value name="$skip_visitor" exact="0"/>
+				<set_value name="$skip_service" exact="0"/>
+				<set_value name="$skip_criminal" exact="0"/>
+				<set_value name="$skip_idle" exact="0"/>
+				<set_value name="$skip_dup" exact="0"/>
+				<set_value name="$service" exact="['civilian', 'ownerless', 'smuggler', 'outlaw', 'holyorderfanatic']"/>
+				<set_value name="$vname" exact="@faction.visitor.knownname"/>
+				<do_for_each name="$f" in="lookup.faction.list">
+					<set_value name="$label" exact="@$f.knownname"/>
+					<do_if value="not $label">
+						<set_value name="$label" exact="@$f.name"/>
+					</do_if>
+					<do_if value="not $label">
+						<set_value name="$label" exact="$f.id"/>
+					</do_if>
+					<set_value name="$is_visitor" exact="0"/>
+					<do_if value="$f.id == 'visitor' or $f.hastag.visitor or $label == 'Visitor' or $label == 'visitor'">
+						<set_value name="$is_visitor" exact="1"/>
+					</do_if>
+					<do_elseif value="$vname and $label == $vname">
+						<set_value name="$is_visitor" exact="1"/>
+					</do_elseif>
+					<set_value name="$is_criminal" exact="0"/>
+					<do_if value="$f.id == 'criminal'">
+						<set_value name="$is_criminal" exact="1"/>
+					</do_if>
+					<do_if value="$is_visitor">
+						<set_value name="$skip_visitor" exact="$skip_visitor + 1"/>
+					</do_if>
+					<do_elseif value="$service.indexof.{$f.id}">
+						<set_value name="$skip_service" exact="$skip_service + 1"/>
+					</do_elseif>
+					<do_elseif value="not $f.isactive and not $is_criminal">
+						<set_value name="$skip_idle" exact="$skip_idle + 1"/>
+					</do_elseif>
+					<do_elseif value="$is_criminal and $kept_criminal">
+						<set_value name="$skip_criminal" exact="$skip_criminal + 1"/>
+					</do_elseif>
+					<do_elseif value="$seen.indexof.{$f.id}">
+						<set_value name="$skip_dup" exact="$skip_dup + 1"/>
+					</do_elseif>
+					<do_else>
+						<do_if value="$is_criminal">
+							<set_value name="$kept_criminal" exact="1"/>
+						</do_if>
+						<append_to_list name="$seen" exact="$f.id"/>
+						<append_to_list name="md.$cm90.$stui.$owners" exact="table[$id = $f.id, $label = $label]"/>
+					</do_else>
+				</do_for_each>
+				<do_if value="md.$cm90.$stui.$owners.count">
+					<sort_list list="md.$cm90.$stui.$owners" sortbyvalue="loop.element.$label"/>
+				</do_if>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station owners n=' + md.$cm90.$stui.$owners.count + ' skip_visitor=' + $skip_visitor + ' skip_service=' + $skip_service + ' skip_criminal=' + $skip_criminal + ' skip_idle=' + $skip_idle + ' skip_dup=' + $skip_dup"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Owner" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$id" exact="@event.param.$option.$value"/>
+				<set_value name="$label" exact="@event.param.$option.$text"/>
+				<do_if value="not $id">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station owner skip empty'"/>
+				</do_if>
+				<do_else>
+					<do_if value="not $label">
+						<set_value name="$label" exact="$id"/>
+					</do_if>
+					<set_value name="md.$cm90.$stui.$ownerid" exact="$id"/>
+					<set_value name="md.$cm90.$stui.$ownerlabel" exact="$label"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station owner id=' + $id + ' label=' + $label"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
 		<cue name="On_Qty" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
@@ -431,6 +553,7 @@
 				<do_elseif value="$code == 'fail'">
 					<set_value name="md.$cm90.$stui.$status" exact="{357424,26}"/>
 				</do_elseif>
+				<set_value name="md.$cm90.$stui.$status_t" exact="player.age"/>
 				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station status code=' + $code + ' prev=' + $prev + ' text=' + @md.$cm90.$stui.$status + ' draw=' + @event.param.$draw + ' later=' + @event.param.$later + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				<do_if value="@event.param.$draw and @md.$cm90.$pane == 'station'">
 					<do_if value="@event.param.$later">
@@ -446,6 +569,8 @@
 				<do_else>
 					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID UI station status no repaint draw=' + @event.param.$draw + ' pane=' + @md.$cm90.$pane + ' t=' + player.age"/>
 				</do_else>
+				<set_value name="md.$cm90.$stbusy" exact="0"/>
+				<signal_cue_instantly cue="md.cm90_station_logic.Build_Next"/>
 			</actions>
 		</cue>
 
@@ -465,64 +590,171 @@
 			</actions>
 		</cue>
 
-		<cue name="On_Build" instantiate="true" namespace="this">
+		<cue name="On_X_Slider" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$xkm" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station slider x=' + md.$cm90.$stui.$xkm"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Y_Slider" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$ykm" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station slider y=' + md.$cm90.$stui.$ykm"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Z_Slider" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="md.$cm90.$stui.$zkm" exact="event.param.$value"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station slider z=' + md.$cm90.$stui.$zkm"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Add_Ahead" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Append_Row" param="table[$place = 'ahead']"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Add_Coords" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Append_Row" param="table[$place = 'abs']"/>
+			</actions>
+		</cue>
+
+		<cue name="Append_Row" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
 				<signal_cue_instantly cue="Ensure_Ui"/>
 				<set_value name="$any" exact="0"/>
+				<set_value name="$count" exact="0"/>
+				<set_value name="$ids" exact="[]"/>
+				<set_value name="$ns" exact="[]"/>
+				<set_value name="$objs" exact="[]"/>
 				<do_all exact="@md.$cm90.$stui.$pk_id.count" counter="$i">
+					<append_to_list name="$ids" exact="md.$cm90.$stui.$pk_id.{$i}"/>
+					<append_to_list name="$ns" exact="md.$cm90.$stui.$pk_n.{$i}"/>
+					<append_to_list name="$objs" exact="md.$cm90.$stui.$pk_obj.{$i}"/>
 					<do_if value="md.$cm90.$stui.$pk_n.{$i} gt 0">
 						<set_value name="$any" exact="1"/>
+						<set_value name="$count" exact="$count + md.$cm90.$stui.$pk_n.{$i}"/>
 					</do_if>
 				</do_all>
-				<do_if value="not $any">
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build skip empty'"/>
-					<show_notification text="{357424,22}"/>
+				<do_if value="not md.$cm90.$stui.$race">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add abort: no race'"/>
 				</do_if>
+				<do_elseif value="not $any">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add abort: empty'"/>
+				</do_elseif>
 				<do_else>
-					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
-							$race = md.$cm90.$stui.$race,
-							$pk_id = md.$cm90.$stui.$pk_id,
-							$pk_n = md.$cm90.$stui.$pk_n,
-							$pk_obj = md.$cm90.$stui.$pk_obj,
-							$norm = 0
-						]"/>
-					<do_if value="@md.$cm90.$pane == 'station'">
-						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+					<set_value name="$label" exact="md.$cm90.$stui.$race"/>
+					<do_all exact="@md.$cm90.$straces.count" counter="$i">
+						<do_if value="md.$cm90.$straces.{$i}.$id == md.$cm90.$stui.$race">
+							<set_value name="$label" exact="md.$cm90.$straces.{$i}.$label"/>
+						</do_if>
+					</do_all>
+					<set_value name="$place" exact="'ahead'"/>
+					<set_value name="$xkm" exact="0"/>
+					<set_value name="$ykm" exact="0"/>
+					<set_value name="$zkm" exact="0"/>
+					<do_if value="@event.param.$place == 'abs'">
+						<set_value name="$place" exact="'abs'"/>
+						<do_if value="md.$cm90.$stui.$xkm?">
+							<set_value name="$xkm" exact="md.$cm90.$stui.$xkm"/>
+						</do_if>
+						<do_if value="md.$cm90.$stui.$ykm?">
+							<set_value name="$ykm" exact="md.$cm90.$stui.$ykm"/>
+						</do_if>
+						<do_if value="md.$cm90.$stui.$zkm?">
+							<set_value name="$zkm" exact="md.$cm90.$stui.$zkm"/>
+						</do_if>
 					</do_if>
+					<do_if value="not md.$cm90_session?">
+						<set_value name="md.$cm90_session" exact="table[]"/>
+					</do_if>
+					<do_if value="not md.$cm90_session.$station?">
+						<set_value name="md.$cm90_session.$station" exact="[]"/>
+					</do_if>
+					<set_value name="$ownerid" exact="''"/>
+					<set_value name="$ownerlabel" exact="''"/>
+					<do_if value="md.$cm90.$stui.$ownerid?">
+						<set_value name="$ownerid" exact="md.$cm90.$stui.$ownerid"/>
+					</do_if>
+					<do_if value="md.$cm90.$stui.$ownerlabel?">
+						<set_value name="$ownerlabel" exact="md.$cm90.$stui.$ownerlabel"/>
+					</do_if>
+					<do_if value="not $ownerid">
+						<set_value name="$ownerid" exact="'player'"/>
+						<set_value name="$ownerlabel" exact="@faction.player.knownname"/>
+						<do_if value="not $ownerlabel">
+							<set_value name="$ownerlabel" exact="'player'"/>
+						</do_if>
+					</do_if>
+					<append_to_list name="md.$cm90_session.$station" exact="table[
+							$race = md.$cm90.$stui.$race,
+							$label = $label,
+							$count = $count,
+							$place = $place,
+							$xkm = $xkm,
+							$ykm = $ykm,
+							$zkm = $zkm,
+							$ownerid = $ownerid,
+							$ownerlabel = $ownerlabel,
+							$pk_id = $ids,
+							$pk_n = $ns,
+							$pk_obj = $objs
+						]"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add place=' + $place + ' race=' + $label + ' count=' + $count + ' owner=' + $ownerid + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' n=' + md.$cm90_session.$station.count"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_else>
 			</actions>
 		</cue>
 
-		<cue name="On_Test_Normalizer" instantiate="true" namespace="this">
+		<cue name="On_Spawn_List" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
 			</conditions>
 			<actions>
-				<signal_cue_instantly cue="Ensure_Ui"/>
-				<set_value name="$any" exact="0"/>
-				<do_all exact="@md.$cm90.$stui.$pk_id.count" counter="$i">
-					<do_if value="md.$cm90.$stui.$pk_n.{$i} gt 0">
-						<set_value name="$any" exact="1"/>
-					</do_if>
-				</do_all>
-				<do_if value="not $any">
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station normalizer skip empty'"/>
-					<show_notification text="{357424,22}"/>
+				<do_if value="not @md.$cm90_session.$station.count">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list spawn abort: empty'"/>
 				</do_if>
+				<do_elseif value="@md.$cm90.$stbusy">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list spawn abort: busy'"/>
+				</do_elseif>
 				<do_else>
-					<signal_cue_instantly cue="md.cm90_station_logic.Build" param="table[
-							$race = md.$cm90.$stui.$race,
-							$pk_id = md.$cm90.$stui.$pk_id,
-							$pk_n = md.$cm90.$stui.$pk_n,
-							$pk_obj = md.$cm90.$stui.$pk_obj,
-							$norm = 1
-						]"/>
-					<do_if value="@md.$cm90.$pane == 'station'">
-						<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
-					</do_if>
+					<set_value name="md.$cm90.$stqueue" exact="[]"/>
+					<do_all exact="md.$cm90_session.$station.count" counter="$i">
+						<append_to_list name="md.$cm90.$stqueue" exact="md.$cm90_session.$station.{$i}"/>
+					</do_all>
+					<remove_value name="md.$cm90_session.$station"/>
+					<set_value name="md.$cm90.$stqi" exact="1"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list spawn n=' + md.$cm90.$stqueue.count"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+					<signal_cue_instantly cue="md.cm90_station_logic.Build_Next"/>
 				</do_else>
 			</actions>
 		</cue>
