@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spawn scene UI model.
+  Three dropdowns: Landmarks, Plans, Props.
+  A confirmed row signals Spawn and refreshes once.
+  Landmarks rows carry the DLC name. This file does not create widgets.
+-->
+<mdscript name="cm90_scene_ui_model" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Ensure_Ui" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<do_if value="not md.$cm90.$sceneui?">
+					<set_value name="md.$cm90.$sceneui" exact="table[]"/>
+				</do_if>
+				<do_if value="not md.$cm90.$sceneui.$ready?">
+					<set_value name="md.$cm90.$sceneui.$landmarks" exact="[]"/>
+					<set_value name="md.$cm90.$sceneui.$plans" exact="[]"/>
+					<set_value name="md.$cm90.$sceneui.$props" exact="[]"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'arg_defence_cluster001_001 - Timelines', $call = 'plan', $id = 'scenario_fleet_battle_1_defence_platform']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'bor_khaakscrap_01 - Kingdom End', $call = 'plan', $id = 'bor_khaakscrap_processor']"/>
+					<do_if value="@macro.env_debris_station_l_06_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'brennanstriumph_wreck_01 - Cradle of Humanity', $call = 'object', $id = 'env_debris_station_l_06_macro', $mac = macro.env_debris_station_l_06_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'brennanstriumph_wreck_02 - Cradle of Humanity', $call = 'object', $id = 'env_debris_station_l_05_macro', $mac = macro.env_debris_station_l_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'brennanstriumph_wreck_03 - Cradle of Humanity', $call = 'object', $id = 'env_debris_station_l_04_macro', $mac = macro.env_debris_station_l_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'brennanstriumph_wreck_04 - Cradle of Humanity', $call = 'object', $id = 'env_debris_station_l_03_macro', $mac = macro.env_debris_station_l_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'brennanstriumph_wreck_05 - Cradle of Humanity', $call = 'object', $id = 'env_debris_station_l_01_macro', $mac = macro.env_debris_station_l_01_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'civilian_tradingstation_cluster_720_01 - Base game', $call = 'plan', $id = 'civilian_tradingstation_cluster_720']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'civilian_tradingstation_cluster_722_01 - Base game', $call = 'plan', $id = 'civilian_tradingstation_cluster_722']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'civilian_tradingstation_cluster_725_01 - Base game', $call = 'plan', $id = 'civilian_tradingstation_cluster_725']"/>
+					<do_if value="@macro.landmarks_gen_old_ringstation_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'derelict_station - Base game', $call = 'object', $id = 'landmarks_gen_old_ringstation_macro', $mac = macro.landmarks_gen_old_ringstation_macro]"/>
+					</do_if>
+					<do_if value="@macro.props_ter_gate_01_destroyed_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'destroyed_gate - Cradle of Humanity', $call = 'object', $id = 'props_ter_gate_01_destroyed_macro', $mac = macro.props_ter_gate_01_destroyed_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'erlking_blueprint_1 - Tides of Avarice', $call = 'object', $id = 'landmarks_erlking_vault_01_macro', $mac = macro.landmarks_erlking_vault_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'erlking_blueprint_2 - Tides of Avarice', $call = 'object', $id = 'landmarks_erlking_vault_02_macro', $mac = macro.landmarks_erlking_vault_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'erlking_blueprint_3 - Tides of Avarice', $call = 'object', $id = 'landmarks_erlking_vault_03_macro', $mac = macro.landmarks_erlking_vault_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'erlking_blueprint_4 - Tides of Avarice', $call = 'object', $id = 'landmarks_erlking_vault_04_macro', $mac = macro.landmarks_erlking_vault_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'erlking_blueprint_5 - Tides of Avarice', $call = 'object', $id = 'landmarks_erlking_vault_05_macro', $mac = macro.landmarks_erlking_vault_05_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'frf_khaakscrap_01 - Split Vendetta', $call = 'plan', $id = 'frf_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'hat_khaakscrap_01 - Base game', $call = 'plan', $id = 'hat_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_advanced_tech_complex - Timelines', $call = 'plan', $id = 'kao_advanced_tech_complex']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_compound_refinery - Timelines', $call = 'plan', $id = 'kao_compound_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_energy_array - Timelines', $call = 'plan', $id = 'kao_energy_array']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_hydro_processing_plant - Timelines', $call = 'plan', $id = 'kao_hydro_processing_plant']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_produce_facility - Timelines', $call = 'plan', $id = 'kao_produce_facility']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_shipyard_cluster_703 - Timelines', $call = 'plan', $id = 'kao_shipyard']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_tradestation_cluster_701 - Timelines', $call = 'plan', $id = 'kao_tradestation_lighthouse']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_tradestation_cluster_703 - Timelines', $call = 'plan', $id = 'kao_tradestation_hq']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kao_wharf_cluster_702 - Timelines', $call = 'plan', $id = 'kao_wharf']"/>
+					<do_if value="@macro.landmarks_kha_hive_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kha_station_01 - Base game', $call = 'object', $id = 'landmarks_kha_hive_03_macro', $mac = macro.landmarks_kha_hive_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_weaponplatform_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'kha_station_01_static_defense_01 - Base game', $call = 'object', $id = 'landmarks_kha_weaponplatform_01_macro', $mac = macro.landmarks_kha_weaponplatform_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_xl_battleship_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'khaak_wreck_cluster_704 - Timelines', $call = 'object', $id = 'landmarks_kha_xl_battleship_01_macro', $mac = macro.landmarks_kha_xl_battleship_01_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'landmark_abandoned_communications_facility_730_01 - Hyperion', $call = 'plan', $id = 'landmark_abandoned_communications_facility']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'loanshark_grand_refinery - Tides of Avarice', $call = 'plan', $id = 'loanshark_grand_refinery']"/>
+					<do_if value="@macro.landmarks_par_monument_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'monument_paranid - Base game', $call = 'object', $id = 'landmarks_par_monument_01_macro', $mac = macro.landmarks_par_monument_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_soh_condensatedispenser_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'monument_s3station - Tides of Avarice', $call = 'object', $id = 'landmarks_soh_condensatedispenser_01_macro', $mac = macro.landmarks_soh_condensatedispenser_01_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'par_mining_outpost_cluster001_001 - Timelines', $call = 'plan', $id = 'scenario_fleet_battle_2_outpost']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'par_refinery_cluster001_001 - Timelines', $call = 'plan', $id = 'scenario_fleet_battle_2_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pio_defence_cluster_113_sector001 - Cradle of Humanity', $call = 'plan', $id = 'pio_defence']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pio_khaakscrap_01 - Cradle of Humanity', $call = 'plan', $id = 'pio_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pio_processing - Cradle of Humanity', $call = 'plan', $id = 'pio_scrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pio_scienceHQ_cluster_113_sector001 - Cradle of Humanity', $call = 'plan', $id = 'piosciencehq3']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pio_tradestation_cluster_114_sector001 - Cradle of Humanity', $call = 'plan', $id = 'pio_trade']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pirate_gs_1_smuggling_station - Tides of Avarice', $call = 'plan', $id = 'pirate_gs_1_smuggling_station_plan']"/>
+					<do_if value="@macro.landmarks_gen_piratestation_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pirate_landmark_01 - Tides of Avarice', $call = 'object', $id = 'landmarks_gen_piratestation_01_macro', $mac = macro.landmarks_gen_piratestation_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_piratestation_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'pirate_landmark_02 - Tides of Avarice', $call = 'object', $id = 'landmarks_gen_piratestation_02_macro', $mac = macro.landmarks_gen_piratestation_02_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'sca_piratestation_cluster_705 - Timelines', $call = 'plan', $id = 'sca_piratestation_cluster_705']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_dragonfyre_orbital_defence_001 - Timelines', $call = 'plan', $id = 'scenario_dragonfyre_defence']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_dragonfyre_orbital_support - Timelines', $call = 'plan', $id = 'scenario_dragonfyre_support']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_khaak_battle_microchips - Timelines', $call = 'plan', $id = 'scenario_khaak_bossbattle_microchip_factory']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_khaak_battle_quantumtubes - Timelines', $call = 'plan', $id = 'scenario_khaak_bossbattle_quantumtube_factory']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_1to4_energy_001 - Timelines', $call = 'plan', $id = 'scenario_mining_solar_power_plant']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_1to4_flowerfarm_001 - Timelines', $call = 'plan', $id = 'scenario_mining_flower_farm']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_1to4_ore_refinery_001 - Timelines', $call = 'plan', $id = 'scenario_mining_ore_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_1to4_silicon_refinery_001 - Timelines', $call = 'plan', $id = 'scenario_mining_silicon_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_1to4_wheat_001 - Timelines', $call = 'plan', $id = 'scenario_mining_wheat_farm']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_3_funanori_station - Timelines', $call = 'plan', $id = 'scenario_mining_funanori_partial']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_4_funanori_station - Timelines', $call = 'plan', $id = 'scenario_mining_funanori_early']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_mining_7_funanori_station - Timelines', $call = 'plan', $id = 'scenario_mining_funanori_complete']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_seek_and_destroy_factory - Timelines', $call = 'plan', $id = 'scenario_seek_and_destroy_hol_weaponcomponents']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'scenario_waveattack_antigone_station - Timelines', $call = 'plan', $id = 'arg_tradestation_antigone']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'shipyard_split_01 - Split Vendetta', $call = 'plan', $id = 'scenario1_split_shipyard']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'shipyard_split_warforge_01 - Split Vendetta', $call = 'plan', $id = 'spl_shipyard_warforge']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'story_prison_station_id - Tides of Avarice', $call = 'plan', $id = 'x4ep1_gamestart_prison_station_plan']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'Story_ScrapyardStation - Tides of Avarice', $call = 'plan', $id = 'Story_ScrapyardStation']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'tel_khaakscrap_01 - Base game', $call = 'plan', $id = 'tel_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'tel_landmark_cluster_714_sector_001_01 - Base game', $call = 'plan', $id = 'iljas_obersevation_outpost']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'tel_processing - Base game', $call = 'plan', $id = 'tel_scrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'ter_defence_cluster_104_sector001 - Cradle of Humanity', $call = 'plan', $id = 'ter_defence']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'ter_defenceplatform_cluster_100_sector001 - Cradle of Humanity', $call = 'plan', $id = 'ter_defenceplatform']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'ter_logisticsdock_cluster_104_sector001 - Cradle of Humanity', $call = 'plan', $id = 'ter_logisticsdock']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'ter_supplybase_cluster_101_sector001 - Cradle of Humanity', $call = 'plan', $id = 'ter_supplybase']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'ter_supportstation_cluster_104_sector002 - Cradle of Humanity', $call = 'plan', $id = 'ter_supportstation']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'test_recycling_station - Base game', $call = 'plan', $id = 'test_recycling_station']"/>
+					<do_if value="@macro.torus_maze_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'torus_maze - Cradle of Humanity', $call = 'object', $id = 'torus_maze_macro', $mac = macro.torus_maze_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'x4ep1_gamestart_scientist_hq - Base game', $call = 'plan', $id = 'x4ep1_playerheadquarters_with_dock']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'x4ep1_gamestart_scientist_hq_coh - Cradle of Humanity', $call = 'plan', $id = 'x4ep1_playerheadquarters_pioneer_configuration']"/>
+					<do_if value="@macro.landmarks_xen_aqueduct_06_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_79B_aqueduct_02 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_06_macro', $mac = macro.landmarks_xen_aqueduct_06_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_79B_aqueduct_03 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_05_macro', $mac = macro.landmarks_xen_aqueduct_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_79B_aqueduct_04 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_02_macro', $mac = macro.landmarks_xen_aqueduct_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_79B_aqueduct_06 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_04_macro', $mac = macro.landmarks_xen_aqueduct_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_07_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_79B_aqueduct_09 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_07_macro', $mac = macro.landmarks_xen_aqueduct_07_macro]"/>
+					</do_if>
+					<do_if value="@macro.xenon_small_station_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_79B_smallstation_01 - Base game', $call = 'object', $id = 'xenon_small_station_01_macro', $mac = macro.xenon_small_station_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_ap_aqueduct_01 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_01_macro', $mac = macro.landmarks_xen_aqueduct_01_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_data_sequencing_mainframe_cluster_723_01 - Base game', $call = 'plan', $id = 'xen_data_sequencing_mainframe']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_defence_scenario_m0_boss_battle_cluster_001_001 - Timelines', $call = 'plan', $id = 'xen_defense_xbeyond']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_defence_scenario_weaken_station_001 - Timelines', $call = 'plan', $id = 'scenario_weaken_station_defence_platform']"/>
+					<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_power_array_cluster_721_01 - Base game', $call = 'plan', $id = 'xen_power_array']"/>
+					<do_if value="@macro.landmarks_xen_aqueduct_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_tc_aqueduct_02 - Base game', $call = 'object', $id = 'landmarks_xen_aqueduct_03_macro', $mac = macro.landmarks_xen_aqueduct_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.xenon_asteroid_01_base_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_tc_asteroidbase_01 - Base game', $call = 'object', $id = 'xenon_asteroid_01_base_01_macro', $mac = macro.xenon_asteroid_01_base_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.xenon_asteroid_02_base_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_tc_asteroidbase_04 - Base game', $call = 'object', $id = 'xenon_asteroid_02_base_02_macro', $mac = macro.xenon_asteroid_02_base_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.asteroid_turret_m_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$landmarks" exact="table[$text = 'xen_tc_asteroidturret_01 - Base game', $call = 'object', $id = 'asteroid_turret_m_01_macro', $mac = macro.asteroid_turret_m_01_macro]"/>
+					</do_if>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'Story_ScrapyardStation', $call = 'plan', $id = 'Story_ScrapyardStation']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'arg_tradestation_antigone', $call = 'plan', $id = 'arg_tradestation_antigone']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'bor_khaakscrap_processor', $call = 'plan', $id = 'bor_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'civilian_tradingstation_cluster_720', $call = 'plan', $id = 'civilian_tradingstation_cluster_720']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'civilian_tradingstation_cluster_722', $call = 'plan', $id = 'civilian_tradingstation_cluster_722']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'civilian_tradingstation_cluster_725', $call = 'plan', $id = 'civilian_tradingstation_cluster_725']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'frf_khaakscrap_processor', $call = 'plan', $id = 'frf_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'hat_khaakscrap_processor', $call = 'plan', $id = 'hat_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'iljas_obersevation_outpost', $call = 'plan', $id = 'iljas_obersevation_outpost']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_advanced_tech_complex', $call = 'plan', $id = 'kao_advanced_tech_complex']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_compound_refinery', $call = 'plan', $id = 'kao_compound_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_energy_array', $call = 'plan', $id = 'kao_energy_array']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_hydro_processing_plant', $call = 'plan', $id = 'kao_hydro_processing_plant']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_produce_facility', $call = 'plan', $id = 'kao_produce_facility']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_shipyard', $call = 'plan', $id = 'kao_shipyard']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_tradestation_hq', $call = 'plan', $id = 'kao_tradestation_hq']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_tradestation_lighthouse', $call = 'plan', $id = 'kao_tradestation_lighthouse']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'kao_wharf', $call = 'plan', $id = 'kao_wharf']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'landmark_abandoned_communications_facility', $call = 'plan', $id = 'landmark_abandoned_communications_facility']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'loanshark_grand_refinery', $call = 'plan', $id = 'loanshark_grand_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'pio_defence', $call = 'plan', $id = 'pio_defence']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'pio_khaakscrap_processor', $call = 'plan', $id = 'pio_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'pio_scrap_processor', $call = 'plan', $id = 'pio_scrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'pio_trade', $call = 'plan', $id = 'pio_trade']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'piosciencehq3', $call = 'plan', $id = 'piosciencehq3']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'pirate_gs_1_smuggling_station_plan', $call = 'plan', $id = 'pirate_gs_1_smuggling_station_plan']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'sca_piratestation_cluster_705', $call = 'plan', $id = 'sca_piratestation_cluster_705']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario1_split_shipyard', $call = 'plan', $id = 'scenario1_split_shipyard']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_dragonfyre_defence', $call = 'plan', $id = 'scenario_dragonfyre_defence']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_dragonfyre_support', $call = 'plan', $id = 'scenario_dragonfyre_support']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_fleet_battle_1_defence_platform', $call = 'plan', $id = 'scenario_fleet_battle_1_defence_platform']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_fleet_battle_2_outpost', $call = 'plan', $id = 'scenario_fleet_battle_2_outpost']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_fleet_battle_2_refinery', $call = 'plan', $id = 'scenario_fleet_battle_2_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_khaak_bossbattle_microchip_factory', $call = 'plan', $id = 'scenario_khaak_bossbattle_microchip_factory']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_khaak_bossbattle_quantumtube_factory', $call = 'plan', $id = 'scenario_khaak_bossbattle_quantumtube_factory']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_flower_farm', $call = 'plan', $id = 'scenario_mining_flower_farm']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_funanori_complete', $call = 'plan', $id = 'scenario_mining_funanori_complete']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_funanori_early', $call = 'plan', $id = 'scenario_mining_funanori_early']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_funanori_partial', $call = 'plan', $id = 'scenario_mining_funanori_partial']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_ore_refinery', $call = 'plan', $id = 'scenario_mining_ore_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_silicon_refinery', $call = 'plan', $id = 'scenario_mining_silicon_refinery']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_solar_power_plant', $call = 'plan', $id = 'scenario_mining_solar_power_plant']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_mining_wheat_farm', $call = 'plan', $id = 'scenario_mining_wheat_farm']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_seek_and_destroy_hol_weaponcomponents', $call = 'plan', $id = 'scenario_seek_and_destroy_hol_weaponcomponents']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'scenario_weaken_station_defence_platform', $call = 'plan', $id = 'scenario_weaken_station_defence_platform']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'spl_shipyard_warforge', $call = 'plan', $id = 'spl_shipyard_warforge']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'tel_khaakscrap_processor', $call = 'plan', $id = 'tel_khaakscrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'tel_scrap_processor', $call = 'plan', $id = 'tel_scrap_processor']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'ter_defence', $call = 'plan', $id = 'ter_defence']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'ter_defenceplatform', $call = 'plan', $id = 'ter_defenceplatform']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'ter_logisticsdock', $call = 'plan', $id = 'ter_logisticsdock']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'ter_supplybase', $call = 'plan', $id = 'ter_supplybase']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'ter_supportstation', $call = 'plan', $id = 'ter_supportstation']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'test_recycling_station', $call = 'plan', $id = 'test_recycling_station']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'x4ep1_gamestart_prison_station_plan', $call = 'plan', $id = 'x4ep1_gamestart_prison_station_plan']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'x4ep1_playerheadquarters_pioneer_configuration', $call = 'plan', $id = 'x4ep1_playerheadquarters_pioneer_configuration']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'x4ep1_playerheadquarters_with_dock', $call = 'plan', $id = 'x4ep1_playerheadquarters_with_dock']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'xen_data_sequencing_mainframe', $call = 'plan', $id = 'xen_data_sequencing_mainframe']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'xen_defense_xbeyond', $call = 'plan', $id = 'xen_defense_xbeyond']"/>
+					<append_to_list name="md.$cm90.$sceneui.$plans" exact="table[$text = 'xen_power_array', $call = 'plan', $id = 'xen_power_array']"/>
+					<do_if value="@macro.asteroid_turret_m_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'asteroid_turret_m_01_macro', $call = 'object', $id = 'asteroid_turret_m_01_macro', $mac = macro.asteroid_turret_m_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'env_debris_station_l_01_macro', $call = 'object', $id = 'env_debris_station_l_01_macro', $mac = macro.env_debris_station_l_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'env_debris_station_l_03_macro', $call = 'object', $id = 'env_debris_station_l_03_macro', $mac = macro.env_debris_station_l_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'env_debris_station_l_04_macro', $call = 'object', $id = 'env_debris_station_l_04_macro', $mac = macro.env_debris_station_l_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'env_debris_station_l_05_macro', $call = 'object', $id = 'env_debris_station_l_05_macro', $mac = macro.env_debris_station_l_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.env_debris_station_l_06_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'env_debris_station_l_06_macro', $call = 'object', $id = 'env_debris_station_l_06_macro', $mac = macro.env_debris_station_l_06_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_arg_antigonearc_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_arg_antigonearc_01_macro', $call = 'object', $id = 'landmarks_arg_antigonearc_01_macro', $mac = macro.landmarks_arg_antigonearc_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_arg_antigonepillar_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_arg_antigonepillar_01_macro', $call = 'object', $id = 'landmarks_arg_antigonepillar_01_macro', $mac = macro.landmarks_arg_antigonepillar_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_arg_antigonescaffolding_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_arg_antigonescaffolding_01_macro', $call = 'object', $id = 'landmarks_arg_antigonescaffolding_01_macro', $mac = macro.landmarks_arg_antigonescaffolding_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_arg_antigonespire_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_arg_antigonespire_01_macro', $call = 'object', $id = 'landmarks_arg_antigonespire_01_macro', $mac = macro.landmarks_arg_antigonespire_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_arg_antigonestraight_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_arg_antigonestraight_01_macro', $call = 'object', $id = 'landmarks_arg_antigonestraight_01_macro', $mac = macro.landmarks_arg_antigonestraight_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_bor_xl_carrier_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_bor_xl_carrier_01_macro', $call = 'object', $id = 'landmarks_bor_xl_carrier_01_macro', $mac = macro.landmarks_bor_xl_carrier_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_erlking_vault_01_macro', $call = 'object', $id = 'landmarks_erlking_vault_01_macro', $mac = macro.landmarks_erlking_vault_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_erlking_vault_02_macro', $call = 'object', $id = 'landmarks_erlking_vault_02_macro', $mac = macro.landmarks_erlking_vault_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_erlking_vault_03_macro', $call = 'object', $id = 'landmarks_erlking_vault_03_macro', $mac = macro.landmarks_erlking_vault_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_erlking_vault_04_macro', $call = 'object', $id = 'landmarks_erlking_vault_04_macro', $mac = macro.landmarks_erlking_vault_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_erlking_vault_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_erlking_vault_05_macro', $call = 'object', $id = 'landmarks_erlking_vault_05_macro', $mac = macro.landmarks_erlking_vault_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_asteroidmine_01_asteroid_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_asteroidmine_01_asteroid_01_macro', $call = 'object', $id = 'landmarks_gen_asteroidmine_01_asteroid_01_macro', $mac = macro.landmarks_gen_asteroidmine_01_asteroid_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_asteroidmine_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_asteroidmine_01_macro', $call = 'object', $id = 'landmarks_gen_asteroidmine_01_macro', $mac = macro.landmarks_gen_asteroidmine_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_gatestation_01_stage_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_gatestation_01_stage_01_macro', $call = 'object', $id = 'landmarks_gen_gatestation_01_stage_01_macro', $mac = macro.landmarks_gen_gatestation_01_stage_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_gatestation_01_stage_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_gatestation_01_stage_02_macro', $call = 'object', $id = 'landmarks_gen_gatestation_01_stage_02_macro', $mac = macro.landmarks_gen_gatestation_01_stage_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_gatestation_01_stage_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_gatestation_01_stage_03_macro', $call = 'object', $id = 'landmarks_gen_gatestation_01_stage_03_macro', $mac = macro.landmarks_gen_gatestation_01_stage_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_old_ringstation_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_old_ringstation_macro', $call = 'object', $id = 'landmarks_gen_old_ringstation_macro', $mac = macro.landmarks_gen_old_ringstation_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_old_ringstation_pos_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_old_ringstation_pos_macro', $call = 'object', $id = 'landmarks_gen_old_ringstation_pos_macro', $mac = macro.landmarks_gen_old_ringstation_pos_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_piratestation_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_piratestation_01_macro', $call = 'object', $id = 'landmarks_gen_piratestation_01_macro', $mac = macro.landmarks_gen_piratestation_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_piratestation_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_piratestation_02_macro', $call = 'object', $id = 'landmarks_gen_piratestation_02_macro', $mac = macro.landmarks_gen_piratestation_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_prison_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_prison_01_macro', $call = 'object', $id = 'landmarks_gen_prison_01_macro', $mac = macro.landmarks_gen_prison_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_biathloncourse_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_biathloncourse_01_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_biathloncourse_01_macro', $mac = macro.landmarks_gen_spacesuit_level_01_biathloncourse_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_countersabotage_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_countersabotage_01_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_countersabotage_01_macro', $mac = macro.landmarks_gen_spacesuit_level_01_countersabotage_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_macro', $mac = macro.landmarks_gen_spacesuit_level_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_obstaclecourse_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_obstaclecourse_01_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_obstaclecourse_01_macro', $mac = macro.landmarks_gen_spacesuit_level_01_obstaclecourse_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_repairduty_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_repairduty_01_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_repairduty_01_macro', $mac = macro.landmarks_gen_spacesuit_level_01_repairduty_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_room_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_room_01_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_room_01_macro', $mac = macro.landmarks_gen_spacesuit_level_01_room_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_room_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_room_02_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_room_02_macro', $mac = macro.landmarks_gen_spacesuit_level_01_room_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_room_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_room_03_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_room_03_macro', $mac = macro.landmarks_gen_spacesuit_level_01_room_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_room_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_room_04_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_room_04_macro', $mac = macro.landmarks_gen_spacesuit_level_01_room_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_gen_spacesuit_level_01_room_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_gen_spacesuit_level_01_room_05_macro', $call = 'object', $id = 'landmarks_gen_spacesuit_level_01_room_05_macro', $mac = macro.landmarks_gen_spacesuit_level_01_room_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_hive_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_hive_01_macro', $call = 'object', $id = 'landmarks_kha_hive_01_macro', $mac = macro.landmarks_kha_hive_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_hive_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_hive_02_macro', $call = 'object', $id = 'landmarks_kha_hive_02_macro', $mac = macro.landmarks_kha_hive_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_hive_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_hive_03_macro', $call = 'object', $id = 'landmarks_kha_hive_03_macro', $mac = macro.landmarks_kha_hive_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_hive_cluster_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_hive_cluster_01_macro', $call = 'object', $id = 'landmarks_kha_hive_cluster_01_macro', $mac = macro.landmarks_kha_hive_cluster_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_nest_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_nest_01_macro', $call = 'object', $id = 'landmarks_kha_nest_01_macro', $mac = macro.landmarks_kha_nest_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_nest_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_nest_02_macro', $call = 'object', $id = 'landmarks_kha_nest_02_macro', $mac = macro.landmarks_kha_nest_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_tetrahedron_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_tetrahedron_01_macro', $call = 'object', $id = 'landmarks_kha_tetrahedron_01_macro', $mac = macro.landmarks_kha_tetrahedron_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_tetrahedron_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_tetrahedron_02_macro', $call = 'object', $id = 'landmarks_kha_tetrahedron_02_macro', $mac = macro.landmarks_kha_tetrahedron_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_tetrahedron_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_tetrahedron_03_macro', $call = 'object', $id = 'landmarks_kha_tetrahedron_03_macro', $mac = macro.landmarks_kha_tetrahedron_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_tetrahedron_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_tetrahedron_04_macro', $call = 'object', $id = 'landmarks_kha_tetrahedron_04_macro', $mac = macro.landmarks_kha_tetrahedron_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_tetrahedron_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_tetrahedron_05_macro', $call = 'object', $id = 'landmarks_kha_tetrahedron_05_macro', $mac = macro.landmarks_kha_tetrahedron_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_weaponplatform_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_weaponplatform_01_macro', $call = 'object', $id = 'landmarks_kha_weaponplatform_01_macro', $mac = macro.landmarks_kha_weaponplatform_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_kha_xl_battleship_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_kha_xl_battleship_01_macro', $call = 'object', $id = 'landmarks_kha_xl_battleship_01_macro', $mac = macro.landmarks_kha_xl_battleship_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_par_monument_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_par_monument_01_macro', $call = 'object', $id = 'landmarks_par_monument_01_macro', $mac = macro.landmarks_par_monument_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_par_tradestation_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_par_tradestation_01_macro', $call = 'object', $id = 'landmarks_par_tradestation_01_macro', $mac = macro.landmarks_par_tradestation_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_par_tradestation_stor_container_l_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_par_tradestation_stor_container_l_01_macro', $call = 'object', $id = 'landmarks_par_tradestation_stor_container_l_01_macro', $mac = macro.landmarks_par_tradestation_stor_container_l_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_player_hq_01_research_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_player_hq_01_research_macro', $call = 'object', $id = 'landmarks_player_hq_01_research_macro', $mac = macro.landmarks_player_hq_01_research_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_research_vault_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_research_vault_01_macro', $call = 'object', $id = 'landmarks_research_vault_01_macro', $mac = macro.landmarks_research_vault_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_soh_condensatedispenser_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_soh_condensatedispenser_01_macro', $call = 'object', $id = 'landmarks_soh_condensatedispenser_01_macro', $mac = macro.landmarks_soh_condensatedispenser_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_tel_tradestation_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_tel_tradestation_01_macro', $call = 'object', $id = 'landmarks_tel_tradestation_01_macro', $mac = macro.landmarks_tel_tradestation_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_tfm_xl_carrier_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_tfm_xl_carrier_01_macro', $call = 'object', $id = 'landmarks_tfm_xl_carrier_01_macro', $mac = macro.landmarks_tfm_xl_carrier_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_vault_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_vault_01_macro', $call = 'object', $id = 'landmarks_vault_01_macro', $mac = macro.landmarks_vault_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_vault_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_vault_02_macro', $call = 'object', $id = 'landmarks_vault_02_macro', $mac = macro.landmarks_vault_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_vault_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_vault_03_macro', $call = 'object', $id = 'landmarks_vault_03_macro', $mac = macro.landmarks_vault_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_vault_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_vault_04_macro', $call = 'object', $id = 'landmarks_vault_04_macro', $mac = macro.landmarks_vault_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_01_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_01_macro', $mac = macro.landmarks_xen_aqueduct_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_02_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_02_macro', $mac = macro.landmarks_xen_aqueduct_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_03_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_03_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_03_macro', $mac = macro.landmarks_xen_aqueduct_03_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_04_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_04_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_04_macro', $mac = macro.landmarks_xen_aqueduct_04_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_05_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_05_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_05_macro', $mac = macro.landmarks_xen_aqueduct_05_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_06_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_06_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_06_macro', $mac = macro.landmarks_xen_aqueduct_06_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_aqueduct_07_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_aqueduct_07_macro', $call = 'object', $id = 'landmarks_xen_aqueduct_07_macro', $mac = macro.landmarks_xen_aqueduct_07_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xen_xl_mothership_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xen_xl_mothership_01_macro', $call = 'object', $id = 'landmarks_xen_xl_mothership_01_macro', $mac = macro.landmarks_xen_xl_mothership_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.landmarks_xenon_crash_site_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'landmarks_xenon_crash_site_01_macro', $call = 'object', $id = 'landmarks_xenon_crash_site_01_macro', $mac = macro.landmarks_xenon_crash_site_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.props_ter_gate_01_destroyed_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'props_ter_gate_01_destroyed_macro', $call = 'object', $id = 'props_ter_gate_01_destroyed_macro', $mac = macro.props_ter_gate_01_destroyed_macro]"/>
+					</do_if>
+					<do_if value="@macro.torus_maze_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'torus_maze_macro', $call = 'object', $id = 'torus_maze_macro', $mac = macro.torus_maze_macro]"/>
+					</do_if>
+					<do_if value="@macro.xenon_asteroid_01_base_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'xenon_asteroid_01_base_01_macro', $call = 'object', $id = 'xenon_asteroid_01_base_01_macro', $mac = macro.xenon_asteroid_01_base_01_macro]"/>
+					</do_if>
+					<do_if value="@macro.xenon_asteroid_02_base_02_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'xenon_asteroid_02_base_02_macro', $call = 'object', $id = 'xenon_asteroid_02_base_02_macro', $mac = macro.xenon_asteroid_02_base_02_macro]"/>
+					</do_if>
+					<do_if value="@macro.xenon_small_station_01_macro">
+						<append_to_list name="md.$cm90.$sceneui.$props" exact="table[$text = 'xenon_small_station_01_macro', $call = 'object', $id = 'xenon_small_station_01_macro', $mac = macro.xenon_small_station_01_macro]"/>
+					</do_if>
+					<set_value name="md.$cm90.$sceneui.$ready" exact="1"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI scene lists landmarks=' + md.$cm90.$sceneui.$landmarks.count + ' plans=' + md.$cm90.$sceneui.$plans.count + ' props=' + md.$cm90.$sceneui.$props.count"/>
+				</do_if>
+			</actions>
+		</cue>
+
+		<cue name="Draw" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI scene draw t=' + player.age"/>
+				<signal_cue_instantly cue="md.cm90_scene_ui.Paint"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Landmark" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$i" exact="event.param.$option.$value"/>
+				<set_value name="$row" exact="md.$cm90.$sceneui.$landmarks.{$i}"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI scene click call=' + $row.$call + ' id=' + $row.$id + ' t=' + player.age"/>
+				<do_if value="$row.$mac?">
+					<signal_cue_instantly cue="md.cm90_scene_logic.Spawn" param="table[$call = $row.$call, $id = $row.$id, $mac = $row.$mac]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.cm90_scene_logic.Spawn" param="table[$call = $row.$call, $id = $row.$id]"/>
+				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Plan" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$i" exact="event.param.$option.$value"/>
+				<set_value name="$row" exact="md.$cm90.$sceneui.$plans.{$i}"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI scene click call=' + $row.$call + ' id=' + $row.$id + ' t=' + player.age"/>
+				<do_if value="$row.$mac?">
+					<signal_cue_instantly cue="md.cm90_scene_logic.Spawn" param="table[$call = $row.$call, $id = $row.$id, $mac = $row.$mac]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.cm90_scene_logic.Spawn" param="table[$call = $row.$call, $id = $row.$id]"/>
+				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Prop" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$i" exact="event.param.$option.$value"/>
+				<set_value name="$row" exact="md.$cm90.$sceneui.$props.{$i}"/>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI scene click call=' + $row.$call + ' id=' + $row.$id + ' t=' + player.age"/>
+				<do_if value="$row.$mac?">
+					<signal_cue_instantly cue="md.cm90_scene_logic.Spawn" param="table[$call = $row.$call, $id = $row.$id, $mac = $row.$mac]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.cm90_scene_logic.Spawn" param="table[$call = $row.$call, $id = $row.$id]"/>
+				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+	</cues>
+</mdscript>

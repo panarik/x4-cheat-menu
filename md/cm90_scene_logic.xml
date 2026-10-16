@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spawn scene logic. One event: Spawn.
+  event.param.$call is plan or object. event.param.$id is the plan or macro name.
+  An object row also carries $mac, the macro itself.
+  A plan is placed 20 km ahead. A mesh is placed 3 km ahead.
+  Does not draw the window and does not write window state.
+-->
+<mdscript name="cm90_scene_logic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Spawn" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$call" exact="@event.param.$call"/>
+				<set_value name="$id" exact="@event.param.$id"/>
+				<set_value name="$mac" exact="@event.param.$mac"/>
+				<set_value name="$own" exact="faction.player"/>
+				<set_value name="$ownid" exact="'player'"/>
+				<set_value name="$ownhit" exact="0"/>
+				<do_for_each name="$f" in="lookup.faction.list">
+					<do_if value="$f.id == 'ownerless'">
+						<set_value name="$own" exact="$f"/>
+						<set_value name="$ownid" exact="$f.id"/>
+						<set_value name="$ownhit" exact="1"/>
+					</do_if>
+				</do_for_each>
+				<do_if value="not $ownhit">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene owner miss id=ownerless fallback=player'"/>
+				</do_if>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene spawn ask call=' + $call + ' id=' + $id + ' owner=' + $ownid + ' zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship"/>
+				<do_if value="not player.ship?">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene abort: no player.ship'"/>
+				</do_if>
+				<do_elseif value="not player.zone?">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene abort: no player.zone'"/>
+				</do_elseif>
+				<do_elseif value="not $call or not $id">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene abort: empty pick call=' + $call + ' id=' + $id"/>
+				</do_elseif>
+				<do_else>
+					<set_value name="$made" exact="0"/>
+					<do_if value="$call == 'plan'">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene create call=station plan=' + $id + ' state=operational owner=' + $ownid + ' safepos=ship z=20km'"/>
+						<create_station name="$obj" macro="macro.station_gen_factory_base_01_macro" constructionplan="$id" zone="player.zone" owner="$own" state="componentstate.operational">
+							<safepos object="player.ship" x="0km" z="20km" y="0km"/>
+						</create_station>
+						<set_value name="$made" exact="1"/>
+					</do_if>
+					<do_elseif value="$call == 'object'">
+						<do_if value="not $mac">
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene abort: no macro id=' + $id"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene create call=object id=' + $id + ' owner=' + $ownid + ' safepos=ship z=3km'"/>
+							<create_object name="$obj" macro="$mac" zone="player.zone" owner="$own" spinning="false">
+								<safepos object="player.ship" z="3km" y="0km"/>
+							</create_object>
+							<set_value name="$made" exact="1"/>
+						</do_else>
+					</do_elseif>
+					<do_else>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene abort: unknown call=' + $call"/>
+					</do_else>
+					<do_if value="$made">
+						<do_if value="not $obj.exists">
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene create fail exists=0 call=' + $call + ' id=' + $id"/>
+						</do_if>
+						<do_else>
+							<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Scene create result call=' + $call + ' id=' + $id + ' pos=' + @$obj.position + ' sector=' + @$obj.sector + ' owner=' + @$obj.owner.id + ' exists=1'"/>
+						</do_else>
+					</do_if>
+				</do_else>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

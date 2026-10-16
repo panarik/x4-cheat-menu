@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spawn scene paint. Three dropdowns. The closed face is the type name.
+  Confirm goes to the UI model. This file does not spawn and does not refresh.
+-->
+<mdscript name="cm90_scene_ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+	<cues>
+		<cue name="Paint" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="$marks" exact="[]"/>
+				<do_all exact="@md.$cm90.$sceneui.$landmarks.count" counter="$i">
+					<set_value name="$row" exact="md.$cm90.$sceneui.$landmarks.{$i}"/>
+					<append_to_list name="$marks" exact="table[$text = $row.$text, $value = $i]"/>
+				</do_all>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+						$col = 2, $colSpan = 3,
+						$options = $marks,
+						$textOverride = {357424,56},
+						$onDropDownConfirmed = md.cm90_scene_ui_model.On_Landmark
+					]"/>
+				<set_value name="$plans" exact="[]"/>
+				<do_all exact="@md.$cm90.$sceneui.$plans.count" counter="$i">
+					<set_value name="$row" exact="md.$cm90.$sceneui.$plans.{$i}"/>
+					<append_to_list name="$plans" exact="table[$text = $row.$text, $value = $i]"/>
+				</do_all>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+						$col = 2, $colSpan = 3,
+						$options = $plans,
+						$textOverride = {357424,57},
+						$onDropDownConfirmed = md.cm90_scene_ui_model.On_Plan
+					]"/>
+				<set_value name="$props" exact="[]"/>
+				<do_all exact="@md.$cm90.$sceneui.$props.count" counter="$i">
+					<set_value name="$row" exact="md.$cm90.$sceneui.$props.{$i}"/>
+					<append_to_list name="$props" exact="table[$text = $row.$text, $value = $i]"/>
+				</do_all>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+						$col = 2, $colSpan = 3,
+						$options = $props,
+						$textOverride = {357424,58},
+						$onDropDownConfirmed = md.cm90_scene_ui_model.On_Prop
+					]"/>
+			</actions>
+		</cue>
+	</cues>
+</mdscript>

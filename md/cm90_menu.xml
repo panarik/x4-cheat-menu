@@ -3,7 +3,7 @@
   Options hub. One public menu.
   Column 1 is the feature list. Columns 2-4 are the open feature.
   Clicking a feature refreshes this same menu, so the list stays.
-  This file does not draw ship rows, the wing patrol, or the station window.
+  This file does not draw ship rows, the wing patrol, the station window, or the scene button.
 -->
 <mdscript name="cm90_menu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
 	<cues>
@@ -82,11 +82,28 @@
 							$text = table[$text = {357424,14}, $halign = 'left']
 						]"/>
 				</do_else>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<do_if value="md.$cm90.$pane == 'scene'">
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 1, $onClick = On_Show_Scene,
+							$bgColor = 'Color.table_row_highlight',
+							$text = table[$text = {357424,55}, $halign = 'left']
+						]"/>
+				</do_if>
+				<do_else>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Make_Button" param="table[
+							$col = 1, $onClick = On_Show_Scene,
+							$text = table[$text = {357424,55}, $halign = 'left']
+						]"/>
+				</do_else>
 				<do_if value="md.$cm90.$pane == 'station'">
 					<signal_cue_instantly cue="md.cm90_station_ui_model.Draw"/>
 				</do_if>
 				<do_elseif value="md.$cm90.$pane == 'wing'">
 					<signal_cue_instantly cue="md.cm90_wing.Draw"/>
+				</do_elseif>
+				<do_elseif value="md.$cm90.$pane == 'scene'">
+					<signal_cue_instantly cue="md.cm90_scene_ui_model.Draw"/>
 				</do_elseif>
 				<do_else>
 					<signal_cue_instantly cue="md.cm90_ship.Draw"/>
@@ -116,6 +133,19 @@
 					<set_value name="md.$cm90" exact="table[]"/>
 				</do_if>
 				<set_value name="md.$cm90.$pane" exact="'station'"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Show_Scene" instantiate="true">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<do_if value="not md.$cm90?">
+					<set_value name="md.$cm90" exact="table[]"/>
+				</do_if>
+				<set_value name="md.$cm90.$pane" exact="'scene'"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 			</actions>
 		</cue>

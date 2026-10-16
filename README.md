@@ -2,11 +2,11 @@
 
 ## About this mod
 
-A cheat menu for X4 Foundations — a constructor for game situations. Version **1.36**, author **qadetmir**.
+A cheat menu for X4 Foundations — a constructor for game situations. Version **1.37**, author **qadetmir**.
 
 The menu reads what your install actually has loaded — the same ware library as the in-game creative constructor. Vanilla, the DLC you own, and every enabled mod. No hardcoded lists: ships, combat fleets, and stations that normally take hours of waiting appear in a few clicks.
 
-Three tools in one window: **Build Ship**, **Build Wing**, and **Spawn Stations**. Open it with ESC → Extension Options → Cheat Menu 9.0. You need a loaded save: the option is not on the title screen.
+Four tools in one window: **Build Ship**, **Build Wing**, **Spawn Stations**, and **Spawn scene**. Open it with ESC → Extension Options → Cheat Menu 9.0. You need a loaded save: the option is not on the title screen.
 
 ## Requirements and installation
 
@@ -48,6 +48,10 @@ Build a station from the module list of any race, connectors included. The stati
 5. Watch the status line: it says the station is ready to look at, or that the build was refused because the modules did not fit the plot. A short list finishes; a long list can be refused, and the connectors count toward that fit.
 
 **Planned:** choosing the station's shape and station turret loadouts, gate control, deleting existing ships and stations.
+
+### Spawn scene — place a set piece
+
+**Spawn scene** has three lists. **Landmarks** are the placed sites, and each row names the DLC it needs. **Plans** are station blueprints. **Props** are the meshes. Picking a row places that object in front of your ship. A blueprint sits 20 km ahead. A mesh sits 3 km ahead, so a small one is visible. A landmark that is only glued to its system, with no blueprint and no mesh, is not in the lists.
 
 ## Shout outs
 
