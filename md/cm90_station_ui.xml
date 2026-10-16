@@ -181,6 +181,31 @@
 					]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $halign = 'left', $fontsize = 13,
+						$text = {357424,53}
+					]"/>
+				<set_value name="$opts" exact="[]"/>
+				<do_all exact="@md.$cm90.$stui.$owners.count" counter="$i">
+					<set_value name="$own" exact="md.$cm90.$stui.$owners.{$i}"/>
+					<append_to_list name="$opts" exact="table[$text = $own.$label, $value = $own.$id]"/>
+				</do_all>
+				<set_value name="$ownertext" exact="{357424,54}"/>
+				<do_if value="@md.$cm90.$stui.$ownerlabel">
+					<set_value name="$ownertext" exact="md.$cm90.$stui.$ownerlabel"/>
+				</do_if>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Dropdown" param="table[
+						$col = 2, $colSpan = 3,
+						$options = $opts,
+						$textOverride = $ownertext,
+						$onDropDownConfirmed = md.cm90_station_ui_model.On_Owner
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
+						$col = 2, $colSpan = 3, $text = ' '
+					]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
+				<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[
 						$col = 2, $halign = 'center', $wordwrap = true,
 						$font = 'Helper.standardFontBold', $fontsize = 13,
 						$text = {357424,42}
@@ -262,9 +287,16 @@
 					]"/>
 				<do_if value="@md.$cm90_session.$station.count gt 0">
 					<do_for_each name="$row" in="md.$cm90_session.$station">
-						<set_value name="$line" exact="$row.$label + '  ' + $row.$count + '  ahead'"/>
+						<set_value name="$who" exact="@$row.$ownerlabel"/>
+						<do_if value="not $who">
+							<set_value name="$who" exact="@$row.$ownerid"/>
+						</do_if>
+						<do_if value="not $who">
+							<set_value name="$who" exact="'player'"/>
+						</do_if>
+						<set_value name="$line" exact="$row.$label + '  ' + $row.$count + '  ' + $who + '  ahead'"/>
 						<do_if value="$row.$place == 'abs'">
-							<set_value name="$line" exact="$row.$label + '  ' + $row.$count + '  X ' + $row.$xkm + ' Y ' + $row.$ykm + ' Z ' + $row.$zkm"/>
+							<set_value name="$line" exact="$row.$label + '  ' + $row.$count + '  ' + $who + '  X ' + $row.$xkm + ' Y ' + $row.$ykm + ' Z ' + $row.$zkm"/>
 						</do_if>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Add_Row" param="table[$selectable = false]"/>
 						<signal_cue_instantly cue="md.Simple_Menu_API.Make_Text" param="table[

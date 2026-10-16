@@ -73,6 +73,7 @@
 				</do_if>
 				<do_elseif value="md.$cm90.$stui.$view == 'build'">
 					<signal_cue_instantly cue="Compose_Build"/>
+					<signal_cue_instantly cue="Compose_Owners"/>
 					<set_value name="md.$cm90.$stui.$paint" exact="'build'"/>
 				</do_elseif>
 				<do_else>
@@ -391,6 +392,92 @@
 			</actions>
 		</cue>
 
+		<cue name="Compose_Owners" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<set_value name="md.$cm90.$stui.$owners" exact="[]"/>
+				<set_value name="$seen" exact="[]"/>
+				<set_value name="$kept_criminal" exact="0"/>
+				<set_value name="$skip_visitor" exact="0"/>
+				<set_value name="$skip_criminal" exact="0"/>
+				<set_value name="$skip_idle" exact="0"/>
+				<set_value name="$skip_dup" exact="0"/>
+				<set_value name="$vname" exact="@faction.visitor.knownname"/>
+				<set_value name="$cname" exact="@faction.criminal.knownname"/>
+				<do_for_each name="$f" in="lookup.faction.list">
+					<set_value name="$label" exact="@$f.knownname"/>
+					<do_if value="not $label">
+						<set_value name="$label" exact="@$f.name"/>
+					</do_if>
+					<do_if value="not $label">
+						<set_value name="$label" exact="$f.id"/>
+					</do_if>
+					<set_value name="$is_visitor" exact="0"/>
+					<do_if value="$f.id == 'visitor'">
+						<set_value name="$is_visitor" exact="1"/>
+					</do_if>
+					<do_elseif value="$vname and $label == $vname">
+						<set_value name="$is_visitor" exact="1"/>
+					</do_elseif>
+					<set_value name="$is_criminal" exact="0"/>
+					<do_if value="$f.id == 'criminal'">
+						<set_value name="$is_criminal" exact="1"/>
+					</do_if>
+					<do_elseif value="$cname and $label == $cname">
+						<set_value name="$is_criminal" exact="1"/>
+					</do_elseif>
+					<do_if value="$is_visitor">
+						<set_value name="$skip_visitor" exact="$skip_visitor + 1"/>
+					</do_if>
+					<do_elseif value="not $f.isactive and not $is_criminal">
+						<set_value name="$skip_idle" exact="$skip_idle + 1"/>
+					</do_elseif>
+					<do_elseif value="$is_criminal and $kept_criminal">
+						<set_value name="$skip_criminal" exact="$skip_criminal + 1"/>
+					</do_elseif>
+					<do_elseif value="$seen.indexof.{$f.id}">
+						<set_value name="$skip_dup" exact="$skip_dup + 1"/>
+					</do_elseif>
+					<do_else>
+						<do_if value="$is_criminal">
+							<set_value name="$kept_criminal" exact="1"/>
+						</do_if>
+						<append_to_list name="$seen" exact="$f.id"/>
+						<append_to_list name="md.$cm90.$stui.$owners" exact="table[$id = $f.id, $label = $label]"/>
+					</do_else>
+				</do_for_each>
+				<do_if value="md.$cm90.$stui.$owners.count">
+					<sort_list list="md.$cm90.$stui.$owners" sortbyvalue="loop.element.$label"/>
+				</do_if>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station owners n=' + md.$cm90.$stui.$owners.count + ' skip_visitor=' + $skip_visitor + ' skip_criminal=' + $skip_criminal + ' skip_idle=' + $skip_idle + ' skip_dup=' + $skip_dup"/>
+			</actions>
+		</cue>
+
+		<cue name="On_Owner" instantiate="true" namespace="this">
+			<conditions>
+				<event_cue_signalled/>
+			</conditions>
+			<actions>
+				<signal_cue_instantly cue="Ensure_Ui"/>
+				<set_value name="$id" exact="@event.param.$option.$value"/>
+				<set_value name="$label" exact="@event.param.$option.$text"/>
+				<do_if value="not $id">
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station owner skip empty'"/>
+				</do_if>
+				<do_else>
+					<do_if value="not $label">
+						<set_value name="$label" exact="$id"/>
+					</do_if>
+					<set_value name="md.$cm90.$stui.$ownerid" exact="$id"/>
+					<set_value name="md.$cm90.$stui.$ownerlabel" exact="$label"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH UI station owner id=' + $id + ' label=' + $label"/>
+					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
+				</do_else>
+			</actions>
+		</cue>
+
 		<cue name="On_Qty" instantiate="true" namespace="this">
 			<conditions>
 				<event_cue_signalled/>
@@ -594,6 +681,21 @@
 					<do_if value="not md.$cm90_session.$station?">
 						<set_value name="md.$cm90_session.$station" exact="[]"/>
 					</do_if>
+					<set_value name="$ownerid" exact="''"/>
+					<set_value name="$ownerlabel" exact="''"/>
+					<do_if value="md.$cm90.$stui.$ownerid?">
+						<set_value name="$ownerid" exact="md.$cm90.$stui.$ownerid"/>
+					</do_if>
+					<do_if value="md.$cm90.$stui.$ownerlabel?">
+						<set_value name="$ownerlabel" exact="md.$cm90.$stui.$ownerlabel"/>
+					</do_if>
+					<do_if value="not $ownerid">
+						<set_value name="$ownerid" exact="'player'"/>
+						<set_value name="$ownerlabel" exact="@faction.player.knownname"/>
+						<do_if value="not $ownerlabel">
+							<set_value name="$ownerlabel" exact="'player'"/>
+						</do_if>
+					</do_if>
 					<append_to_list name="md.$cm90_session.$station" exact="table[
 							$race = md.$cm90.$stui.$race,
 							$label = $label,
@@ -602,11 +704,13 @@
 							$xkm = $xkm,
 							$ykm = $ykm,
 							$zkm = $zkm,
+							$ownerid = $ownerid,
+							$ownerlabel = $ownerlabel,
 							$pk_id = $ids,
 							$pk_n = $ns,
 							$pk_obj = $objs
 						]"/>
-					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add place=' + $place + ' race=' + $label + ' count=' + $count + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' n=' + md.$cm90_session.$station.count"/>
+					<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station list add place=' + $place + ' race=' + $label + ' count=' + $count + ' owner=' + $ownerid + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' n=' + md.$cm90_session.$station.count"/>
 					<signal_cue_instantly cue="md.Simple_Menu_API.Refresh_Menu"/>
 				</do_else>
 			</actions>

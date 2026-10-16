@@ -120,7 +120,8 @@
 							$place = @$picks.$place,
 							$xkm = @$picks.$xkm,
 							$ykm = @$picks.$ykm,
-							$zkm = @$picks.$zkm
+							$zkm = @$picks.$zkm,
+							$ownerid = @$picks.$ownerid
 						]"/>
 				</do_else>
 			</actions>
@@ -151,7 +152,7 @@
 						<set_value name="$row" exact="md.$cm90.$stqueue.{md.$cm90.$stqi}"/>
 						<set_value name="md.$cm90.$stqi" exact="md.$cm90.$stqi + 1"/>
 						<set_value name="md.$cm90.$stbusy" exact="1"/>
-						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station queue row place=' + $row.$place + ' race=' + $row.$label + ' count=' + $row.$count + ' i=' + (md.$cm90.$stqi - 1)"/>
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station queue row place=' + $row.$place + ' race=' + $row.$label + ' count=' + $row.$count + ' owner=' + @$row.$ownerid + ' i=' + (md.$cm90.$stqi - 1)"/>
 						<signal_cue_instantly cue="Build" param="table[
 								$race = $row.$race,
 								$pk_id = $row.$pk_id,
@@ -160,7 +161,8 @@
 								$place = $row.$place,
 								$xkm = $row.$xkm,
 								$ykm = $row.$ykm,
-								$zkm = $row.$zkm
+								$zkm = $row.$zkm,
+								$ownerid = @$row.$ownerid
 							]"/>
 					</do_else>
 				</do_else>
@@ -366,7 +368,22 @@
 					<set_value name="$zkm" exact="event.param.$zkm"/>
 				</do_if>
 				<set_value name="$have" exact="0"/>
-				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build start place=' + $place + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship"/>
+				<set_value name="$own" exact="faction.player"/>
+				<set_value name="$ownid" exact="'player'"/>
+				<do_if value="@event.param.$ownerid and event.param.$ownerid != 'player'">
+					<set_value name="$ownhit" exact="0"/>
+					<do_for_each name="$f" in="lookup.faction.list">
+						<do_if value="$f.id == event.param.$ownerid">
+							<set_value name="$own" exact="$f"/>
+							<set_value name="$ownid" exact="$f.id"/>
+							<set_value name="$ownhit" exact="1"/>
+						</do_if>
+					</do_for_each>
+					<do_if value="not $ownhit">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station owner miss id=' + event.param.$ownerid + ' fallback=player'"/>
+					</do_if>
+				</do_if>
+				<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station build start place=' + $place + ' owner=' + $ownid + ' xkm=' + $xkm + ' ykm=' + $ykm + ' zkm=' + $zkm + ' zone=' + @player.zone + ' sector=' + @player.sector + ' ship=' + @player.ship"/>
 				<do_if value="$place == 'abs'">
 					<do_if value="not player.sector?">
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station abort: no player.sector'"/>
@@ -377,8 +394,8 @@
 						<signal_cue_instantly cue="md.cm90_station_ui_model.Set_Status" param="table[$code = 'fail', $draw = 0]"/>
 					</do_elseif>
 					<do_else>
-						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone + ' safepos=sector x=' + $xkm + ' y=' + $ykm + ' z=' + $zkm"/>
-						<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=' + $ownid + ' zone=' + @player.zone + ' safepos=sector x=' + $xkm + ' y=' + $ykm + ' z=' + $zkm"/>
+						<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="$own" state="componentstate.construction">
 							<safepos object="player.sector" x="$xkm * 1km" y="$ykm * 1km" z="$zkm * 1km"/>
 						</create_station>
 						<set_value name="$have" exact="1"/>
@@ -396,8 +413,8 @@
 					<do_else>
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'LOW Station anchor id=' + @player.ship.id + ' pos=' + @player.ship.position + ' zone=' + @player.zone"/>
 						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'MID Station place z=20km y=0km no-radius no-includeplotbox reason=center 20km, side 10km, near face 10km from the ship'"/>
-						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=player zone=' + @player.zone"/>
-						<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="faction.player" state="componentstate.construction">
+						<signal_cue_instantly cue="md.cm90_window.LogFile" param="'HIGH Station create macro=station_gen_factory_base_01 state=construction owner=' + $ownid + ' zone=' + @player.zone"/>
+						<create_station name="$station" macro="macro.station_gen_factory_base_01_macro" zone="player.zone" owner="$own" state="componentstate.construction">
 							<safepos object="player.ship" z="20km" y="0km"/>
 						</create_station>
 						<set_value name="$have" exact="1"/>
