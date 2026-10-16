@@ -50,11 +50,45 @@ local function install()
   return true
 end
 
-local function init()
+local announced = false
+local last_miss = nil
+
+local function miss_reason()
+  if type(Menus) ~= "table" then
+    return "no Menus"
+  end
+  local menu = find_options()
+  if not menu then
+    return "no OptionsMenu n=" .. tostring(#Menus)
+  end
+  if menu.cm90_fleet_hook then
+    return nil
+  end
+  if type(menu.onCloseElement) ~= "function" then
+    return "no onCloseElement"
+  end
+  return nil
+end
+
+local function on_hook()
   if install() then
-    note("distance hook ready")
-  else
-    note("distance hook miss")
+    if not announced then
+      note("distance hook ready")
+      announced = true
+    end
+    return
+  end
+  local why = miss_reason() or "unknown"
+  if why ~= last_miss then
+    last_miss = why
+    note("distance hook miss " .. why)
+  end
+end
+
+local function init()
+  on_hook()
+  if RegisterEvent then
+    RegisterEvent("CheatMenu90.FleetHook", on_hook)
   end
 end
 
